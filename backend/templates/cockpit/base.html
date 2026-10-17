@@ -1,0 +1,49 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}Cockpit - Wingu Elite Adventures{% endblock %}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'safari-brown': '#271D0F',
+                        'safari-gold': '#A38132',
+                        'safari-green': '#5E580D',
+                        'savanna': '#F7F2EA',
+                        'sunset': '#C27A2C',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased bg-[#F7F2EA] text-[#271D0F] min-h-screen">
+    <header class="bg-[#271D0F] text-[#F7F2EA]">
+        <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a href="{% url 'cockpit:dashboard' %}" class="font-semibold tracking-wide">Wingu Elite <span class="text-[#CAA867]">Cockpit</span></a>
+            <nav class="flex items-center gap-5 text-sm">
+                <a href="{% url 'cockpit:booking_list' %}" class="hover:text-[#CAA867]">Bookings</a>
+                <a href="{% url 'cockpit:contact_list' %}" class="hover:text-[#CAA867]">Messages</a>
+                <a href="{% url 'admin:index' %}" class="hover:text-[#CAA867]">Content admin</a>
+                <a href="/" class="hover:text-[#CAA867]" target="_blank" rel="noopener">View site</a>
+            </nav>
+        </div>
+    </header>
+
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 mt-4 space-y-2">
+        {% for message in messages %}
+        <div class="rounded-lg px-4 py-3 bg-[#5E580D]/10 border border-[#5E580D]/30 text-sm">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main>{% block content %}{% endblock %}</main>
+</body>
+</html>

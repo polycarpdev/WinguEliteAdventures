@@ -1,0 +1,116 @@
+
+{% extends 'cockpit/base.html' %}
+{% load static %}
+
+{% block title %}Cockpit Dashboard - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-gray-100 py-8">
+    <div class="container mx-auto px-4">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Cockpit Dashboard</h1>
+            <p class="text-gray-600">Manage your bookings and messages</p>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">New Bookings</p>
+                        <p class="text-3xl font-bold text-safari-brown">{{ new_bookings }}</p>
+                    </div>
+                    <div class="text-4xl">📋</div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">New Messages</p>
+                        <p class="text-3xl font-bold text-safari-brown">{{ new_messages }}</p>
+                    </div>
+                    <div class="text-4xl">💬</div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Bookings</p>
+                        <p class="text-3xl font-bold text-gray-800">{{ recent_bookings|length }}</p>
+                    </div>
+                    <div class="text-4xl">✈️</div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Quick Actions</p>
+                        <a href="{% url 'admin:index' %}" class="text-safari-brown hover:text-safari-gold font-semibold">Admin Panel →</a>
+                    </div>
+                    <div class="text-4xl">⚙️</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Bookings and Messages -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Recent Bookings -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Recent Bookings</h2>
+                    <a href="{% url 'cockpit:booking_list' %}" class="text-safari-brown hover:text-safari-gold font-semibold">View All →</a>
+                </div>
+                <div class="space-y-4">
+                    {% for booking in recent_bookings %}
+                    <a href="{% url 'cockpit:booking_detail' booking.pk %}" class="block p-4 border border-gray-200 rounded-lg hover:border-safari-brown transition duration-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-bold text-gray-800">{{ booking.full_name }}</p>
+                                <p class="text-sm text-gray-600">{{ booking.destination.name }}</p>
+                                <p class="text-xs text-gray-500">{{ booking.start_date }} - {{ booking.end_date }}</p>
+                            </div>
+                            <span class="px-3 py-1 text-xs rounded-full {% if booking.status == 'new' %}bg-blue-100 text-blue-800{% elif booking.status == 'confirmed' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ booking.get_status_display }}
+                            </span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-gray-500 text-center py-4">No bookings yet</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Recent Contact Messages -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Recent Messages</h2>
+                    <a href="{% url 'cockpit:contact_list' %}" class="text-safari-brown hover:text-safari-gold font-semibold">View All →</a>
+                </div>
+                <div class="space-y-4">
+                    {% for contact in recent_contacts %}
+                    <a href="{% url 'cockpit:contact_detail' contact.pk %}" class="block p-4 border border-gray-200 rounded-lg hover:border-safari-brown transition duration-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-bold text-gray-800">{{ contact.name }}</p>
+                                <p class="text-sm text-gray-600">{{ contact.subject }}</p>
+                                <p class="text-xs text-gray-500">{{ contact.created_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                            <span class="px-3 py-1 text-xs rounded-full {% if contact.status == 'new' %}bg-blue-100 text-blue-800{% elif contact.status == 'replied' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ contact.get_status_display }}
+                            </span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-gray-500 text-center py-4">No messages yet</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

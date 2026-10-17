@@ -1,0 +1,110 @@
+{% extends 'cockpit/base.html' %}
+{% load static %}
+
+{% block title %}Message Details - Cockpit - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-gray-100 py-8">
+    <div class="container mx-auto px-4">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="{% url 'cockpit:contact_list' %}" class="text-safari-brown hover:text-safari-gold mb-4 inline-block">← Back to Messages</a>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Message Details</h1>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Message Content -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ contact.subject }}</h2>
+                        <p class="text-sm text-gray-600">From: {{ contact.name }} ({{ contact.email }})</p>
+                        <p class="text-sm text-gray-600">Date: {{ contact.created_at|date:"M d, Y H:i" }}</p>
+                        {% if contact.phone %}
+                        <p class="text-sm text-gray-600">Phone: {{ contact.phone }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-3">Message:</h3>
+                        <p class="text-gray-700 whitespace-pre-line">{{ contact.message }}</p>
+                    </div>
+                </div>
+                
+                <!-- Admin Notes -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Admin Notes</h2>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_note">
+                        <textarea name="admin_notes" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown" placeholder="Add internal notes...">{{ contact.admin_notes }}</textarea>
+                        <button type="submit" class="mt-4 bg-safari-brown text-white px-6 py-2 rounded-lg hover:bg-safari-gold transition duration-300">Save Notes</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                
+                <!-- Status Update -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Update Status</h3>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_status">
+                        <select name="status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown mb-4">
+                            <option value="new" {% if contact.status == 'new' %}selected{% endif %}>New</option>
+                            <option value="read" {% if contact.status == 'read' %}selected{% endif %}>Read</option>
+                            <option value="replied" {% if contact.status == 'replied' %}selected{% endif %}>Replied</option>
+                            <option value="archived" {% if contact.status == 'archived' %}selected{% endif %}>Archived</option>
+                        </select>
+                        <button type="submit" class="w-full bg-safari-brown text-white px-6 py-2 rounded-lg hover:bg-safari-gold transition duration-300">Update Status</button>
+                    </form>
+                </div>
+                
+                <!-- Quick Info -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Info</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-sm text-gray-600">Received</p>
+                            <p class="font-semibold">{{ contact.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Last Updated</p>
+                            <p class="font-semibold">{{ contact.updated_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        {% if contact.replied_at %}
+                        <div>
+                            <p class="text-sm text-gray-600">Replied At</p>
+                            <p class="font-semibold">{{ contact.replied_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+                    <div class="space-y-3">
+                        <a href="mailto:{{ contact.email }}" class="block w-full bg-safari-brown text-white text-center px-6 py-2 rounded-lg hover:bg-safari-gold transition duration-300">
+                            Reply via Email
+                        </a>
+                        {% if contact.phone %}
+                        <a href="tel:{{ contact.phone }}" class="block w-full bg-gray-200 text-gray-800 text-center px-6 py-2 rounded-lg hover:bg-gray-300 transition duration-300">
+                            Call {{ contact.name }}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
