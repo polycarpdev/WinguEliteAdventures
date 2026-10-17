@@ -24,8 +24,13 @@ export default defineConfig({
   vite: {
     server: {
       proxy: {
+        // Same paths Apache sends to Django in production.
         '/api': API,
         '/media': API,
+        '/admin': API,
+        '/cockpit': API,
+        '/ckeditor5': API,
+        '/static': API,
       },
     },
   },

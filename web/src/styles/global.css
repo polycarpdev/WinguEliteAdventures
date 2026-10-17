@@ -65,7 +65,7 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   --gutter: 1.25rem;
-  --header-h: 4.5rem;
+  --header-h: 5rem;
   --max: 80rem;
 }
 
@@ -85,7 +85,7 @@ html {
 }
 @media (min-width: 1100px) {
   html { font-size: min(calc(100vw / 90), 22px); }
-  :root { --gutter: 3rem; }
+  :root { --gutter: 3rem; --header-h: 5.75rem; }
 }
 
 /* --- Reset --------------------------------------------------------------- */
