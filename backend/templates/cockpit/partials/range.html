@@ -1,0 +1,1 @@
+<nav class="tabs" aria-label="Date range">{% for k, label in options %}<a class="chip" href="?range={{ k }}" {% if k == range %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>

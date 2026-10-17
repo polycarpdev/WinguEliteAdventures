@@ -1,0 +1,33 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<div class="ck-head">
+  <div><h1>Analytics</h1><p>Privacy-friendly visitor stats: no cookies, no personal data. Staff visits and bots are excluded.</p></div>
+  {% include 'cockpit/partials/range.html' %}
+</div>
+
+<section class="panel stats">
+  <div class="stat"><span class="stat__label">Visitors</span><span class="stat__value">{{ traffic.visitors }}</span><span class="stat__note">{% delta traffic.visitors_delta %} vs previous period</span></div>
+  <div class="stat"><span class="stat__label">Page views</span><span class="stat__value">{{ traffic.views }}</span><span class="stat__note">{% delta traffic.views_delta %} vs previous period</span></div>
+  <div class="stat"><span class="stat__label">Pages per visitor</span><span class="stat__value">{{ traffic.per_visitor }}</span><span class="stat__note">How deep people browse</span></div>
+  <div class="stat"><span class="stat__label">Mobile share</span><span class="stat__value">{% for d in devices %}{% if d.label == 'Mobile' %}{{ d.pct }}%{% endif %}{% empty %}—{% endfor %}</span><span class="stat__note">Of all page views</span></div>
+</section>
+
+<section class="panel">
+  <div class="panel__head"><h2>Visitors per day</h2></div>
+  {% bar_chart series %}
+</section>
+
+<div class="ck-grid ck-grid--2">
+  <section class="panel"><div class="panel__head"><h2>Top pages</h2></div>{% include 'cockpit/partials/bars.html' with rows=top_pages %}</section>
+  <section class="panel"><div class="panel__head"><h2>Referrers</h2></div>{% include 'cockpit/partials/bars.html' with rows=referrers gold=1 empty="No referring websites in this period." %}</section>
+  <section class="panel"><div class="panel__head"><h2>Landing pages</h2></div>{% include 'cockpit/partials/bars.html' with rows=entry_pages %}</section>
+  <section class="panel"><div class="panel__head"><h2>Visitor regions</h2></div>{% include 'cockpit/partials/bars.html' with rows=regions gold=1 empty="No data yet. Regions come from the visitor’s time zone." %}</section>
+</div>
+
+<div class="ck-grid ck-grid--3">
+  <section class="panel"><div class="panel__head"><h2>Devices</h2></div>{% include 'cockpit/partials/split.html' with rows=devices %}</section>
+  <section class="panel"><div class="panel__head"><h2>Browsers</h2></div>{% include 'cockpit/partials/split.html' with rows=browsers %}</section>
+  <section class="panel"><div class="panel__head"><h2>Languages</h2></div>{% include 'cockpit/partials/bars.html' with rows=languages %}</section>
+</div>
+{% endblock %}

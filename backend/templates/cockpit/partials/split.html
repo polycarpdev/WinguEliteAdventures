@@ -1,0 +1,2 @@
+{% if rows %}<div class="split">{% for r in rows|slice:":4" %}<span style="width:{{ r.pct }}%" title="{{ r.label }}: {{ r.pct }}%"></span>{% endfor %}</div>
+<ul class="legend">{% for r in rows|slice:":4" %}<li style="--c:{% cycle 'var(--olive)' 'var(--gold-300)' 'var(--tan)' 'var(--muted)' %}">{{ r.label }} <strong>{{ r.pct }}%</strong></li>{% endfor %}</ul>{% else %}<p class="empty-note">No data yet.</p>{% endif %}

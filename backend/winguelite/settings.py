@@ -22,6 +22,8 @@ CORS_ALLOWED_ORIGINS = env.list(
     default=[SITE_URL, 'http://localhost:4321', 'http://127.0.0.1:4321'],
 )
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[SITE_URL])
+if DEBUG:  # Astro dev server proxies /admin and /cockpit to Django
+    CSRF_TRUSTED_ORIGINS += ['http://localhost:4321', 'http://127.0.0.1:4321']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -30,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.forms',
     'django_ckeditor_5',
     'core',
     'destinations',
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
     'contact',
     'cockpit',
     'api',
+    'analytics',
 ]
 
 MIDDLEWARE = [
@@ -65,10 +69,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'cockpit.context.cockpit',
             ],
         },
     },
 ]
+
+# Lets widget templates (cockpit/widgets/*) live in the project templates folder.
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 WSGI_APPLICATION = 'winguelite.wsgi.application'
 
@@ -85,7 +93,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-LOGIN_URL = '/admin/login/'
+LOGIN_URL = '/cockpit/login/'
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Africa/Nairobi'
@@ -94,7 +102,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# The public site's stylesheet is shared with the cockpit (served as /static/site/global.css).
+STATICFILES_DIRS = [BASE_DIR / 'static', ('site', REPO_DIR / 'web' / 'src' / 'styles')]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

@@ -1,0 +1,10 @@
+{% load cockpit %}<div class="img-field">
+  <img class="img-field__preview" src="{% if widget.value and widget.value.url %}{{ widget.value|thumb }}{% endif %}" alt="" {% if not widget.value or not widget.value.url %}hidden{% endif %}>
+  <span class="img-field__empty">{% icon 'image' %}</span>
+  <div class="img-field__controls">
+    {% if widget.is_initial %}<span>Current: <a href="{{ widget.value.url }}" target="_blank" rel="noopener">{{ widget.value.name|cut:"/"|truncatechars:40 }}</a></span>
+    {% if not widget.required %}<label class="check" style="padding:0"><input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"> Remove image</label>{% endif %}{% endif %}
+    <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+    <span class="help">JPG, PNG or WebP. Large photos are fine; the website resizes them.</span>
+  </div>
+</div>

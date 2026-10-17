@@ -1,0 +1,16 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}Delete {{ obj }}{% endblock %}
+{% block content %}
+<div class="ck-head"><div><a class="ck-back" href="{% url 'cockpit:content_edit' ct.key obj.pk %}">{% icon 'arrow-left' %} Back</a><h1>Delete “{{ obj }}”?</h1></div></div>
+<form method="post" class="panel" style="max-width:40rem;display:grid;gap:1rem">
+  {% csrf_token %}
+  <p>This removes the {{ ct.label|lower }} from the website. It can’t be undone.</p>
+  {% if affected %}
+  <div class="form-alert">This will also delete: {% for a in affected %}<strong>{{ a.count }} {{ a.label|lower }}</strong>{% if not forloop.last %}, {% endif %}{% endfor %}.</div>
+  {% endif %}
+  <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+    <button class="btn btn--danger" type="submit">{% icon 'trash' %} Yes, delete</button>
+    <a class="btn btn--outline" href="{% url 'cockpit:content_edit' ct.key obj.pk %}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}{% if obj %}Edit {{ obj }}{% else %}New {{ ct.label|lower }}{% endif %}{% endblock %}
+{% block head %}{{ media }}{% endblock %}
+{% block content %}
+<div class="ck-head">
+  <div>
+    <a class="ck-back" href="{% url 'cockpit:content_list' ct.key %}">{% icon 'arrow-left' %} {{ ct.plural }}</a>
+    <h1>{% if obj %}{{ obj }}{% else %}New {{ ct.label|lower }}{% endif %}</h1>
+    {% if ct.help and not obj %}<p>{{ ct.help }}</p>{% endif %}
+  </div>
+  {% if url %}<a class="btn btn--outline" href="{{ url }}" target="_blank" rel="noopener">{% icon 'external' %} View on website</a>{% endif %}
+</div>
+
+<form method="post" enctype="multipart/form-data" class="ck-form" data-guard novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="form-alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+
+  <section class="panel">
+    <div class="ck-form__grid">
+      {% for field in form %}
+        {% if field.field.widget.input_type == 'file' or 'ckeditor' in field.field.widget.template_name or field.field.widget.attrs.rows %}
+          {% include 'cockpit/partials/field.html' with wide=1 %}
+        {% else %}
+          {% include 'cockpit/partials/field.html' %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if ct.inline == 'days' %}
+  <section class="panel">
+    <div class="panel__head"><h2>Day-by-day itinerary</h2><span class="help">A blank day is ready below. Save to get another.</span></div>
+    {{ inline.management_form }}
+    {% if inline.non_form_errors %}<div class="form-alert">{{ inline.non_form_errors|join:" " }}</div>{% endif %}
+    <div class="days">
+      {% for f in inline %}
+      <div class="day">
+        {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+        <div class="day__head">
+          {% include 'cockpit/partials/field.html' with field=f.day_number %}
+          {% include 'cockpit/partials/field.html' with field=f.title %}
+          {% if f.instance.pk %}<label class="check" style="color:var(--danger)">{{ f.DELETE }} Remove day</label>{% endif %}
+        </div>
+        {% include 'cockpit/partials/field.html' with field=f.description %}
+        {% if f.non_field_errors %}<div class="form-alert">{{ f.non_field_errors|join:" " }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if ct.inline == 'photos' %}
+  <section class="panel">
+    <div class="panel__head"><h2>Photos</h2><span class="help">{{ inline.total_form_count }} in this album</span></div>
+    <label class="dropzone">
+      {% icon 'camera' %}
+      <strong>Drop photos here or click to choose</strong>
+      <span>Select as many as you like. They’re resized for the web automatically.</span>
+      <input type="file" name="photos" multiple accept="image/*">
+      <span class="dropzone__files"></span>
+    </label>
+    {{ upload.photos.errors }}
+    {{ inline.management_form }}
+    {% if inline.forms %}
+    <div class="photos" style="margin-top:1.25rem">
+      {% for f in inline %}
+      <div class="photo">
+        {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+        <img src="{{ f.instance.image|thumb }}" alt="" loading="lazy">
+        {{ f.caption }}
+        <label class="check">{{ f.DELETE }} Delete photo</label>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  <div class="ck-savebar">
+    <button class="btn" type="submit">{% icon 'check' %} Save</button>
+    <button class="btn btn--outline" type="submit" name="continue" value="1">Save & keep editing</button>
+    <span class="spacer"></span>
+    {% if obj %}<a class="btn btn--outline btn--sm" href="{% url 'cockpit:content_delete' ct.key obj.pk %}" style="color:var(--danger)">{% icon 'trash' %} Delete</a>{% endif %}
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}{{ m.subject }} · Message{% endblock %}
+{% block content %}
+<div class="ck-head">
+  <div>
+    <a class="ck-back" href="{% url 'cockpit:message_list' %}">{% icon 'arrow-left' %} All messages</a>
+    <h1>{{ m.subject }}</h1>
+    <p>From {{ m.name }} · {{ m.created_at|date:"j F Y, H:i" }} ({{ m.created_at|ago }})</p>
+  </div>
+  <span class="pill pill--{{ m.status|status_class }}" style="font-size:.85rem;padding:.4rem 1rem">{{ m.get_status_display }}</span>
+</div>
+<div class="ck-grid ck-grid--detail">
+  <div class="ck-grid">
+    <section class="panel"><div class="quote-box">{{ m.message }}</div></section>
+    <section class="panel">
+      <dl class="dl">
+        <div><dt>Name</dt><dd>{{ m.name }}</dd></div>
+        <div><dt>Email</dt><dd><a href="mailto:{{ m.email }}">{{ m.email }}</a></dd></div>
+        <div><dt>Phone</dt><dd>{% if m.phone %}<a href="tel:{{ m.phone }}">{{ m.phone }}</a>{% else %}—{% endif %}</dd></div>
+      </dl>
+      {% if bookings %}<p class="help" style="margin-top:1rem">Bookings from this email: {% for b in bookings %}<a href="{% url 'cockpit:booking_detail' b.pk %}">#{{ b.pk }} {{ b.destination|default_if_none:'Custom safari' }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+    </section>
+  </div>
+  <div class="ck-grid">
+    <section class="panel quick">
+      <a class="btn btn--block" href="mailto:{{ m.email }}?subject={{ 'Re: '|add:m.subject|urlencode }}">{% icon 'mail' %} Reply by email</a>
+    </section>
+    <form class="panel ck-form" method="post">
+      {% csrf_token %}
+      <div class="panel__head" style="margin:0"><h2>Status & notes</h2></div>
+      <div class="field"><label for="id_status">Status</label><select class="input" name="status" id="id_status">{% for v, l in form.fields.status.choices %}<option value="{{ v }}" {% if v == m.status %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="id_admin_notes">Internal notes</label><textarea class="input" name="admin_notes" id="id_admin_notes" rows="6">{{ m.admin_notes }}</textarea></div>
+      <button class="btn btn--block" type="submit">Save</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

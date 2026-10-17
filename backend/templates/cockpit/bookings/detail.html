@@ -1,0 +1,67 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}{{ b.full_name }} · Booking{% endblock %}
+{% block content %}
+<div class="ck-head">
+  <div>
+    <a class="ck-back" href="{% url 'cockpit:booking_list' %}">{% icon 'arrow-left' %} All bookings</a>
+    <h1>{{ b.full_name }}</h1>
+    <p>Booking #{{ b.pk }} · received {{ b.created_at|date:"j F Y, H:i" }} ({{ b.created_at|ago }})</p>
+  </div>
+  <span class="pill pill--{{ b.status|status_class }}" style="font-size:.85rem;padding:.4rem 1rem">{{ b.get_status_display }}</span>
+</div>
+
+<div class="ck-grid ck-grid--detail">
+  <div class="ck-grid">
+    <section class="panel">
+      <div class="panel__head"><h2>Trip</h2>{% if b.itinerary %}<a href="/itineraries/{{ b.itinerary.slug }}/" target="_blank" rel="noopener">View package →</a>{% endif %}</div>
+      <dl class="dl">
+        <div><dt>Destination</dt><dd>{{ b.destination|default:"—" }}</dd></div>
+        <div><dt>Package</dt><dd>{{ b.itinerary|default:"Custom safari" }}</dd></div>
+        <div><dt>Arrival</dt><dd>{{ b.start_date|date:"D j M Y" }}</dd></div>
+        <div><dt>Departure</dt><dd>{{ b.end_date|date:"D j M Y" }}{% if nights is not None %} <span class="muted">({{ nights }} night{{ nights|pluralize }})</span>{% endif %}</dd></div>
+        <div><dt>Travellers</dt><dd>{{ b.adults }} adult{{ b.adults|pluralize }}, {{ b.children }} child{{ b.children|pluralize:"ren" }}</dd></div>
+        <div><dt>Accommodation</dt><dd>{{ b.get_accommodation_preference_display }}</dd></div>
+        {% if b.itinerary %}<div><dt>Est. value</dt><dd>{{ b.itinerary.price_from|money }}{% if b.adults > 1 %} × {{ b.adults }}{% endif %}</dd></div>{% endif %}
+        <div><dt>Found us via</dt><dd>{{ b.how_did_you_hear|default:"—" }}</dd></div>
+      </dl>
+    </section>
+    <section class="panel">
+      <div class="panel__head"><h2>Special requests</h2></div>
+      {% if b.special_requests %}<div class="quote-box">{{ b.special_requests }}</div>{% else %}<p class="empty-note">None.</p>{% endif %}
+    </section>
+    <section class="panel">
+      <div class="panel__head"><h2>Guest</h2></div>
+      <dl class="dl">
+        <div><dt>Email</dt><dd><a href="mailto:{{ b.email }}">{{ b.email }}</a></dd></div>
+        <div><dt>Phone</dt><dd><a href="tel:{{ b.phone }}">{{ b.phone }}</a></dd></div>
+        <div><dt>Country</dt><dd>{{ b.country }}</dd></div>
+      </dl>
+      {% if others %}<p class="help" style="margin-top:1rem">Also requested: {% for o in others %}<a href="{% url 'cockpit:booking_detail' o.pk %}">#{{ o.pk }} {{ o.destination|default_if_none:'Custom safari' }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+    </section>
+  </div>
+
+  <div class="ck-grid">
+    <section class="panel quick">
+      <div class="panel__head"><h2>Reply</h2></div>
+      <a class="btn btn--block" href="mailto:{{ b.email }}?subject={{ 'Your Wingu Elite safari request'|urlencode }}&body={{ 'Hi '|add:b.full_name|add:','|urlencode }}">{% icon 'mail' %} Email {{ b.full_name|truncatewords:1 }}</a>
+      {% if whatsapp %}<a class="btn btn--outline btn--block" href="https://wa.me/{{ whatsapp }}" target="_blank" rel="noopener">{% icon 'whatsapp' %} WhatsApp</a>{% endif %}
+      <a class="btn btn--outline btn--block" href="tel:{{ b.phone }}">{% icon 'phone' %} Call</a>
+    </section>
+    <form class="panel ck-form" method="post">
+      {% csrf_token %}
+      <div class="panel__head" style="margin:0"><h2>Status & notes</h2></div>
+      <div class="field"><label for="id_status">Status</label><select class="input" name="status" id="id_status">{% for v, l in form.fields.status.choices %}<option value="{{ v }}" {% if v == b.status %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="id_admin_notes">Internal notes</label><textarea class="input" name="admin_notes" id="id_admin_notes" rows="6" placeholder="Only visible to staff">{{ b.admin_notes }}</textarea></div>
+      <button class="btn btn--block" type="submit">Save</button>
+    </form>
+    <section class="panel">
+      <div class="panel__head"><h2>History</h2></div>
+      <ul class="timeline-mini">
+        <li>Received <span>{{ b.created_at|date:"j M, H:i" }}</span></li>
+        {% if b.replied_at %}<li>First reply <span>{{ b.replied_at|date:"j M, H:i" }}</span></li>{% endif %}
+        <li>Last update <span>{{ b.updated_at|date:"j M, H:i" }}</span></li>
+      </ul>
+    </section>
+  </div>
+</div>
+{% endblock %}

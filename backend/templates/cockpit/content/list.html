@@ -1,0 +1,48 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}{{ ct.plural }}{% endblock %}
+{% block content %}
+<div class="ck-head">
+  <div><h1>{{ ct.plural }}</h1>{% if ct.help %}<p>{{ ct.help }}</p>{% endif %}</div>
+  <a class="btn" href="{% url 'cockpit:content_add' ct.key %}">{% icon 'plus' %} Add {{ ct.label|lower }}</a>
+</div>
+<div class="ck-toolbar">
+  {% if ct.search %}<form class="ck-search" role="search">{% icon 'search' %}<input class="input" type="search" name="q" value="{{ q }}" placeholder="Search {{ ct.plural|lower }}…">{% for k, v in active.items %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}</form>{% endif %}
+  {% for param, f in ct.filters.items %}
+  <nav class="tabs">
+    <a class="chip" href="?{% if q %}q={{ q|urlencode }}{% endif %}" {% if param not in active %}aria-current="page"{% endif %}>All</a>
+    {% for v, label in f.1 %}<a class="chip" href="?{{ param }}={{ v }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% for k, av in active.items %}{% if k == param and av == v|stringformat:'s' %}aria-current="page"{% endif %}{% endfor %}>{{ label }}</a>{% endfor %}
+  </nav>
+  {% endfor %}
+</div>
+<section class="panel panel--flush">
+  {% if rows %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr>{% if ct.image %}<th></th>{% endif %}{% for h in headers %}<th>{{ h }}</th>{% endfor %}<th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        {% if ct.image %}<td style="width:4.5rem">{% if r.image %}<img class="thumb" src="{{ r.image|thumb }}" alt="" loading="lazy">{% else %}<span class="thumb--empty">{% icon 'image' %}</span>{% endif %}</td>{% endif %}
+        {% for c in r.cells %}
+          <td>{% if forloop.first %}<a class="row-link" href="{% url 'cockpit:content_edit' ct.key r.obj.pk %}">{{ c }}</a>
+          {% elif c|is_bool %}{% if c %}<span class="yes">{% icon 'check' %}</span>{% else %}<span class="no">—</span>{% endif %}
+          {% elif c.year %}{{ c|date:"j M Y" }}
+          {% else %}{{ c|default:"—" }}{% endif %}</td>
+        {% endfor %}
+        <td class="actions">
+          {% if r.url %}<a class="icon-btn" href="{{ r.url }}" target="_blank" rel="noopener" title="View on website">{% icon 'external' %}</a>{% endif %}
+          <a class="icon-btn" href="{% url 'cockpit:content_edit' ct.key r.obj.pk %}" title="Edit">{% icon 'edit' %}</a>
+          <a class="icon-btn" href="{% url 'cockpit:content_delete' ct.key r.obj.pk %}" title="Delete">{% icon 'trash' %}</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% include 'cockpit/partials/pager.html' %}
+  {% else %}
+  <div class="empty-note" style="padding:2rem 1.5rem;display:grid;gap:1rem;justify-items:start">
+    {% if q or active %}Nothing matches your search.{% else %}No {{ ct.plural|lower }} yet.{% endif %}
+    <a class="btn" href="{% url 'cockpit:content_add' ct.key %}">{% icon 'plus' %} Add the first one</a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

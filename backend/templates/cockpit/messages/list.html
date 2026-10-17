@@ -1,0 +1,27 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+<div class="ck-head"><div><h1>Messages</h1><p>Questions sent through the contact form.</p></div></div>
+<div class="ck-toolbar">
+  <form class="ck-search" role="search">{% icon 'search' %}<input class="input" type="search" name="q" value="{{ q }}" placeholder="Search name, email, subject…">{% if request.GET.status %}<input type="hidden" name="status" value="{{ request.GET.status }}">{% endif %}</form>
+  <nav class="tabs" aria-label="Status">{% for t in tabs %}<a class="chip" href="?status={{ t.value }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if t.active %}aria-current="page"{% endif %}>{{ t.label }} <em>{{ t.count }}</em></a>{% endfor %}</nav>
+</div>
+<section class="panel panel--flush">
+  {% if page.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>From</th><th>Subject</th><th>Status</th><th class="num">Received</th></tr></thead>
+    <tbody>
+    {% for m in page %}
+      <tr class="{% if m.status == 'new' %}is-new{% endif %}">
+        <td><a class="row-link" href="{% url 'cockpit:message_detail' m.pk %}">{{ m.name }}</a><span class="sub">{{ m.email }}</span></td>
+        <td>{{ m.subject|truncatechars:60 }}<span class="sub">{{ m.message|truncatechars:80 }}</span></td>
+        <td><span class="pill pill--{{ m.status|status_class }}">{{ m.get_status_display }}</span></td>
+        <td class="num"><span class="sub">{{ m.created_at|date:"j M, H:i" }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% include 'cockpit/partials/pager.html' %}
+  {% else %}<p class="empty-note" style="padding:1.5rem">No messages match.</p>{% endif %}
+</section>
+{% endblock %}

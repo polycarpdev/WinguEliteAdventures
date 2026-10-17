@@ -198,7 +198,7 @@ def _contact(data):
     _notify(
         f'New message: {m.subject}',
         f'From: {m.name} <{m.email}>\nPhone: {m.phone or "-"}\n\n{m.message}\n\n'
-        f'Open in cockpit: {settings.SITE_URL}/cockpit/contacts/{m.pk}/',
+        f'Open in cockpit: {settings.SITE_URL}/cockpit/messages/{m.pk}/',
         reply_to=m.email,
     )
     return {'id': m.pk}

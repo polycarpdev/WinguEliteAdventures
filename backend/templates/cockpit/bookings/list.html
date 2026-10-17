@@ -1,0 +1,32 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}Bookings{% endblock %}
+{% block content %}
+<div class="ck-head">
+  <div><h1>Booking requests</h1><p>Safari requests from the website. New ones are highlighted.</p></div>
+  <a class="btn btn--outline" href="{% url 'cockpit:bookings_csv' %}{% querystring page=None %}" data-reload="1">{% icon 'download' %} Export CSV</a>
+</div>
+<div class="ck-toolbar">
+  <form class="ck-search" role="search">{% icon 'search' %}<input class="input" type="search" name="q" value="{{ q }}" placeholder="Search name, email, country…">{% if request.GET.status %}<input type="hidden" name="status" value="{{ request.GET.status }}">{% endif %}</form>
+  <nav class="tabs" aria-label="Status">{% for t in tabs %}<a class="chip" href="?status={{ t.value }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if t.active %}aria-current="page"{% endif %}>{{ t.label }} <em>{{ t.count }}</em></a>{% endfor %}</nav>
+</div>
+<section class="panel panel--flush">
+  {% if page.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Guest</th><th>Trip</th><th>Dates</th><th>Travellers</th><th>Status</th><th class="num">Received</th></tr></thead>
+    <tbody>
+    {% for b in page %}
+      <tr class="{% if b.status == 'new' %}is-new{% endif %}">
+        <td><a class="row-link" href="{% url 'cockpit:booking_detail' b.pk %}">{{ b.full_name }}</a><span class="sub">{{ b.country }} · {{ b.email }}</span></td>
+        <td>{{ b.itinerary|default:"Custom safari" }}<span class="sub">{{ b.destination|default_if_none:"" }}</span></td>
+        <td>{{ b.start_date|date:"j M Y" }}<span class="sub">to {{ b.end_date|date:"j M" }}</span></td>
+        <td>{{ b.adults }} adult{{ b.adults|pluralize }}{% if b.children %}, {{ b.children }} child{{ b.children|pluralize:"ren" }}{% endif %}</td>
+        <td><span class="pill pill--{{ b.status|status_class }}">{{ b.get_status_display }}</span></td>
+        <td class="num"><span class="sub">{{ b.created_at|date:"j M, H:i" }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% include 'cockpit/partials/pager.html' %}
+  {% else %}<p class="empty-note" style="padding:1.5rem">No bookings match.</p>{% endif %}
+</section>
+{% endblock %}

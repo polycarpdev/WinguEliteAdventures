@@ -48,6 +48,25 @@ const { overlayHeader = false, preloadImage, ...seo } = Astro.props;
     </style>
 
     <script>
+      // Cookie-less page-view beacon for the cockpit analytics. After a client-side
+      // navigation document.referrer is stale, so the previous URL is tracked instead.
+      let previous = document.referrer;
+      document.addEventListener('astro:page-load', () => {
+        if (navigator.webdriver) return;
+        const body = JSON.stringify({
+          p: location.pathname,
+          r: previous,
+          tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          l: navigator.language,
+        });
+        previous = location.href;
+        try {
+          navigator.sendBeacon('/api/hit/', new Blob([body], { type: 'text/plain' }));
+        } catch {}
+      });
+    </script>
+
+    <script>
       // Reveal-on-scroll: cheap IntersectionObserver, re-armed after each client-side navigation.
       let io: IntersectionObserver | undefined;
       document.addEventListener('astro:page-load', () => {

@@ -22,6 +22,22 @@ Navigation is instant after the first load (`<ClientRouter />` + viewport prefet
 Sizes are in `rem` with a viewport-proportional root size from 1100px up, so laptops at
 100/125/150% zoom see the same layout.
 
+## Cockpit (staff area)
+
+`/cockpit/` on the live domain (locally: `localhost:4321/cockpit/` with both dev servers running).
+Staff accounts need **Staff status**; create the first with `manage.py createsuperuser`.
+
+- **Dashboard:** visitors, bookings, pipeline value, upcoming trips, latest enquiries
+- **Analytics:** cookie-less page views from the public site (`/api/hit/`), no consent banner needed
+- **Reports:** bookings per month, status funnel, destinations, packages, lead sources, CSV export
+- **Bookings / Messages:** search, status workflow, internal notes, one-click email/WhatsApp/call
+- **Website content:** safaris (with day-by-day itinerary), destinations, blog, gallery
+  (multi-photo upload), testimonials, team, FAQs. Saving publishes within ~5 minutes.
+
+Same stylesheet as the public site (`web/src/styles/global.css` served as `/static/site/global.css`)
+plus `backend/static/cockpit/`. Navigation is instant (prefetch + DOM swap in `cockpit.js`).
+`/admin/` remains for superusers (users & permissions).
+
 ## Local development
 
 ```bash
@@ -35,7 +51,7 @@ cd web && npm ci && npm run dev                         # :4321 (proxies /api an
 # Django on another port?  API_ORIGIN=http://127.0.0.1:8001 npm run dev
 ```
 
-Tests: `venv/bin/python backend/manage.py test api`
+Tests: `venv/bin/python backend/manage.py test api cockpit`
 
 ## Dependency rules (shared hosting)
 

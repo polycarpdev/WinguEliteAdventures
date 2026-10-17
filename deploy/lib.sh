@@ -68,5 +68,6 @@ build_site() {
     dist.new/ "$DOCROOT/"
   $LOW rsync -a --delete-after dist.new/_astro/ "$DOCROOT/_astro/"
   rm -rf dist && mv dist.new dist
+  date +%s > "$VAR/last_build"
   log "Site published"
 }
