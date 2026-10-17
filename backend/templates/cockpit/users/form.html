@@ -1,0 +1,14 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}{% if obj %}{{ obj.username }}{% else %}New user{% endif %}{% endblock %}
+{% block content %}
+<div class="ck-head"><div><a class="ck-back" href="{% url 'cockpit:users' %}">{% icon 'arrow-left' %} Users</a><h1>{% if obj %}{{ obj.get_full_name|default:obj.username }}{% else %}New user{% endif %}</h1></div></div>
+<form method="post" class="panel ck-form" style="max-width:48rem" autocomplete="off">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="form-alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  <div class="ck-form__grid">
+    {% for field in form %}{% include 'cockpit/partials/field.html' %}{% endfor %}
+  </div>
+  <p class="help">To remove someone’s access, untick “Can sign in”. Their history stays intact.</p>
+  <div><button class="btn" type="submit">{% icon 'check' %} Save user</button></div>
+</form>
+{% endblock %}

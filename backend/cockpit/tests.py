@@ -165,3 +165,49 @@ class BeaconTests(TestCase):
         self.client.force_login(User.objects.create_user('s', is_staff=True))
         self.hit({'p': '/'})
         self.assertEqual(PageView.objects.count(), 0)
+
+
+@override_settings(ALLOWED_HOSTS=['testserver'], PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
+class SecurityTests(TestCase):
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+        self.boss = User.objects.create_user('boss', email='b@x.co', password='Boss-pass-2026!', is_staff=True, is_superuser=True)
+        self.staff = User.objects.create_user('staff', email='s@x.co', password='Staff-pass-2026!', is_staff=True)
+
+    def test_django_admin_is_gone(self):
+        for url in ['/admin/', '/admin/login/', '/admin/auth/user/']:
+            self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_login_lockout_after_five_failures(self):
+        for _ in range(5):
+            self.client.post('/cockpit/login/', {'username': 'staff', 'password': 'wrong'})
+        r = self.client.post('/cockpit/login/', {'username': 'staff', 'password': 'Staff-pass-2026!'})
+        self.assertContains(r, 'Too many failed attempts')
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_users_page_superuser_only(self):
+        self.client.force_login(self.staff)
+        self.assertEqual(self.client.get('/cockpit/users/').status_code, 403)
+        self.client.force_login(self.boss)
+        self.assertEqual(self.client.get('/cockpit/users/').status_code, 200)
+
+    def test_create_staff_user(self):
+        self.client.force_login(self.boss)
+        r = self.client.post('/cockpit/users/new/', {'username': 'amina', 'first_name': 'Amina', 'email': 'a@x.co',
+                                                     'is_active': 'on', 'password': 'Safari-Mara-2026!'})
+        self.assertRedirects(r, '/cockpit/users/', fetch_redirect_response=False)
+        u = User.objects.get(username='amina')
+        self.assertTrue(u.is_staff and u.check_password('Safari-Mara-2026!') and not u.is_superuser)
+
+    def test_cannot_lock_yourself_out(self):
+        self.client.force_login(self.boss)
+        r = self.client.post(f'/cockpit/users/{self.boss.pk}/', {'username': 'boss', 'email': 'b@x.co', 'is_active': 'on'})
+        self.assertContains(r, 'remove your own access')
+
+    def test_change_own_password(self):
+        self.client.force_login(self.staff)
+        r = self.client.post('/cockpit/account/', {'new_password1': 'Another-pass-2026!', 'new_password2': 'Another-pass-2026!'})
+        self.assertRedirects(r, '/cockpit/account/', fetch_redirect_response=False)
+        self.staff.refresh_from_db()
+        self.assertTrue(self.staff.check_password('Another-pass-2026!'))

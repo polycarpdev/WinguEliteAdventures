@@ -2,7 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 
 from .forms import StaffAuthenticationForm
-from .views import content, enquiries, overview
+from .views import content, enquiries, overview, users
 
 app_name = 'cockpit'
 
@@ -24,6 +24,11 @@ urlpatterns = [
     # old URLs from the first cockpit
     path('contacts/', enquiries.message_list, name='contact_list'),
     path('contacts/<int:pk>/', enquiries.message_detail, name='contact_detail'),
+
+    path('account/', users.account, name='account'),
+    path('users/', users.user_list, name='users'),
+    path('users/new/', users.user_edit, name='user_add'),
+    path('users/<int:pk>/', users.user_edit, name='user_edit'),
 
     path('content/<slug:key>/', content.content_list, name='content_list'),
     path('content/<slug:key>/new/', content.content_edit, name='content_add'),

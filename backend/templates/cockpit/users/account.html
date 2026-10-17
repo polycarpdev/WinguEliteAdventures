@@ -1,0 +1,11 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}My account{% endblock %}
+{% block content %}
+<div class="ck-head"><div><h1>My account</h1><p>Signed in as <strong>{{ request.user.username }}</strong>{% if request.user.email %} · {{ request.user.email }}{% endif %}.</p></div></div>
+<form method="post" class="panel ck-form" style="max-width:32rem">
+  {% csrf_token %}
+  <h2 class="h3">Change password</h2>
+  {% for field in form %}{% include 'cockpit/partials/field.html' %}{% endfor %}
+  <div><button class="btn" type="submit">{% icon 'check' %} Update password</button></div>
+</form>
+{% endblock %}

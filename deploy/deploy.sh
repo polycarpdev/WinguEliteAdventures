@@ -17,6 +17,7 @@ deploy() {
 
   log "Migrating database"
   $LOW "$PYTHON" backend/manage.py migrate --noinput
+  $LOW "$PYTHON" backend/manage.py createcachetable
   log "Collecting admin/cockpit static files"
   $LOW "$PYTHON" backend/manage.py collectstatic --noinput --verbosity 0
 

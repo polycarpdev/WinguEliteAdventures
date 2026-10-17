@@ -1,0 +1,24 @@
+{% extends 'cockpit/base.html' %}{% load cockpit %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="ck-head">
+  <div><h1>Users</h1><p>People who can sign in to the cockpit. Only users who can manage users see this page.</p></div>
+  <a class="btn" href="{% url 'cockpit:user_add' %}">{% icon 'plus' %} Add user</a>
+</div>
+<section class="panel panel--flush">
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th class="num">Last sign-in</th></tr></thead>
+    <tbody>
+    {% for u in users %}
+      <tr>
+        <td><a class="row-link" href="{% url 'cockpit:user_edit' u.pk %}">{{ u.get_full_name|default:u.username }}</a><span class="sub">{{ u.username }}{% if u == request.user %} · you{% endif %}</span></td>
+        <td>{{ u.email|default:"—" }}</td>
+        <td>{% if u.is_superuser %}Manager{% else %}Staff{% endif %}</td>
+        <td>{% if u.is_active %}<span class="pill pill--ok">Active</span>{% else %}<span class="pill pill--muted">Disabled</span>{% endif %}</td>
+        <td class="num"><span class="sub">{{ u.last_login|ago|default:"Never" }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% endblock %}

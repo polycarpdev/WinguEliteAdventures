@@ -86,6 +86,12 @@ DATABASES = {
 }
 DATABASES['default']['CONN_MAX_AGE'] = env.int('DB_CONN_MAX_AGE', default=60)
 
+# Database-backed cache so login lockouts and form rate limits are shared by all
+# Passenger worker processes (run `manage.py createcachetable` once; deploy.sh does).
+CACHES = {
+    'default': {'BACKEND': 'django.core.cache.backends.db.DatabaseCache', 'LOCATION': 'django_cache'},
+}
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},

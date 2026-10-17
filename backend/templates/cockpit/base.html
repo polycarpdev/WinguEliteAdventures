@@ -50,7 +50,8 @@
     <div class="ck-nav ck-side__foot">
       <ul>
         <li><a href="/" target="_blank" rel="noopener">{% icon 'external' %} View website</a></li>
-        {% if request.user.is_superuser %}<li><a href="/admin/" data-reload="1">{% icon 'settings' %} Users & advanced</a></li>{% endif %}
+        <li><a href="{% url 'cockpit:account' %}" {% if '/account/' in request.path %}aria-current="page"{% endif %}>{% icon 'settings' %} My account</a></li>
+        {% if request.user.is_superuser %}<li><a href="{% url 'cockpit:users' %}" {% if '/users/' in request.path %}aria-current="page"{% endif %}>{% icon 'users' %} Users</a></li>{% endif %}
       </ul>
     </div>
   </aside>
