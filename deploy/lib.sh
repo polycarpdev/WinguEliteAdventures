@@ -41,6 +41,20 @@ changed() { # changed <file> <stamp-name>
 }
 mark_done() { mv "$VAR/$1.new" "$VAR/$1"; }
 
+# Merge our rules into the docroot .htaccess, keeping cPanel's Passenger and
+# env blocks intact (cPanel rewrites those when the Python app is edited).
+install_htaccess() {
+  local target="$DOCROOT/.htaccess" tmp
+  tmp="$(mktemp)"
+  cat "$APP_DIR/deploy/htaccess" > "$tmp"
+  echo >> "$tmp"
+  if [ -f "$target" ]; then
+    sed '/^# BEGIN WINGU/,/^# END WINGU/d' "$target" >> "$tmp"
+  fi
+  mv "$tmp" "$target"
+  chmod 644 "$target"
+}
+
 build_site() {
   log "Exporting content from Django"
   rm -f "$VAR/rebuild.flag"   # edits made during the build re-set it
@@ -63,11 +77,12 @@ build_site() {
   # visitor never gets a page whose CSS/JS isn't there yet.
   $LOW rsync -a dist.new/_astro/ "$DOCROOT/_astro/"
   $LOW rsync -a --delete-after \
-    --exclude='.htaccess' --exclude='media' --exclude='static' \
-    --exclude='.well-known' --exclude='cgi-bin' --exclude='_astro/' \
+    --exclude='/.htaccess' --exclude='/.htaccess.bak*' --exclude='/media' --exclude='/static' \
+    --exclude='/.well-known' --exclude='/cgi-bin' --exclude='/_astro/' \
     dist.new/ "$DOCROOT/"
   $LOW rsync -a --delete-after dist.new/_astro/ "$DOCROOT/_astro/"
   rm -rf dist && mv dist.new dist
+  install_htaccess
   date +%s > "$VAR/last_build"
   log "Site published"
 }

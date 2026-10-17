@@ -26,7 +26,6 @@ deploy() {
   # Apache serves media and Django's static files straight from disk.
   ln -sfn "$BACKEND/media" "$DOCROOT/media"
   ln -sfn "$BACKEND/staticfiles" "$DOCROOT/static"
-  sed -e "s#__APP_DIR__#$APP_DIR#g" -e "s#__PYTHON__#$PYTHON#g" "$APP_DIR/deploy/htaccess" > "$DOCROOT/.htaccess"
 
   # Restart the Django (Passenger) app.
   mkdir -p "$BACKEND/tmp" && touch "$BACKEND/tmp/restart.txt"

@@ -1,15 +1,15 @@
 # Copy to deploy/config.sh on the server and adjust. (config.sh is git-ignored.)
 
-# Absolute path of this git checkout on the server.
+# This git checkout on the server.
 APP_DIR="$HOME/winguelite"
 
-# Apache document root of the domain (cPanel > Domains). The static site is synced here.
+# The domain's document root. Only the built static site lives here.
 DOCROOT="$HOME/wingueliteadventures.co.ke"
 
-# Python virtualenv made by cPanel "Setup Python App" (app root: $APP_DIR/backend).
+# Python of the cPanel "Setup Python App" virtualenv (app root: winguelite/backend).
 PYTHON="$HOME/virtualenv/winguelite/backend/3.13/bin/python"
 
-# Node made by cPanel "Setup Node.js App" (Node >= 22.12). Only used to build.
-NODE_BIN_DIR="$HOME/nodevenv/winguelite/web/22/bin"
+# Node >= 22.12 for the build. CloudLinux ships it here; no Node app needed.
+NODE_BIN_DIR="/opt/alt/alt-nodejs22/root/usr/bin"
 
 BRANCH="main"
