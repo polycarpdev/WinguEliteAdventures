@@ -85,6 +85,21 @@ DATABASES = {
     'default': env.db('DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
 }
 DATABASES['default']['CONN_MAX_AGE'] = env.int('DB_CONN_MAX_AGE', default=60)
+if DATABASES['default']['ENGINE'].endswith('sqlite3'):
+    # Production-grade SQLite: WAL lets reads run during writes, IMMEDIATE
+    # transactions + busy timeout make concurrent writers queue instead of failing.
+    DATABASES['default']['OPTIONS'] = {
+        'transaction_mode': 'IMMEDIATE',
+        'timeout': 20,
+        'init_command': (
+            'PRAGMA journal_mode=WAL;'
+            'PRAGMA synchronous=NORMAL;'
+            'PRAGMA busy_timeout=20000;'
+            'PRAGMA foreign_keys=ON;'
+            'PRAGMA temp_store=MEMORY;'
+            'PRAGMA cache_size=-20000;'
+        ),
+    }
 
 # Database-backed cache so login lockouts and form rate limits are shared by all
 # Passenger worker processes (run `manage.py createcachetable` once; deploy.sh does).
