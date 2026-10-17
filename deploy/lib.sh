@@ -27,9 +27,13 @@ command -v ionice >/dev/null 2>&1 && LOW="$LOW ionice -c3"
 log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 
 # Run "$@" while holding an exclusive lock; skip (exit 0) if another run is active.
+# mkdir is atomic and needs no extra tools (CloudLinux CageFS lacks flock/rsync).
+LOCK_DIR="$VAR/build.lock.d"
 with_lock() {
-  exec 9>"$VAR/build.lock"
-  if ! flock -n 9; then log "Another deploy/build is running; skipping."; exit 0; fi
+  # A lock older than 30 minutes is from a crashed run.
+  if [ -d "$LOCK_DIR" ] && [ -n "$(find "$LOCK_DIR" -maxdepth 0 -mmin +30 2>/dev/null)" ]; then rmdir "$LOCK_DIR"; fi
+  if ! mkdir "$LOCK_DIR" 2>/dev/null; then log "Another deploy/build is running; skipping."; exit 0; fi
+  trap 'rmdir "$LOCK_DIR" 2>/dev/null' EXIT
   "$@"
 }
 
@@ -55,6 +59,20 @@ install_htaccess() {
   chmod 644 "$target"
 }
 
+# Copy the new build over the docroot, then delete files the build no longer has.
+# New fingerprinted assets land first, so no page ever points at a missing file.
+# Server-managed paths (.htaccess, media, static, .well-known, cgi-bin) are kept.
+publish() {
+  local src="$1" dest="$2" listn="$VAR/publish.new" listo="$VAR/publish.old"
+  if [ -d "$src/_astro" ]; then mkdir -p "$dest/_astro" && cp -a "$src/_astro/." "$dest/_astro/"; fi
+  cp -a "$src/." "$dest/"
+  (cd "$src" && find . -mindepth 1 | sort) > "$listn"
+  (cd "$dest" && find . -mindepth 1 \( -path ./media -o -path ./static -o -path ./.well-known \
+      -o -path ./cgi-bin -o -path './.htaccess*' \) -prune -o -print | sort) > "$listo"
+  comm -13 "$listn" "$listo" | sort -r | while IFS= read -r p; do rm -rf -- "$dest/${p#./}"; done
+  rm -f "$listn" "$listo"
+}
+
 build_site() {
   log "Exporting content from Django"
   rm -f "$VAR/rebuild.flag"   # edits made during the build re-set it
@@ -73,14 +91,7 @@ build_site() {
 
   log "Publishing to $DOCROOT"
   mkdir -p "$DOCROOT"
-  # Copy fingerprinted assets first, then pages, then delete stale files, so a
-  # visitor never gets a page whose CSS/JS isn't there yet.
-  $LOW rsync -a dist.new/_astro/ "$DOCROOT/_astro/"
-  $LOW rsync -a --delete-after \
-    --exclude='/.htaccess' --exclude='/.htaccess.bak*' --exclude='/media' --exclude='/static' \
-    --exclude='/.well-known' --exclude='/cgi-bin' --exclude='/_astro/' \
-    dist.new/ "$DOCROOT/"
-  $LOW rsync -a --delete-after dist.new/_astro/ "$DOCROOT/_astro/"
+  publish dist.new "$DOCROOT"
   rm -rf dist && mv dist.new dist
   install_htaccess
   date +%s > "$VAR/last_build"
