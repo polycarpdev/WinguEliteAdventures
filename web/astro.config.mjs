@@ -22,6 +22,29 @@ export default defineConfig({
   image: { service: passthroughImageService() },
   devToolbar: { enabled: false },
   vite: {
+    plugins: [
+      {
+        // Dev only: add the trailing slash with a redirect (/cockpit -> /cockpit/,
+        // /about -> /about/), as Apache and Django do in production. Registered in a
+        // late hook so it runs before Astro's own check, which would 404 instead.
+        name: 'trailing-slash-redirect',
+        enforce: 'post',
+        configureServer(server) {
+          return () => {
+            server.middlewares.stack.unshift({
+              route: '',
+              handle(req, res, next) {
+                const [path, query = ''] = (req.url ?? '').split('?');
+                if (path.endsWith('/') || /\.[a-z0-9]+$/i.test(path) || path.startsWith('/@') || path.startsWith('/_')) return next();
+                res.statusCode = 301;
+                res.setHeader('Location', `${path}/${query ? `?${query}` : ''}`);
+                res.end();
+              },
+            });
+          };
+        },
+      },
+    ],
     server: {
       proxy: {
         // Same paths Apache sends to Django in production.
