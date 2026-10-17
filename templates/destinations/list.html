@@ -1,0 +1,44 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ country_type|title }} Destinations - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative h-96 flex items-center justify-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1920');">
+    <div class="text-center text-white">
+        <h1 class="text-5xl font-bold mb-4">{{ country_type|title }} Destinations</h1>
+        <p class="text-xl">Explore our amazing {{ country_type }} safari destinations</p>
+    </div>
+</section>
+
+<!-- Destinations Grid -->
+<section class="py-20 container mx-auto px-4">
+    {% if destinations %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for destination in destinations %}
+        <div class="card-hover bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="image-zoom h-64">
+                {% if destination.featured_image %}
+                <img src="{{ destination.featured_image.url }}" alt="{{ destination.name }}" class="w-full h-full object-cover">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800" alt="{{ destination.name }}" class="w-full h-full object-cover">
+                {% endif %}
+            </div>
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-3">{{ destination.name }}</h3>
+                <p class="text-gray-600 mb-4">{{ destination.short_description }}</p>
+                <a href="{% url 'destinations:detail' destination.slug %}" class="inline-block bg-safari-brown text-white px-6 py-2 rounded-full hover:bg-safari-gold transition duration-300">Explore</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center text-gray-500 py-12">
+        <p class="text-xl">No destinations available yet. Check back soon!</p>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

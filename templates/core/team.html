@@ -1,0 +1,44 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Our Team - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative h-96 flex items-center justify-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920');">
+    <div class="text-center text-white">
+        <h1 class="text-5xl font-bold mb-4">Meet Our Team</h1>
+        <p class="text-xl">The passionate people behind your adventure</p>
+    </div>
+</section>
+
+<!-- Team Members -->
+<section class="py-20 container mx-auto px-4">
+    {% if team_members %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for member in team_members %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden card-hover">
+            <div class="h-80">
+                {% if member.photo %}
+                <img src="{{ member.photo.url }}" alt="{{ member.name }}" class="w-full h-full object-cover">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="{{ member.name }}" class="w-full h-full object-cover">
+                {% endif %}
+            </div>
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ member.name }}</h3>
+                <p class="text-safari-brown font-semibold mb-4">{{ member.role }}</p>
+                <p class="text-gray-600">{{ member.bio|truncatewords:30 }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center text-gray-500 py-12">
+        <p class="text-xl">Our amazing team will be introduced soon!</p>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

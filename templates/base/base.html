@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+     <title>
+        {% block title %}
+            Wingu Elite Adventures{% if page_title %} | {{ page_title }}{% endif %} — Luxury Kenya Safari Tours
+        {% endblock %}
+    </title>
+
+     <meta name="description" content="{% block meta_description %}Wingu Elite Adventures offers bespoke luxury safari experiences in Kenya — Masai Mara, Amboseli, Tsavo & beyond. Book your dream African adventure today.{% endblock %}">
+
+     <meta name="keywords" content="Wingu Elite Adventures, Kenya safaris, Masai Mara tours, luxury African safaris, wildlife adventures Kenya, bespoke safari packages">
+
+     <meta property="og:title" content="{% block og_title %}Wingu Elite Adventures — Luxury Kenya Safari Adventures{% endblock %}">
+    <meta property="og:description" content="Experience the real Africa with Wingu Elite Adventures — tailored wildlife tours, luxury camps, and unforgettable moments.">
+    <meta property="og:image" content="{% static 'images/og-image.jpg' %}">
+<meta property="og:url" content="https://wingueliteadventures.co.ke{% url 'core:home' %}">
+<meta property="og:type" content="website">
+    <meta property="og:type" content="website"> 
+
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+<link rel="icon" href="{% static 'images/logo.png' %}?v=1" type="image/png">
+<link rel="shortcut icon" href="{% static 'images/logo.png' %}?v=1" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/logo.png' %}?v=1">
+<link rel="apple-touch-icon" href="{% static 'images/logo.png' %}?v=1">
+    
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'safari-brown': '#8B4513',
+                        'safari-gold': '#DAA520',
+                        'safari-green': '#2D5016',
+                        'savanna': '#F4E4C1',
+                        'sunset': '#FF6B35',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    
+    <link href="https://cdn.jsdelivr.net/npm/@tailwindcss/typography@0.5.10/dist/typography.min.css" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="font-sans antialiased bg-gray-50">
+    
+    <!-- Navigation -->
+    {% include 'base/navbar.html' %}
+    
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mx-auto px-4 mt-4">
+        {% for message in messages %}
+        <div class="bg-{{ message.tags }}-100 border border-{{ message.tags }}-400 text-{{ message.tags }}-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% include 'base/footer.html' %}
+    
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

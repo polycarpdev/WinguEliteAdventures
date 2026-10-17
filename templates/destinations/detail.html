@@ -1,0 +1,83 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ destination.name }} - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative h-screen flex items-end bg-cover bg-center" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('{% if destination.featured_image %}{{ destination.featured_image.url }}{% else %}https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1920{% endif %}');">
+    <div class="container mx-auto px-4 pb-20 text-white">
+        <h1 class="text-5xl md:text-6xl font-bold mb-4">{{ destination.name }}</h1>
+        <p class="text-xl mb-6">{{ destination.short_description }}</p>
+    </div>
+</section>
+
+<!-- Description -->
+<section class="py-20 container mx-auto px-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="prose prose-lg max-w-none">
+            {{ destination.description|safe }}
+        </div>
+    </div>
+</section>
+
+<!-- Related Itineraries -->
+{% if related_itineraries %}
+<section class="py-20 bg-gray-100">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Available Itineraries</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for itinerary in related_itineraries %}
+            <div class="card-hover bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="image-zoom h-48">
+                    {% if itinerary.featured_image %}
+                    <img src="{{ itinerary.featured_image.url }}" alt="{{ itinerary.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1549366021-9f761d450615?w=800" alt="{{ itinerary.title }}" class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ itinerary.title }}</h3>
+                    <div class="flex items-center text-sm text-gray-600 mb-4">
+                        <span class="mr-4">📅 {{ itinerary.duration_days }} Days</span>
+                        <span>💰 From ${{ itinerary.price_from }}</span>
+                    </div>
+                    <a href="{% url 'itineraries:detail' itinerary.slug %}" class="text-safari-brown font-semibold hover:text-safari-gold">View Details →</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-12 bg-safari-brown text-white">
+   <div class="container mx-auto px-4 text-center">
+    <h2 class="text-3xl font-bold mb-4">Ready to Explore {{ destination.name }}?</h2>
+    <p class="text-xl mb-6">Book your adventure today</p>
+
+    <!-- Buttons Side-by-Side -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        
+        <!-- Book Now Button -->
+        <a href="{% url 'bookings:create' %}" 
+           class="inline-block bg-white text-safari-brown hover:bg-safari-gold hover:text-white font-bold py-3 px-8 rounded-full transition duration-300 transform hover:scale-105">
+           Book Now
+        </a>
+
+        <!-- WhatsApp Button -->
+        <a href="https://wa.me/254708507364?text=Hi!%20I'd%20like%20to%20book%20a%20trip%20to%3A%20{{ destination.name|urlencode }}"
+           target="_blank"
+           class="inline-block bg-[#25D366] text-white hover:bg-[#128C7E] font-bold py-3 px-8 rounded-full transition duration-300 flex items-center gap-2 transform hover:scale-105">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.297-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 5.044h-.004c-1.575-.051-3.076-.71-4.395-1.882l-.315-.187-3.623.964 1.008-3.514-.237-.375c-1.244-1.97-1.907-4.256-1.906-6.59.001-6.822 5.576-12.396 12.398-12.396 3.313 0 6.436 1.292 8.783 3.639 2.346 2.347 3.638 5.469 3.638 8.782 0 6.823-5.576 12.398-12.398 12.398m7.189-21.434c-2.846-2.846-6.626-4.415-10.652-4.415-8.293 0-15.064 6.771-15.064 15.064 0 2.652.69 5.243 2.004 7.504l-2.13 7.783 7.954-2.085c2.103 1.148 4.465 1.756 6.837 1.756 8.294 0 15.064-6.771 15.064-15.064 0-4.025-1.57-7.805-4.418-10.652"/>
+            </svg>
+            Chat on WhatsApp
+        </a>
+    </div>
+</div>
+</section>
+
+{% endblock %}

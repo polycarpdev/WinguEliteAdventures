@@ -1,0 +1,126 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ itinerary.title }} - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative h-screen flex items-end bg-cover bg-center" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('{% if itinerary.featured_image %}{{ itinerary.featured_image.url }}{% else %}https://images.unsplash.com/photo-1549366021-9f761d450615?w=1920{% endif %}');">
+    <div class="container mx-auto px-4 pb-20 text-white">
+        <span class="inline-block bg-safari-brown text-white px-4 py-2 rounded-full mb-4">{{ itinerary.difficulty|title }}</span>
+        <h1 class="text-5xl md:text-6xl font-bold mb-4">{{ itinerary.title }}</h1>
+        <div class="flex flex-wrap gap-6 text-lg">
+            <span>📅 {{ itinerary.duration_days }} Days</span>
+            <span>👥 Max {{ itinerary.max_group_size }} People</span>
+            <span>💰 From ${{ itinerary.price_from }}</span>
+        </div>
+    </div>
+</section>
+
+<!-- Overview -->
+<section class="py-20 container mx-auto px-4">
+    <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Overview</h2>
+        <div class="prose prose-lg max-w-none">
+            {{ itinerary.overview|safe }}
+        </div>
+    </div>
+</section>
+
+<!-- Day by Day Itinerary -->
+{% if days %}
+<section class="py-20 bg-gray-100">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">Day by Day Itinerary</h2>
+            <div class="space-y-6">
+                {% for day in days %}
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold text-safari-brown mb-3">Day {{ day.day_number }}: {{ day.title }}</h3>
+                    <div class="prose max-w-none">
+                        {{ day.description|safe }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- What's Included/Excluded -->
+<section class="py-20 container mx-auto px-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">✅ What's Included</h3>
+                <div class="prose">
+                    {{ itinerary.includes|safe }}
+                </div>
+            </div>
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">❌ What's Excluded</h3>
+                <div class="prose">
+                    {{ itinerary.excludes|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+{% if related_testimonials %}
+<section class="py-20 bg-gray-100">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">What Travelers Say</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {% for testimonial in related_testimonials %}
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center mb-4">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= testimonial.rating %}
+                        <svg class="w-5 h-5 text-safari-gold fill-current" viewBox="0 0 20 20">
+                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                        </svg>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <p class="text-gray-700 mb-4 italic">"{{ testimonial.review|truncatewords:20 }}"</p>
+                <p class="font-bold text-gray-800">{{ testimonial.client_name }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Book Now CTA -->
+<section class="py-20 bg-safari-brown text-white">
+  <div class="container mx-auto px-4 text-center">
+    <h2 class="text-4xl font-bold mb-6">Ready to Experience {{ itinerary.title }}?</h2>
+    <p class="text-xl mb-8">Book your spot today and create memories that last a lifetime</p>
+
+    <!-- Buttons Side-by-Side -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        
+        <!-- Book This Adventure -->
+        <a href="{% url 'bookings:create' %}" 
+           class="inline-block bg-white text-safari-brown hover:bg-safari-gold hover:text-white font-bold py-4 px-8 rounded-full transition duration-300 transform hover:scale-105">
+           Book This Adventure
+        </a>
+
+        <!-- WhatsApp Button -->
+        <a href="https://wa.me/254708507364?text=Hi!%20I'd%20like%20to%20book%3A%20{{ itinerary.title|urlencode }}"
+           target="_blank"
+           class="inline-block bg-[#25D366] text-white hover:bg-[#128C7E] font-bold py-4 px-8 rounded-full transition duration-300 flex items-center gap-2 transform hover:scale-105">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.297-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 5.044h-.004c-1.575-.051-3.076-.71-4.395-1.882l-.315-.187-3.623.964 1.008-3.514-.237-.375c-1.244-1.97-1.907-4.256-1.906-6.59.001-6.822 5.576-12.396 12.398-12.396 3.313 0 6.436 1.292 8.783 3.639 2.346 2.347 3.638 5.469 3.638 8.782 0 6.823-5.576 12.398-12.398 12.398m7.189-21.434c-2.846-2.846-6.626-4.415-10.652-4.415-8.293 0-15.064 6.771-15.064 15.064 0 2.652.69 5.243 2.004 7.504l-2.13 7.783 7.954-2.085c2.103 1.148 4.465 1.756 6.837 1.756 8.294 0 15.064-6.771 15.064-15.064 0-4.025-1.57-7.805-4.418-10.652"/>
+            </svg>
+            Chat on WhatsApp
+        </a>
+    </div>
+</div>
+</section>
+
+{% endblock %}

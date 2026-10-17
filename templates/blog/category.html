@@ -1,0 +1,47 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - Blog - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="py-12 bg-gray-100">
+    <div class="container mx-auto px-4">
+        <a href="{% url 'blog:list' %}" class="text-safari-brown hover:text-safari-gold mb-4 inline-block">← Back to All Posts</a>
+        <h1 class="text-4xl font-bold text-gray-800">{{ category.name }}</h1>
+    </div>
+</section>
+
+<!-- Blog Posts -->
+<section class="py-20 container mx-auto px-4">
+    {% if posts %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for post in posts %}
+        <article class="card-hover bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="image-zoom h-56">
+                {% if post.featured_image %}
+                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=800" alt="{{ post.title }}" class="w-full h-full object-cover">
+                {% endif %}
+            </div>
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ post.title }}</h3>
+                <p class="text-gray-600 mb-4">{{ post.excerpt }}</p>
+                <div class="flex justify-between items-center text-sm text-gray-500">
+                    <span>{{ post.published_date|date:"M d, Y" }}</span>
+                    <a href="{% url 'blog:detail' post.slug %}" class="text-safari-brown font-semibold hover:text-safari-gold">Read More →</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center text-gray-500 py-12">
+        <p class="text-xl">No posts in this category yet.</p>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

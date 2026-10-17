@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Bookings - Cockpit - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-gray-100 py-8">
+    <div class="container mx-auto px-4">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="{% url 'cockpit:dashboard' %}" class="text-safari-brown hover:text-safari-gold mb-4 inline-block">← Back to Dashboard</a>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">All Bookings</h1>
+        </div>
+        
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <form method="GET" class="flex flex-wrap gap-4">
+                <select name="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                    <option value="">All Statuses</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="quote_sent">Quote Sent</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <button type="submit" class="bg-safari-brown text-white px-6 py-2 rounded-lg hover:bg-safari-gold transition duration-300">Filter</button>
+            </form>
+        </div>
+        
+        <!-- Bookings Table -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destination</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dates</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for booking in bookings %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">{{ booking.full_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ booking.email }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ booking.destination.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">{{ booking.start_date }} to {{ booking.end_date }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full {% if booking.status == 'new' %}bg-blue-100 text-blue-800{% elif booking.status == 'confirmed' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ booking.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'cockpit:booking_detail' booking.pk %}" class="text-safari-brown hover:text-safari-gold font-semibold">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">No bookings found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ album.name }} - Gallery - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="py-12 bg-gray-100">
+    <div class="container mx-auto px-4">
+        <a href="{% url 'gallery:index' %}" class="text-safari-brown hover:text-safari-gold mb-4 inline-block">← Back to Gallery</a>
+<h1 class="text-4xl font-bold text-gray-800 mb-2">{{ album.name }}</h1>
+<p class="text-gray-600 text-lg">{{ album.description }}</p>
+</div>
+</section><!-- Images Grid -->
+<section class="py-20 container mx-auto px-4">
+    {% if images %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for image in images %}
+        <div class="image-zoom rounded-lg overflow-hidden shadow-lg cursor-pointer" onclick="openLightbox({{ forloop.counter0 }})">
+            <img src="{{ image.image.url }}" alt="{{ image.caption }}" class="w-full h-64 object-cover">
+            {% if image.caption %}
+            <div class="p-4 bg-white">
+                <p class="text-gray-700">{{ image.caption }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center text-gray-500 py-12">
+        <p class="text-xl">No images in this album yet.</p>
+    </div>
+    {% endif %}
+</section><!-- Lightbox -->
+<div id="lightbox" class="fixed inset-0 bg-black bg-opacity-90 hidden z-50 flex items-center justify-center" onclick="closeLightbox()">
+    <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white text-4xl">&times;</button>
+    <button onclick="previousImage(event)" class="absolute left-4 text-white text-4xl">‹</button>
+    <button onclick="nextImage(event)" class="absolute right-4 text-white text-4xl">›</button>
+    <img id="lightbox-img" src="" class="max-h-screen max-w-screen-lg">
+</div>{% endblock %}{% block extra_js %}
+<script>
+let currentImageIndex = 0;
+const images = [
+    {% for image in images %}
+    { src: "{{ image.image.url }}", caption: "{{ image.caption|escapejs }}" },
+    {% endfor %}
+];function openLightbox(index) {
+currentImageIndex = index;
+document.getElementById('lightbox').classList.remove('hidden');
+document.getElementById('lightbox-img').src = images[index].src;
+}function closeLightbox() {
+document.getElementById('lightbox').classList.add('hidden');
+}function nextImage(event) {
+event.stopPropagation();
+currentImageIndex = (currentImageIndex + 1) % images.length;
+document.getElementById('lightbox-img').src = images[currentImageIndex].src;
+}function previousImage(event) {
+event.stopPropagation();
+currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+document.getElementById('lightbox-img').src = images[currentImageIndex].src;
+}
+</script>
+{% endblock %}

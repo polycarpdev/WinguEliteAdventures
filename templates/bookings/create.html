@@ -1,0 +1,121 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Book Your Safari - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative h-96 flex items-center justify-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1523805009345-7448845a9e53?w=1920');">
+    <div class="text-center text-white">
+        <h1 class="text-5xl font-bold mb-4">Book Your Safari Adventure</h1>
+        <p class="text-xl">Fill out the form below and we'll get back to you shortly</p>
+    </div>
+</section>
+
+<!-- Booking Form -->
+<section class="py-20 container mx-auto px-4">
+    <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-8">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Personal Information -->
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Personal Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Full Name *</label>
+                        <input type="text" name="full_name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email *</label>
+                        <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Phone *</label>
+                        <input type="tel" name="phone" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Country *</label>
+                        <input type="text" name="country" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trip Details -->
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Trip Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Destination *</label>
+                        <select name="destination" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                            <option value="">Select a destination</option>
+                            {% for destination in destinations %}
+                            <option value="{{ destination.id }}">{{ destination.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Itinerary (Optional)</label>
+                        <select name="itinerary" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                            <option value="">Select an itinerary</option>
+                            {% for itinerary in itineraries %}
+                            <option value="{{ itinerary.id }}">{{ itinerary.title }} - {{ itinerary.duration_days }} days</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Start Date *</label>
+                        <input type="date" name="start_date" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">End Date *</label>
+                        <input type="date" name="end_date" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Number of Adults *</label>
+                        <input type="number" name="adults" min="1" value="1" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Number of Children</label>
+                        <input type="number" name="children" min="0" value="0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-700 font-semibold mb-2">Accommodation Preference *</label>
+                        <select name="accommodation_preference" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown">
+                            <option value="">Select preference</option>
+                            <option value="budget">Budget</option>
+                            <option value="standard">Standard</option>
+                            <option value="luxury">Luxury</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Information -->
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Additional Information</h3>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Special Requests or Dietary Requirements</label>
+                        <textarea name="special_requests" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown" placeholder="Tell us about any special needs, preferences, or dietary requirements..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">How did you hear about us?</label>
+                        <input type="text" name="how_did_you_hear" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown" placeholder="Social media, search engine, referral, etc.">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="text-center pt-6">
+                <button type="submit" class="bg-safari-brown text-white font-bold py-4 px-12 rounded-full hover:bg-safari-gold transition duration-300 transform hover:scale-105">
+                    Submit Booking Request
+                </button>
+                <p class="text-gray-600 text-sm mt-4">We'll contact you within 24 hours to confirm your booking</p>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

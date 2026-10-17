@@ -1,0 +1,166 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Booking Details - Cockpit - Wingu Elite Adventures{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-gray-100 py-8">
+    <div class="container mx-auto px-4">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="{% url 'cockpit:booking_list' %}" class="text-safari-brown hover:text-safari-gold mb-4 inline-block">← Back to Bookings</a>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Booking Details</h1>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Main Details -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Personal Information -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Personal Information</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Full Name</p>
+                            <p class="font-semibold">{{ booking.full_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Email</p>
+                            <p class="font-semibold">{{ booking.email }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Phone</p>
+                            <p class="font-semibold">{{ booking.phone }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Country</p>
+                            <p class="font-semibold">{{ booking.country }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trip Details -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Trip Details</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Destination</p>
+                            <p class="font-semibold">{{ booking.destination.name }}</p>
+                        </div>
+                        {% if booking.itinerary %}
+                        <div>
+                            <p class="text-sm text-gray-600">Itinerary</p>
+                            <p class="font-semibold">{{ booking.itinerary.title }}</p>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <p class="text-sm text-gray-600">Start Date</p>
+                            <p class="font-semibold">{{ booking.start_date }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">End Date</p>
+                            <p class="font-semibold">{{ booking.end_date }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Adults</p>
+                            <p class="font-semibold">{{ booking.adults }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Children</p>
+                            <p class="font-semibold">{{ booking.children }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Accommodation</p>
+                            <p class="font-semibold">{{ booking.get_accommodation_preference_display }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if booking.special_requests %}
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600">Special Requests</p>
+                        <p class="mt-1">{{ booking.special_requests }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if booking.how_did_you_hear %}
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600">How they heard about us</p>
+                        <p class="mt-1">{{ booking.how_did_you_hear }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Admin Notes -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Admin Notes</h2>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_note">
+                        <textarea name="admin_notes" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown" placeholder="Add internal notes...">{{ booking.admin_notes }}</textarea>
+                        <button type="submit" class="mt-4 bg-safari-brown text-white px-6 py-2 rounded-lg hover:bg-safari-gold transition duration-300">Save Notes</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                
+                <!-- Status Update -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Update Status</h3>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_status">
+                        <select name="status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-safari-brown mb-4">
+                            <option value="new" {% if booking.status == 'new' %}selected{% endif %}>New</option>
+                            <option value="contacted" {% if booking.status == 'contacted' %}selected{% endif %}>Contacted</option>
+                            <option value="quote_sent" {% if booking.status == 'quote_sent' %}selected{% endif %}>Quote Sent</option>
+                            <option value="confirmed" {% if booking.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                            <option value="completed" {% if booking.status == 'completed' %}selected{% endif %}>Completed</option>
+                            <option value="cancelled" {% if booking.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                        <button type="submit" class="w-full bg-safari-brown text-white px-6 py-2 rounded-lg hover:bg-safari-gold transition duration-300">Update Status</button>
+                    </form>
+                </div>
+                
+                <!-- Quick Info -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Info</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-sm text-gray-600">Submitted</p>
+                            <p class="font-semibold">{{ booking.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Last Updated</p>
+                            <p class="font-semibold">{{ booking.updated_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        {% if booking.replied_at %}
+                        <div>
+                            <p class="text-sm text-gray-600">Replied At</p>
+                            <p class="font-semibold">{{ booking.replied_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+                    <div class="space-y-3">
+<a href="mailto:{{ booking.email }}" class="block w-full bg-safari-brown text-white text-center px-6 py-2 rounded-lg hover:bg-safari-gold transition duration-300">
+Email Client
+</a>
+<a href="tel:{{ booking.phone }}" class="block w-full bg-gray-200 text-gray-800 text-center px-6 py-2 rounded-lg hover:bg-gray-300 transition duration-300">
+Call Client
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}

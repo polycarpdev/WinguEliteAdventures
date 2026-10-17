@@ -1,0 +1,39 @@
+# --- Secrets & local notes (repo is public) ---
+.env
+.env.*
+!.env.example
+shit.txt
+*.token
+*.pem
+
+# --- Data (never commit client data) ---
+*.sqlite3
+*.sqlite3-journal
+backup.json
+*.dump
+backend/media/
+media/
+backend/var/
+
+# --- Python ---
+venv/
+.venv/
+__pycache__/
+*.pyc
+backend/staticfiles/
+staticfiles/
+
+# --- Node / Astro ---
+node_modules/
+web/dist/
+web/.astro/
+web/src/data/content.json
+
+# --- Host / editor junk ---
+cgi-bin/
+php.ini
+.htaccess.bak
+.vscode/
+.idea/
+.DS_Store
+*.log
