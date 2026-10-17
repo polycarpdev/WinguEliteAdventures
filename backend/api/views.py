@@ -9,7 +9,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.core.validators import validate_email
-from django.http import JsonResponse
+from django.http import HttpResponseNotFound, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -210,3 +210,12 @@ contact = _respond(_contact)
 
 def health(request):
     return JsonResponse({'ok': True})
+
+
+def not_found(request, exception=None):
+    """Serve the static site's designed 404 page for any URL Django doesn't own."""
+    try:
+        html = (settings.STATIC_SITE_DIR / '404.html').read_text(encoding='utf-8')
+    except OSError:
+        html = '<h1>Page not found</h1><p><a href="/">Back to Wingu Elite Adventures</a></p>'
+    return HttpResponseNotFound(html)

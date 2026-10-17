@@ -15,6 +15,8 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+handler404 = 'api.views.not_found'
+
 admin.site.site_header = 'Wingu Elite Adventures'
 admin.site.site_title = 'Wingu Elite Admin'
 admin.site.index_title = 'Content & bookings'

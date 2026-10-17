@@ -1,5 +1,7 @@
 import json
+import tempfile
 import time
+from pathlib import Path
 from datetime import date, timedelta
 
 from django.core import mail
@@ -11,9 +13,11 @@ from contact.models import ContactMessage
 from destinations.models import Destination
 
 ORIGIN = 'http://localhost:4321'
+_TMP = Path(tempfile.mkdtemp())
 
 
 @override_settings(ALLOWED_HOSTS=['testserver'], CORS_ALLOWED_ORIGINS=[ORIGIN],
+                   VAR_DIR=_TMP, REBUILD_FLAG=_TMP / 'rebuild.flag',
                    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class FormApiTests(TestCase):
     def setUp(self):
@@ -73,5 +77,20 @@ class FormApiTests(TestCase):
             self.post('/api/contact/', {'_t': self.t})
         self.assertEqual(self.post('/api/contact/', {'_t': self.t}).status_code, 429)
 
+    def test_content_change_sets_rebuild_flag(self):
+        from django.conf import settings
+        settings.REBUILD_FLAG.unlink(missing_ok=True)
+        self.dest.save()
+        self.assertTrue(settings.REBUILD_FLAG.exists())
+
     def test_get_not_allowed(self):
         self.assertEqual(self.client.get('/api/contact/').status_code, 405)
+
+
+@override_settings(ALLOWED_HOSTS=['testserver'], DEBUG=False)
+class NotFoundTests(TestCase):
+    def test_unknown_url_uses_site_404(self):
+        r = self.client.get('/no-such-page/')
+        self.assertEqual(r.status_code, 404)
+        self.assertIn(b'Wingu', r.content)
+

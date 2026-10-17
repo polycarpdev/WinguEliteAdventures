@@ -37,3 +37,7 @@ php.ini
 .idea/
 .DS_Store
 *.log
+
+# Deploy config (server-specific)
+deploy/config.sh
+web/dist.new/

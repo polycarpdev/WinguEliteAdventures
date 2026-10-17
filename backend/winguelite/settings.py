@@ -106,6 +106,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 VAR_DIR = BASE_DIR / 'var'
 REBUILD_FLAG = VAR_DIR / 'rebuild.flag'
 CONTENT_EXPORT_PATH = Path(env('CONTENT_EXPORT_PATH', default=str(REPO_DIR / 'web' / 'src' / 'data' / 'content.json')))
+# Built Astro site; Django returns its 404.html for unknown URLs.
+STATIC_SITE_DIR = Path(env('STATIC_SITE_DIR', default=str(REPO_DIR / 'web' / 'dist')))
 # Responsive WebP renditions generated with Pillow for every content image.
 IMAGE_WIDTHS = [480, 960, 1600, 2400]
 IMAGE_QUALITY = 78
