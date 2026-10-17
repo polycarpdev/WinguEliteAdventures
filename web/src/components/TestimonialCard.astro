@@ -1,0 +1,38 @@
+---
+import type { Testimonial } from '../lib/content';
+import Img from './Img.astro';
+import Icon from './Icon.astro';
+import Stars from './Stars.astro';
+
+interface Props { t: Testimonial; dark?: boolean }
+const { t, dark = false } = Astro.props;
+const initials = t.client_name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+---
+<figure class:list={['quote-card', { 'quote-card--dark': dark }]} data-reveal>
+  <Icon name="quote" class="quote-card__mark" />
+  <Stars rating={t.rating} />
+  <blockquote><p>{t.review}</p></blockquote>
+  <figcaption>
+    {t.photo ? <Img image={t.photo} sizes="3rem" class="quote-card__avatar" alt="" /> : <span class="quote-card__avatar quote-card__initials">{initials}</span>}
+    <span>
+      <strong>{t.client_name}</strong>
+      {t.trip && <a href={`/itineraries/${t.trip.slug}/`}>{t.trip.title}</a>}
+    </span>
+  </figcaption>
+</figure>
+<style>
+  .quote-card {
+    position: relative; display: flex; flex-direction: column; gap: 1.1rem;
+    padding: clamp(1.6rem, 2.5vw, 2.2rem); border-radius: var(--radius-lg);
+    background: var(--white); box-shadow: var(--shadow-sm); margin: 0;
+  }
+  .quote-card--dark { background: rgb(247 242 234 / 0.06); box-shadow: none; border: 1px solid rgb(247 242 234 / 0.12); }
+  .quote-card__mark { position: absolute; top: 1.5rem; right: 1.5rem; width: 2.4rem; height: 2.4rem; color: var(--gold-300); opacity: 0.4; }
+  blockquote { font-family: var(--serif); font-size: 1.12rem; line-height: 1.6; flex: 1; }
+  figcaption { display: flex; align-items: center; gap: 0.85rem; font-size: 0.9rem; }
+  figcaption span { display: grid; }
+  figcaption a { color: var(--olive); font-size: 0.82rem; text-decoration: none; }
+  .quote-card--dark figcaption a { color: var(--gold-300); }
+  .quote-card__avatar { width: 3rem; height: 3rem; border-radius: 999px; object-fit: cover; flex: none; min-height: 0; }
+  .quote-card__initials { display: grid; place-items: center; background: var(--olive); color: var(--cream); font-weight: 700; font-size: 0.9rem; }
+</style>

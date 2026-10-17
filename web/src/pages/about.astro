@@ -1,0 +1,105 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { destinations, heroImage } from '../lib/content';
+
+const image = destinations.find((d) => d.slug.includes('masai-mara'))?.image ?? heroImage;
+const crumbs = [{ name: 'About us', href: '/about/' }];
+
+const values = [
+  { icon: 'compass', title: 'Our mission', text: 'To create meaningful connections between travellers and Africa’s natural wonders through private, thoughtfully designed journeys.' },
+  { icon: 'globe', title: 'Our vision', text: 'To be Africa’s most trusted and sustainable safari operator, recognised for the care we put into every detail.' },
+  { icon: 'leaf', title: 'Our values', text: 'Sustainability, authenticity and excellence, in the camps we choose, the guides we train and the way we treat the land.' },
+] as const;
+
+const reasons = [
+  { icon: 'users', title: 'Expert local guides', text: 'Knowledgeable Kenyan guides with years in the field: trackers, storytellers and naturalists.' },
+  { icon: 'leaf', title: 'Sustainable tourism', text: 'Eco-conscious camps and community partnerships that keep wild places wild.' },
+  { icon: 'sparkle', title: 'Premium service', text: 'Personal attention to every detail, from the first email to the last sundowner.' },
+  { icon: 'shield', title: 'Honest value', text: 'Transparent pricing with no hidden extras and no compromise on quality.' },
+] as const;
+---
+<Base
+  title="About Us"
+  description="Wingu Elite Adventures is a Kenyan-owned safari company passionate about authentic, sustainable wildlife experiences. Meet the story behind the name."
+  image={image?.src}
+  crumbs={crumbs}
+  overlayHeader
+>
+  <PageHero title="Safari, the way it should feel" eyebrow="About Wingu Elite" lead="A Kenyan-owned company crafting private journeys across the savannah, the mountains and the coast." image={image} crumbs={crumbs} size="lg" />
+
+  <section class="section">
+    <div class="container story">
+      <div class="story__head" data-reveal>
+        <span class="eyebrow">Our story</span>
+        <h2 class="h2">Born under the wide Kenyan sky</h2>
+      </div>
+      <div class="prose" data-reveal>
+        <p>
+          Wingu Elite Adventures was founded with a passion for showcasing the breathtaking beauty of Africa to the world.
+          With years of experience in the tourism industry, we craft unforgettable safari experiences that connect travellers
+          with nature, wildlife and the rich cultures of Kenya and East Africa.
+        </p>
+        <p>
+          Our name, <strong>“Wingu”</strong>, is the Swahili word for <em>cloud</em>: a nod to the endless East African skies
+          above the savannah, and to the elevated, elite experiences we create. It is also a promise: while we show you these
+          wild places, we work just as hard to protect and preserve them.
+        </p>
+        <p>
+          Every itinerary is private and built from scratch around you: when you travel, how you like to travel, and what you
+          most want to see. Then our team on the ground makes sure it all happens seamlessly.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--sand">
+    <div class="container grid grid--3">
+      {values.map((v) => (
+        <div class="value" data-reveal>
+          <span class="value__icon"><Icon name={v.icon} /></span>
+          <h3 class="h3">{v.title}</h3>
+          <p class="muted">{v.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <span class="eyebrow">Why travel with us</span>
+        <h2 class="h2">Why choose Wingu Elite Adventures</h2>
+      </div>
+      <div class="grid grid--4">
+        {reasons.map((r) => (
+          <div class="reason" data-reveal>
+            <Icon name={r.icon} />
+            <h3>{r.title}</h3>
+            <p class="muted">{r.text}</p>
+          </div>
+        ))}
+      </div>
+      <p class="about-links">
+        <a href="/team/" class="btn btn--outline">Meet the team <Icon name="arrow-right" /></a>
+        <a href="/testimonials/" class="btn btn--outline">Read guest reviews <Icon name="arrow-right" /></a>
+      </p>
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<style>
+  .story { display: grid; gap: 2rem; }
+  @media (min-width: 900px) { .story { grid-template-columns: 0.8fr 1.2fr; gap: 4rem; } }
+  .value { display: grid; gap: 0.8rem; padding: 2rem; border-radius: var(--radius-lg); background: var(--cream); }
+  .value__icon { display: grid; place-items: center; width: 3.2rem; height: 3.2rem; border-radius: 999px; background: var(--olive); color: var(--cream); }
+  .value__icon :global(svg) { width: 1.4rem; height: 1.4rem; }
+  .reason { display: grid; gap: 0.6rem; align-content: start; padding-top: 1.5rem; border-top: 2px solid var(--gold-300); }
+  .reason :global(svg) { width: 1.8rem; height: 1.8rem; color: var(--olive); }
+  .reason h3 { font-size: 1.25rem; }
+  .about-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.85rem; margin-top: 3.5rem; }
+</style>

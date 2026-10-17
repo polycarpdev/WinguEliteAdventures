@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import TestimonialCard from '../../components/TestimonialCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { testimonials } from '../../lib/content';
+const crumbs = [{ name: 'Guest reviews', href: '/testimonials/' }];
+const avg = testimonials.length ? testimonials.reduce((s, t) => s + t.rating, 0) / testimonials.length : 0;
+---
+<Base title="Guest Reviews & Testimonials" description="Read what travellers say about their private Kenya safaris with Wingu Elite Adventures: real reviews from real guests." crumbs={crumbs}>
+  <PageHero title="What our guests say" eyebrow="Guest stories" lead={testimonials.length ? `Rated ${avg.toFixed(1)} out of 5 by our travellers.` : undefined} crumbs={crumbs} />
+  <section class="section">
+    <div class="container">
+      {testimonials.length > 0
+        ? <div class="reviews">{testimonials.map((t) => <TestimonialCard t={t} />)}</div>
+        : <p class="lead">Be the first to share your Wingu Elite adventure!</p>}
+    </div>
+  </section>
+  <CtaBand />
+</Base>
+<style>
+  .reviews { columns: 1; column-gap: 1.5rem; }
+  @media (min-width: 640px) { .reviews { columns: 2; } }
+  @media (min-width: 1100px) { .reviews { columns: 3; } }
+  .reviews > :global(*) { break-inside: avoid; margin-bottom: 1.5rem; }
+</style>

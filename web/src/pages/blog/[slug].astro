@@ -1,0 +1,97 @@
+---
+import Base from '../../layouts/Base.astro';
+import Img from '../../components/Img.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PostCard from '../../components/PostCard.astro';
+import Icon from '../../components/Icon.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { posts, formatDate, readingMinutes, clip, type Post } from '../../lib/content';
+import { abs, ORG_ID } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return posts.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+const { p } = Astro.props as { p: Post };
+const more = posts.filter((x) => x.slug !== p.slug).slice(0, 3);
+const url = `/blog/${p.slug}/`;
+const crumbs = [{ name: 'Journal', href: '/blog/' }, ...(p.category ? [{ name: p.category.name, href: `/blog/category/${p.category.slug}/` }] : []), { name: p.title, href: url }];
+const schema = [{
+  '@type': 'BlogPosting',
+  headline: p.title,
+  description: clip(p.excerpt, 300),
+  url: abs(url),
+  mainEntityOfPage: abs(url),
+  ...(p.image && { image: [abs(p.image.src)] }),
+  datePublished: p.published_date,
+  dateModified: p.updated_at,
+  author: { '@type': 'Person', name: p.author },
+  publisher: { '@id': ORG_ID },
+  ...(p.category && { articleSection: p.category.name }),
+  wordCount: p.content_html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length,
+}];
+const shareUrl = encodeURIComponent(abs(url));
+const shareText = encodeURIComponent(p.title);
+---
+<Base
+  title={p.title}
+  description={clip(p.excerpt)}
+  image={p.image?.src}
+  imageAlt={p.title}
+  type="article"
+  article={{ published: p.published_date, modified: p.updated_at, author: p.author, section: p.category?.name }}
+  crumbs={crumbs}
+  schema={schema}
+>
+  <article>
+    <header class="post-head">
+      <div class="container container--mid post-head__inner">
+        <Breadcrumbs items={crumbs} />
+        {p.category && <span class="eyebrow">{p.category.name}</span>}
+        <h1 class="h1">{p.title}</h1>
+        <p class="lead">{p.excerpt}</p>
+        <p class="post-meta">
+          <span>By <strong>{p.author}</strong></span>
+          <time datetime={p.published_date}>{formatDate(p.published_date)}</time>
+          <span>{readingMinutes(p.content_html)} min read</span>
+        </p>
+      </div>
+    </header>
+    {p.image && (
+      <div class="container container--mid">
+        <div class="post-cover"><Img image={p.image} sizes="(min-width: 1100px) 64rem, 100vw" eager alt={p.title} /></div>
+      </div>
+    )}
+    <div class="container container--narrow section--tight">
+      <div class="prose post-body" set:html={p.content_html} />
+      <footer class="post-foot">
+        <span>Share this story</span>
+        <a href={`https://wa.me/?text=${shareText}%20${shareUrl}`} target="_blank" rel="noopener" aria-label="Share on WhatsApp"><Icon name="whatsapp" /></a>
+        <a href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`} target="_blank" rel="noopener" aria-label="Share on Facebook"><Icon name="facebook" /></a>
+        <a href={`mailto:?subject=${shareText}&body=${shareUrl}`} aria-label="Share by email"><Icon name="mail" /></a>
+      </footer>
+    </div>
+  </article>
+
+  {more.length > 0 && (
+    <section class="section section--sand">
+      <div class="container">
+        <div class="section-head"><span class="eyebrow">Keep reading</span><h2 class="h2">More from the journal</h2></div>
+        <div class="grid grid--3">{more.map((x) => <PostCard post={x} />)}</div>
+      </div>
+    </section>
+  )}
+  <CtaBand />
+</Base>
+<style>
+  .post-head { padding-block: clamp(3rem, 6vw, 5rem) 2.5rem; }
+  .post-head__inner { display: grid; gap: 1rem; justify-items: start; }
+  .post-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; font-size: 0.9rem; color: var(--muted); }
+  .post-cover { border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 16 / 9; background: var(--sand); }
+  .post-cover :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .post-body { font-size: 1.12rem; }
+  .post-foot { display: flex; align-items: center; gap: 0.6rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line); font-weight: 600; font-size: 0.9rem; }
+  .post-foot span { margin-right: auto; }
+  .post-foot a { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--olive); transition: all 0.2s; }
+  .post-foot a:hover { background: var(--olive); color: var(--cream); border-color: var(--olive); }
+  .post-foot :global(svg) { width: 1.1rem; height: 1.1rem; }
+</style>

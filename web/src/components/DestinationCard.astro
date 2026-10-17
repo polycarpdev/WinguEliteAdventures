@@ -1,0 +1,52 @@
+---
+import type { Destination } from '../lib/content';
+import Img from './Img.astro';
+import Icon from './Icon.astro';
+import { itinerariesFor } from '../lib/content';
+
+interface Props { destination: Destination; tall?: boolean }
+const { destination: d, tall = false } = Astro.props;
+const count = itinerariesFor(d.slug).length;
+---
+<article class:list={['dest-card', { 'dest-card--tall': tall }]} data-reveal>
+  <Img image={d.image} sizes="(min-width: 1100px) 33vw, (min-width: 640px) 50vw, 100vw" alt={`${d.name}, Kenya safari destination`} />
+  <div class="dest-card__body">
+    <span class="dest-card__country"><Icon name="pin" /> {d.country === 'kenya' ? 'Kenya' : 'International'}</span>
+    <h3 class="dest-card__title"><a href={`/destinations/detail/${d.slug}/`}>{d.name}</a></h3>
+    <p class="dest-card__desc clamp-2">{d.short_description}</p>
+    <span class="dest-card__more">
+      {count > 0 ? `${count} safari${count > 1 ? 's' : ''}` : 'Explore'} <Icon name="arrow-right" />
+    </span>
+  </div>
+</article>
+
+<style>
+  .dest-card {
+    position: relative; isolation: isolate; overflow: hidden;
+    aspect-ratio: 4 / 5; border-radius: var(--radius-lg);
+    display: flex; align-items: flex-end; color: var(--cream); background: var(--ink);
+  }
+  .dest-card--tall { aspect-ratio: 3 / 4; }
+  .dest-card > :global(img), .dest-card > :global(.img-fallback) {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;
+    transition: transform 1.1s var(--ease);
+  }
+  .dest-card::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(180deg, transparent 30%, rgb(39 29 15 / 0.9) 100%);
+    transition: opacity 0.5s var(--ease);
+  }
+  .dest-card:hover > :global(img) { transform: scale(1.06); }
+  .dest-card__body { display: grid; gap: 0.5rem; padding: clamp(1.25rem, 2.2vw, 1.9rem); }
+  .dest-card__country { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-300); }
+  .dest-card__country :global(svg) { width: 0.95rem; height: 0.95rem; }
+  .dest-card__title { font-size: clamp(1.45rem, 2vw, 1.85rem); }
+  .dest-card__title a { text-decoration: none; }
+  .dest-card__title a::after { content: ''; position: absolute; inset: 0; }
+  .dest-card__desc { font-size: 0.92rem; color: rgb(247 242 234 / 0.8); max-height: 0; opacity: 0; transition: max-height 0.6s var(--ease), opacity 0.4s; }
+  .dest-card:hover .dest-card__desc, .dest-card:focus-within .dest-card__desc { max-height: 4rem; opacity: 1; }
+  @media (hover: none) { .dest-card__desc { max-height: 4rem; opacity: 1; } }
+  .dest-card__more { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; font-weight: 600; }
+  .dest-card__more :global(svg) { width: 1rem; height: 1rem; transition: transform 0.3s var(--ease); }
+  .dest-card:hover .dest-card__more :global(svg) { transform: translateX(4px); }
+</style>

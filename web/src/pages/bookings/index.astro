@@ -1,0 +1,212 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import { destinations, itineraries, usd } from '../../lib/content';
+import { site } from '../../config/site';
+
+const crumbs = [{ name: 'Plan your safari', href: '/bookings/' }];
+const accommodation = [
+  { value: 'luxury', label: 'Luxury', text: 'Exclusive camps & lodges, the finest service.' },
+  { value: 'standard', label: 'Comfort', text: 'Characterful mid-range camps, great value.' },
+  { value: 'budget', label: 'Essential', text: 'Clean, simple stays to maximise game time.' },
+];
+---
+<Base title="Plan & Book Your Safari" description="Request a private, tailor-made Kenya safari quote from Wingu Elite Adventures. Share your dates and wishes, and a specialist replies within 24 hours." crumbs={crumbs}>
+  <PageHero title="Plan your safari" eyebrow="Tailor-made" lead="Share a few details and a Wingu specialist will send a personalised itinerary and quote within 24 hours. No payment needed now." crumbs={crumbs} />
+
+  <section class="section">
+    <div class="container booking">
+      <form class="booking__form" data-booking-form novalidate>
+        <fieldset class="form-block">
+          <legend class="h3"><span>1</span> Your trip</legend>
+          <div class="form-grid form-grid--2">
+            <div class="field">
+              <label for="destination">Destination <span class="req">*</span></label>
+              <select id="destination" name="destination" class="input" required>
+                <option value="">Choose a destination</option>
+                {destinations.map((d) => <option value={d.slug}>{d.name}</option>)}
+              </select>
+              <p class="field-error" data-error-for="destination"></p>
+            </div>
+            <div class="field">
+              <label for="itinerary">Safari package <span class="muted">(optional)</span></label>
+              <select id="itinerary" name="itinerary" class="input">
+                <option value="">Custom / not sure yet</option>
+                {itineraries.map((i) => <option value={i.slug} data-destination={i.destination.slug}>{i.title} ({i.duration_days} days, from {usd(i.price_from)})</option>)}
+              </select>
+              <p class="field-error" data-error-for="itinerary"></p>
+            </div>
+            <div class="field">
+              <label for="start_date">Arrival date <span class="req">*</span></label>
+              <input id="start_date" name="start_date" type="date" class="input" required />
+              <p class="field-error" data-error-for="start_date"></p>
+            </div>
+            <div class="field">
+              <label for="end_date">Departure date <span class="req">*</span></label>
+              <input id="end_date" name="end_date" type="date" class="input" required />
+              <p class="field-error" data-error-for="end_date"></p>
+            </div>
+            <div class="field">
+              <label for="adults">Adults <span class="req">*</span></label>
+              <input id="adults" name="adults" type="number" min="1" max="50" value="2" class="input" required />
+              <p class="field-error" data-error-for="adults"></p>
+            </div>
+            <div class="field">
+              <label for="children">Children (under 12)</label>
+              <input id="children" name="children" type="number" min="0" max="50" value="0" class="input" />
+              <p class="field-error" data-error-for="children"></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-block">
+          <legend class="h3"><span>2</span> Travel style</legend>
+          <div class="choices" role="radiogroup" aria-label="Accommodation preference">
+            {accommodation.map((a, idx) => (
+              <label class="choice">
+                <input type="radio" name="accommodation_preference" value={a.value} checked={idx === 0} required />
+                <span class="choice__card"><Icon name="bed" /><strong>{a.label}</strong><small>{a.text}</small></span>
+              </label>
+            ))}
+          </div>
+          <p class="field-error" data-error-for="accommodation_preference"></p>
+          <div class="field" style="margin-top:1.25rem">
+            <label for="special_requests">Anything we should know?</label>
+            <textarea id="special_requests" name="special_requests" class="input" maxlength="3000" placeholder="Celebrations, dietary needs, wildlife you dream of seeing, mobility considerations…"></textarea>
+            <p class="field-error" data-error-for="special_requests"></p>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-block">
+          <legend class="h3"><span>3</span> Your details</legend>
+          <div class="form-grid form-grid--2">
+            <div class="field span-2">
+              <label for="full_name">Full name <span class="req">*</span></label>
+              <input id="full_name" name="full_name" class="input" autocomplete="name" maxlength="200" required />
+              <p class="field-error" data-error-for="full_name"></p>
+            </div>
+            <div class="field">
+              <label for="email">Email <span class="req">*</span></label>
+              <input id="email" name="email" type="email" class="input" autocomplete="email" required />
+              <p class="field-error" data-error-for="email"></p>
+            </div>
+            <div class="field">
+              <label for="phone">Phone / WhatsApp <span class="req">*</span></label>
+              <input id="phone" name="phone" type="tel" class="input" autocomplete="tel" maxlength="20" required />
+              <p class="field-error" data-error-for="phone"></p>
+            </div>
+            <div class="field">
+              <label for="country">Country of residence <span class="req">*</span></label>
+              <input id="country" name="country" class="input" autocomplete="country-name" maxlength="100" required />
+              <p class="field-error" data-error-for="country"></p>
+            </div>
+            <div class="field">
+              <label for="how_did_you_hear">How did you hear about us?</label>
+              <select id="how_did_you_hear" name="how_did_you_hear" class="input">
+                <option value="">Select…</option>
+                <option>Google search</option><option>Instagram</option><option>Facebook</option><option>TikTok</option>
+                <option>TripAdvisor</option><option>Friend or family</option><option>Returning guest</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off" /></label></div>
+        <p class="form-alert" data-form-alert role="alert" tabindex="-1"></p>
+        <button type="submit" class="btn btn--lg">Send my safari request <Icon name="arrow-right" /></button>
+        <p class="muted booking__note">We reply within 24 hours. Your details are only used to plan your trip.</p>
+      </form>
+
+      <aside class="booking__aside">
+        <div class="aside-panel">
+          <span class="eyebrow">What happens next</span>
+          <ol class="steps">
+            <li><strong>We listen.</strong> A specialist reviews your request and may ask a question or two.</li>
+            <li><strong>We design.</strong> You receive a tailored day-by-day itinerary with a clear, all-inclusive quote.</li>
+            <li><strong>We refine.</strong> Adjust anything until it’s perfect, then confirm with a deposit.</li>
+          </ol>
+          <hr />
+          <p class="muted">Prefer to talk?</p>
+          <p><a href={`mailto:${site.bookingsEmail}`} class="link-arrow"><Icon name="mail" /> {site.bookingsEmail}</a></p>
+          {site.whatsapp && <p><a href={`https://wa.me/${site.whatsapp}`} class="link-arrow" target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp us</a></p>}
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .booking { display: grid; gap: 3rem; }
+  @media (min-width: 1100px) { .booking { grid-template-columns: 1fr 22rem; gap: 4rem; align-items: start; } }
+  .booking__form { display: grid; gap: 1.5rem; min-width: 0; }
+  .form-block { border: 0; padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow-sm); min-width: 0; }
+  .form-block legend { display: flex; align-items: center; gap: 0.75rem; float: left; width: 100%; margin-bottom: 1.5rem; }
+  .form-block legend + * { clear: both; }
+  .form-block legend span { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 999px; background: var(--olive); color: var(--cream); font-family: var(--sans); font-size: 0.9rem; font-weight: 700; }
+  .choices { display: grid; gap: 0.85rem; }
+  @media (min-width: 640px) { .choices { grid-template-columns: repeat(3, 1fr); } }
+  .choice input { position: absolute; opacity: 0; pointer-events: none; }
+  .choice__card { display: grid; gap: 0.3rem; height: 100%; padding: 1.25rem; border-radius: var(--radius); border: 1.5px solid var(--line-strong); cursor: pointer; transition: all 0.2s var(--ease); }
+  .choice__card :global(svg) { width: 1.5rem; height: 1.5rem; color: var(--gold); margin-bottom: 0.25rem; }
+  .choice__card small { color: var(--muted); font-size: 0.83rem; line-height: 1.45; }
+  .choice:hover .choice__card { border-color: var(--olive-600); }
+  .choice input:checked + .choice__card { border-color: var(--olive); background: rgb(94 88 13 / 0.06); box-shadow: 0 0 0 3px rgb(94 88 13 / 0.12); }
+  .choice input:focus-visible + .choice__card { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .booking__form > .btn { justify-self: start; }
+  .booking__note { font-size: 0.85rem; }
+
+  .booking__aside { position: sticky; top: calc(var(--header-h) + 1.5rem); }
+  .aside-panel { display: grid; gap: 0.75rem; padding: 2rem; border-radius: var(--radius-lg); background: var(--sand); }
+  .aside-panel hr { border: 0; border-top: 1px solid var(--line); margin-block: 0.5rem; }
+  .aside-panel .link-arrow { word-break: break-all; }
+  .steps { padding-left: 1.2rem; display: grid; gap: 0.85rem; font-size: 0.93rem; color: var(--ink-soft); }
+  .steps li::marker { color: var(--gold); font-weight: 700; }
+  @media (max-width: 1099.98px) { .booking__aside { position: static; } }
+</style>
+
+<script>
+  import { bindForm } from '../../lib/forms';
+
+  document.addEventListener('astro:page-load', () => {
+    const form = document.querySelector<HTMLFormElement>('[data-booking-form]');
+    if (!form) return;
+    bindForm(form, '/api/bookings/', '/bookings/success/');
+
+    const dest = form.elements.namedItem('destination') as HTMLSelectElement;
+    const trip = form.elements.namedItem('itinerary') as HTMLSelectElement;
+    const start = form.elements.namedItem('start_date') as HTMLInputElement;
+    const end = form.elements.namedItem('end_date') as HTMLInputElement;
+
+    // Prefill from ?itinerary= or ?destination=
+    const params = new URLSearchParams(location.search);
+    const pickedTrip = params.get('itinerary');
+    if (pickedTrip && [...trip.options].some((o) => o.value === pickedTrip)) {
+      trip.value = pickedTrip;
+      dest.value = trip.selectedOptions[0].dataset.destination ?? '';
+    } else if (params.get('destination')) {
+      dest.value = params.get('destination')!;
+    }
+
+    // A chosen package implies its destination.
+    trip.addEventListener('change', () => {
+      const d = trip.selectedOptions[0]?.dataset.destination;
+      if (d) dest.value = d;
+    });
+
+    const today = new Date().toISOString().slice(0, 10);
+    start.min = today;
+    end.min = today;
+    start.addEventListener('change', () => {
+      end.min = start.value || today;
+      if (end.value && end.value < start.value) end.value = '';
+      const sel = trip.selectedOptions[0];
+      const days = sel?.textContent?.match(/\((\d+) days/);
+      if (start.value && !end.value && days) {
+        const d = new Date(start.value);
+        d.setDate(d.getDate() + Number(days[1]) - 1);
+        end.value = d.toISOString().slice(0, 10);
+      }
+    });
+  });
+</script>

@@ -107,7 +107,7 @@ VAR_DIR = BASE_DIR / 'var'
 REBUILD_FLAG = VAR_DIR / 'rebuild.flag'
 CONTENT_EXPORT_PATH = Path(env('CONTENT_EXPORT_PATH', default=str(REPO_DIR / 'web' / 'src' / 'data' / 'content.json')))
 # Responsive WebP renditions generated with Pillow for every content image.
-IMAGE_WIDTHS = [480, 960, 1600]
+IMAGE_WIDTHS = [480, 960, 1600, 2400]
 IMAGE_QUALITY = 78
 
 # --- Security (production) -----------------------------------------------------

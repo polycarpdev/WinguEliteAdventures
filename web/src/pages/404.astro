@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import CloudMark from '../components/CloudMark.astro';
+---
+<Base title="Page not found" description="This page has wandered off the trail." noindex>
+  <section class="section">
+    <div class="container container--narrow nf">
+      <CloudMark class="nf__mark" />
+      <span class="eyebrow">Lost in the clouds</span>
+      <h1 class="h1">This trail doesn’t lead anywhere</h1>
+      <p class="lead">The page you’re looking for may have moved. Let’s get you back on track.</p>
+      <div class="nf__actions">
+        <a href="/" class="btn">Home</a>
+        <a href="/itineraries/" class="btn btn--outline">Safaris</a>
+        <a href="/destinations/kenya/" class="btn btn--outline">Destinations</a>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { display: grid; justify-items: center; text-align: center; gap: 1rem; padding-block: 3rem; }
+  .nf__mark { width: 7rem; margin-bottom: 1rem; }
+  .nf__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 1rem; }
+</style>

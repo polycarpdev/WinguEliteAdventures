@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ItineraryCard from '../../components/ItineraryCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { itineraries } from '../../lib/content';
+import { abs } from '../../lib/schema';
+
+const destOptions = [...new Map(itineraries.map((i) => [i.destination.slug, i.destination.name])).entries()];
+const diffOptions = [...new Map(itineraries.map((i) => [i.difficulty, i.difficulty_label])).entries()];
+const crumbs = [{ name: 'Safaris', href: '/itineraries/' }];
+const schema = [{
+  '@type': 'ItemList',
+  name: 'Wingu Elite safari packages',
+  itemListElement: itineraries.map((i, idx) => ({ '@type': 'ListItem', position: idx + 1, url: abs(`/itineraries/${i.slug}/`), name: i.title })),
+}];
+---
+<Base
+  title="Safari Packages & Itineraries"
+  description="Private Kenya safari packages from Wingu Elite Adventures: Masai Mara, Amboseli, Mount Kenya treks and more. Tailor any itinerary and get a quote within 24 hours."
+  crumbs={crumbs}
+  schema={schema}
+>
+  <PageHero title="Safari packages" eyebrow="Itineraries" lead="Every journey is private and fully adjustable. Start with one of ours, then make it yours." crumbs={crumbs} />
+  <section class="section">
+    <div class="container">
+      {(destOptions.length > 1 || diffOptions.length > 1) && (
+        <div class="filters" data-filters>
+          {destOptions.length > 1 && (
+            <div class="filters__group" role="group" aria-label="Filter by destination">
+              <button type="button" class="chip" data-filter="destination" data-value="" aria-pressed="true">All destinations</button>
+              {destOptions.map(([slug, name]) => <button type="button" class="chip" data-filter="destination" data-value={slug} aria-pressed="false">{name}</button>)}
+            </div>
+          )}
+          {diffOptions.length > 1 && (
+            <div class="filters__group" role="group" aria-label="Filter by difficulty">
+              <button type="button" class="chip" data-filter="difficulty" data-value="" aria-pressed="true">Any level</button>
+              {diffOptions.map(([v, label]) => <button type="button" class="chip" data-filter="difficulty" data-value={v} aria-pressed="false">{label}</button>)}
+            </div>
+          )}
+        </div>
+      )}
+      {itineraries.length > 0 ? (
+        <div class="grid grid--3" data-results>{itineraries.map((i) => <ItineraryCard itinerary={i} />)}</div>
+      ) : (
+        <p class="lead">New safari packages are coming soon. <a href="/bookings/">Request a custom safari</a> in the meantime.</p>
+      )}
+      <p class="no-results muted" data-empty hidden>No safaris match those filters. <button type="button" class="link-arrow" data-reset>Clear filters</button></p>
+    </div>
+  </section>
+  <CtaBand title="Don’t see quite what you want?" text="Every Wingu safari is private, so we can build one from scratch around your dates, interests and budget." />
+</Base>
+
+<style>
+  .filters { display: grid; gap: 0.85rem; margin-bottom: 2.5rem; }
+  .filters__group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .no-results { text-align: center; padding: 3rem 0; }
+</style>
+
+<script>
+  // Client-side filtering over the pre-rendered cards (no extra requests).
+  document.addEventListener('astro:page-load', () => {
+    const root = document.querySelector<HTMLElement>('[data-filters]');
+    const cards = [...document.querySelectorAll<HTMLElement>('[data-results] > [data-destination]')];
+    if (!root || !cards.length) return;
+    const params = new URLSearchParams(location.search);
+    const state: Record<string, string> = { destination: params.get('destination') ?? '', difficulty: params.get('difficulty') ?? '' };
+
+    const apply = () => {
+      root.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(state[b.dataset.filter!] === b.dataset.value)),
+      );
+      let shown = 0;
+      cards.forEach((c) => {
+        const ok = (!state.destination || c.dataset.destination === state.destination) && (!state.difficulty || c.dataset.difficulty === state.difficulty);
+        c.hidden = !ok;
+        if (ok) { shown++; c.classList.add('is-in'); }
+      });
+      document.querySelector<HTMLElement>('[data-empty]')!.hidden = shown > 0;
+      const qs = new URLSearchParams(Object.entries(state).filter(([, v]) => v)).toString();
+      history.replaceState(history.state, '', qs ? `?${qs}` : location.pathname);
+    };
+
+    root.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]');
+      if (!b) return;
+      state[b.dataset.filter!] = b.dataset.value ?? '';
+      apply();
+    });
+    document.querySelector('[data-reset]')?.addEventListener('click', () => { state.destination = state.difficulty = ''; apply(); });
+    if (state.destination || state.difficulty) apply();
+  });
+</script>

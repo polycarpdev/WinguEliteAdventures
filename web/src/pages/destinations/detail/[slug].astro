@@ -1,0 +1,89 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import ItineraryCard from '../../../components/ItineraryCard.astro';
+import DestinationCard from '../../../components/DestinationCard.astro';
+import Icon from '../../../components/Icon.astro';
+import CtaBand from '../../../components/CtaBand.astro';
+import { destinations, itinerariesFor, clip, COUNTRIES, type Destination } from '../../../lib/content';
+import { abs } from '../../../lib/schema';
+
+export function getStaticPaths() {
+  return destinations.map((d) => ({ params: { slug: d.slug }, props: { d } }));
+}
+const { d } = Astro.props as { d: Destination };
+const trips = itinerariesFor(d.slug);
+const nearby = destinations.filter((x) => x.slug !== d.slug && x.country === d.country).slice(0, 3);
+const region = COUNTRIES[d.country] ?? COUNTRIES.kenya;
+const crumbs = [
+  { name: 'Destinations', href: `/destinations/${d.country}/` },
+  { name: d.name, href: `/destinations/detail/${d.slug}/` },
+];
+const schema = [{
+  '@type': 'TouristDestination',
+  name: d.name,
+  description: clip(d.short_description, 300),
+  url: abs(`/destinations/detail/${d.slug}/`),
+  ...(d.image && { image: abs(d.image.src) }),
+  ...(d.country === 'kenya' && { containedInPlace: { '@type': 'Country', name: 'Kenya' } }),
+  touristType: ['Wildlife safari', 'Nature', 'Adventure'],
+}];
+---
+<Base
+  title={`${d.name} Safari`}
+  description={clip(`${d.name} safari with Wingu Elite Adventures. ${d.short_description}`)}
+  image={d.image?.src}
+  imageAlt={d.name}
+  crumbs={crumbs}
+  schema={schema}
+  overlayHeader
+>
+  <PageHero title={d.name} eyebrow={region.label} lead={clip(d.short_description, 220)} image={d.image} crumbs={crumbs} size="lg" />
+
+  <section class="section">
+    <div class="container dest">
+      <article class="prose" set:html={d.description_html} />
+      <aside class="dest__aside">
+        <div class="aside-card">
+          <span class="eyebrow">Plan a visit</span>
+          <h2 class="h3">Experience {d.name} privately</h2>
+          <p class="muted">Tell us your dates and we’ll build a tailored itinerary around {d.name}, with lodges, guides and transfers taken care of.</p>
+          <a href={`/bookings/?destination=${d.slug}`} class="btn btn--block">Request a quote <Icon name="arrow-right" /></a>
+          <a href="/contact/" class="btn btn--outline btn--block">Ask a question</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {trips.length > 0 && (
+    <section class="section section--sand">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Safaris here</span>
+          <h2 class="h2">Journeys featuring {d.name}</h2>
+        </div>
+        <div class="grid grid--3">{trips.map((i) => <ItineraryCard itinerary={i} />)}</div>
+      </div>
+    </section>
+  )}
+
+  {nearby.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div><span class="eyebrow">Keep exploring</span><h2 class="h2">More {region.label} destinations</h2></div>
+          <a href={`/destinations/${d.country}/`} class="btn btn--outline">See all <Icon name="arrow-right" /></a>
+        </div>
+        <div class="grid grid--3">{nearby.map((x) => <DestinationCard destination={x} />)}</div>
+      </div>
+    </section>
+  )}
+
+  <CtaBand />
+</Base>
+<style>
+  .dest { display: grid; gap: 3rem; }
+  @media (min-width: 1100px) { .dest { grid-template-columns: 1fr 22rem; gap: 5rem; align-items: start; } }
+  .dest__aside { position: sticky; top: calc(var(--header-h) + 1.5rem); }
+  .aside-card { display: grid; gap: 0.9rem; padding: 2rem; border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow); }
+</style>

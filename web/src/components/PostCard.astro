@@ -1,0 +1,22 @@
+---
+import type { Post } from '../lib/content';
+import { formatDate, readingMinutes } from '../lib/content';
+import Img from './Img.astro';
+
+interface Props { post: Post }
+const { post: p } = Astro.props;
+---
+<article class="card post-card" data-reveal>
+  <div class="card__media">
+    {p.category && <div class="card__badges"><span class="badge">{p.category.name}</span></div>}
+    <Img image={p.image} sizes="(min-width: 1100px) 33vw, (min-width: 640px) 50vw, 100vw" alt={p.title} />
+  </div>
+  <div class="card__body">
+    <div class="card__meta">
+      <time datetime={p.published_date}>{formatDate(p.published_date)}</time>
+      <span>{readingMinutes(p.content_html)} min read</span>
+    </div>
+    <h3 class="card__title"><a href={`/blog/${p.slug}/`}>{p.title}</a></h3>
+    <p class="muted clamp-3">{p.excerpt}</p>
+  </div>
+</article>

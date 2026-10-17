@@ -1,0 +1,19 @@
+---
+import CloudMark from './CloudMark.astro';
+const { class: cls } = Astro.props as { class?: string };
+---
+<a href="/" class:list={['brand', cls]} aria-label="Wingu Elite Adventures, home">
+  <CloudMark class="brand__mark" />
+  <span class="brand__text">
+    <span class="brand__name">Wingu</span>
+    <span class="brand__sub">Elite Adventures</span>
+  </span>
+</a>
+<style>
+  .brand { display: inline-flex; align-items: center; gap: 0.7rem; text-decoration: none; color: inherit; }
+  .brand__mark { width: 2.9rem; height: auto; flex: none; transition: transform 0.5s var(--ease); }
+  .brand:hover .brand__mark { transform: translateY(-2px) rotate(-3deg); }
+  .brand__text { display: grid; line-height: 1; }
+  .brand__name { font-family: var(--script); font-weight: 700; font-size: 1.85rem; letter-spacing: 0.005em; }
+  .brand__sub { white-space: nowrap; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; opacity: 0.82; margin-top: 0.15rem; }
+</style>

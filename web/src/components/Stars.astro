@@ -1,0 +1,7 @@
+---
+import Icon from './Icon.astro';
+const { rating = 5 } = Astro.props as { rating?: number };
+---
+<span class="stars" role="img" aria-label={`${rating} out of 5 stars`}>
+  {[1, 2, 3, 4, 5].map((n) => <Icon name="star" class={n > rating ? 'off' : undefined} />)}
+</span>

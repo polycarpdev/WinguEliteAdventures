@@ -1,0 +1,47 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import Img from '../../../components/Img.astro';
+import Lightbox from '../../../components/Lightbox.astro';
+import CtaBand from '../../../components/CtaBand.astro';
+import { gallery, clip, type Album } from '../../../lib/content';
+import { abs } from '../../../lib/schema';
+
+export function getStaticPaths() {
+  return gallery.map((a) => ({ params: { slug: a.slug }, props: { a } }));
+}
+const { a } = Astro.props as { a: Album };
+const photos = a.images.filter((p) => p.image);
+const crumbs = [{ name: 'Gallery', href: '/gallery/' }, { name: a.name, href: `/gallery/album/${a.slug}/` }];
+const schema = [{
+  '@type': 'ImageGallery',
+  name: a.name,
+  url: abs(`/gallery/album/${a.slug}/`),
+  image: photos.map((p) => ({ '@type': 'ImageObject', contentUrl: abs(p.image!.src), caption: p.caption || a.name })),
+}];
+---
+<Base title={`${a.name} | Photo Gallery`} description={clip(a.description || `${a.name}: safari photos by Wingu Elite Adventures.`)} image={a.cover?.src} crumbs={crumbs} schema={schema}>
+  <PageHero title={a.name} eyebrow="Gallery" lead={a.description || undefined} crumbs={crumbs} />
+  <section class="section">
+    <div class="container masonry">
+      {photos.map((p) => (
+        <a href={p.image!.src} class="masonry__item" data-lightbox data-srcset={p.image!.srcset} data-alt={p.caption || a.name} data-caption={p.caption} data-astro-prefetch="false">
+          <Img image={p.image} sizes="(min-width: 1100px) 33vw, (min-width: 640px) 50vw, 100vw" alt={p.caption || a.name} />
+          {p.caption && <span class="masonry__cap">{p.caption}</span>}
+        </a>
+      ))}
+    </div>
+  </section>
+  <Lightbox />
+  <CtaBand />
+</Base>
+<style>
+  .masonry { columns: 1; column-gap: 1.25rem; }
+  @media (min-width: 640px) { .masonry { columns: 2; } }
+  @media (min-width: 1100px) { .masonry { columns: 3; } }
+  .masonry__item { position: relative; display: block; margin-bottom: 1.25rem; break-inside: avoid; border-radius: var(--radius); overflow: hidden; cursor: zoom-in; }
+  .masonry__item :global(img) { width: 100%; transition: transform 0.8s var(--ease); }
+  .masonry__item:hover :global(img) { transform: scale(1.04); }
+  .masonry__cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 2rem 1rem 0.8rem; font-size: 0.85rem; color: var(--cream); background: linear-gradient(transparent, rgb(39 29 15 / 0.75)); opacity: 0; transition: opacity 0.3s; }
+  .masonry__item:hover .masonry__cap { opacity: 1; }
+</style>

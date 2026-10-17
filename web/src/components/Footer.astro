@@ -1,0 +1,125 @@
+---
+import { site } from '../config/site';
+import { byCountry } from '../lib/content';
+import CloudMark from './CloudMark.astro';
+import Icon from './Icon.astro';
+
+const year = new Date().getFullYear();
+const socials = Object.entries(site.social).filter(([, url]) => url) as [
+  'instagram' | 'facebook' | 'tiktok' | 'youtube' | 'tripadvisor',
+  string,
+][];
+const kenya = byCountry('kenya').slice(0, 6);
+---
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <img src="/brand/logo-320.webp" width="320" height="294" alt="Wingu Elite Adventures logo" loading="lazy" decoding="async" class="site-footer__logo" />
+        <p>Private, unhurried safaris across Kenya and East Africa, planned by people who call this land home.</p>
+        {socials.length > 0 && (
+          <ul class="site-footer__social" aria-label="Social media">
+            {socials.map(([name, url]) => (
+              <li><a href={url} target="_blank" rel="noopener" aria-label={name}><Icon name={name} /></a></li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div class="site-footer__col">
+        <h2>Explore</h2>
+        <ul>
+          <li><a href="/itineraries/">Safari packages</a></li>
+          <li><a href="/destinations/kenya/">Kenya destinations</a></li>
+          <li><a href="/destinations/international/">Beyond Kenya</a></li>
+          <li><a href="/gallery/">Gallery</a></li>
+          <li><a href="/blog/">Safari journal</a></li>
+        </ul>
+      </div>
+
+      <div class="site-footer__col">
+        <h2>Top parks</h2>
+        <ul>
+          {kenya.map((d) => <li><a href={`/destinations/detail/${d.slug}/`}>{d.name.replace(/ (National (Park|Reserve)|Adventures)$/,'')}</a></li>)}
+        </ul>
+      </div>
+
+      <div class="site-footer__col">
+        <h2>Company</h2>
+        <ul>
+          <li><a href="/about/">About us</a></li>
+          <li><a href="/team/">Our team</a></li>
+          <li><a href="/testimonials/">Guest reviews</a></li>
+          <li><a href="/faqs/">FAQs</a></li>
+          <li><a href="/contact/">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="site-footer__col">
+        <h2>Get in touch</h2>
+        <ul class="site-footer__contact">
+          <li><Icon name="mail" /><a href={`mailto:${site.email}`}>{site.email}</a></li>
+          {site.phone && <li><Icon name="phone" /><a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a></li>}
+          {site.whatsapp && <li><Icon name="whatsapp" /><a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener">WhatsApp us</a></li>}
+          <li><Icon name="pin" /><span>{site.address.locality}, {site.address.country}</span></li>
+        </ul>
+        <a href="/bookings/" class="btn btn--gold site-footer__cta">Plan your safari</a>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p class="site-footer__legal">
+        <CloudMark class="site-footer__mark" />
+        &copy; {year} {site.name}. All rights reserved.
+      </p>
+      <p class="credit">
+        Built with <Icon name="heart" class="credit__heart" label="love" /> by
+        <a href={site.developer.url} target="_blank" rel="noopener author">{site.developer.name}</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--ink); color: rgb(247 242 234 / 0.72); padding-top: clamp(4rem, 8vw, 6rem); font-size: 0.93rem; }
+  .site-footer a { text-decoration: none; transition: color 0.2s; }
+  .site-footer a:hover { color: var(--gold-300); }
+  .site-footer__top { display: grid; gap: 2.5rem; padding-bottom: 3.5rem; }
+  @media (min-width: 640px) { .site-footer__top { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1100px) { .site-footer__top { grid-template-columns: 1.3fr 0.9fr 1fr 0.8fr 1.7fr; gap: 2.5rem; } }
+  .site-footer__brand { display: grid; gap: 1.25rem; align-content: start; max-width: 22rem; }
+  .site-footer__logo { width: 9.5rem; }
+  .site-footer h2 { font-family: var(--sans); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-300); margin-bottom: 1.1rem; }
+  .site-footer ul { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+  .site-footer__contact li { display: flex; gap: 0.65rem; align-items: center; min-width: 0; }
+  .site-footer__contact a { font-size: 0.88rem; overflow-wrap: anywhere; }
+  .site-footer__contact :global(svg) { width: 1.05rem; height: 1.05rem; color: var(--gold-300); flex: none; }
+  .site-footer__cta { margin-top: 1.5rem; }
+  .site-footer__social { display: flex !important; gap: 0.5rem !important; }
+  .site-footer__social a { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 999px; border: 1px solid rgb(247 242 234 / 0.2); }
+  .site-footer__social a:hover { border-color: var(--gold-300); }
+  .site-footer__social :global(svg) { width: 1.1rem; height: 1.1rem; }
+
+  .site-footer__bottom {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+    padding-block: 1.75rem calc(1.75rem + env(safe-area-inset-bottom));
+    border-top: 1px solid rgb(247 242 234 / 0.12);
+    font-size: 0.85rem;
+  }
+  .site-footer__legal { display: inline-flex; align-items: center; gap: 0.6rem; }
+  .site-footer__mark { width: 1.7rem; --cloud-fill: transparent; }
+
+  .credit { display: inline-flex; align-items: center; gap: 0.4rem; color: rgb(247 242 234 / 0.6); }
+  .credit__heart { width: 0.95rem; height: 0.95rem; color: #e0644f; }
+  @media (prefers-reduced-motion: no-preference) {
+    .credit__heart { animation: beat 1.6s ease-in-out infinite; }
+  }
+  .credit a {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-weight: 700; letter-spacing: 0.12em; color: #a5f3fc;
+    text-shadow: 0 0 8px rgb(34 211 238 / 0.55), 0 0 16px rgb(14 165 233 / 0.35);
+    transition: letter-spacing 0.3s var(--ease), text-shadow 0.3s, color 0.3s;
+  }
+  .credit a:hover { color: #ecfeff; letter-spacing: 0.18em; text-shadow: 0 0 18px rgb(34 211 238 / 0.9), 0 0 30px rgb(14 165 233 / 0.6); }
+  @keyframes beat { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.22); } 50% { transform: scale(1); } }
+</style>

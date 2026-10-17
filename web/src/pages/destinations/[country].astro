@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import DestinationCard from '../../components/DestinationCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { byCountry, COUNTRIES } from '../../lib/content';
+
+export function getStaticPaths() {
+  return (['kenya', 'international'] as const).map((country) => ({ params: { country } }));
+}
+const country = Astro.params.country as keyof typeof COUNTRIES;
+const list = byCountry(country);
+const meta = COUNTRIES[country];
+const crumbs = [{ name: 'Destinations', href: '/destinations/kenya/' }, ...(country === 'international' ? [{ name: meta.label, href: '/destinations/international/' }] : [])];
+const description = country === 'kenya'
+  ? `Explore ${list.length || 'the'} iconic Kenya safari destinations: Masai Mara, Amboseli, Mount Kenya, Lake Nakuru, Diani and more, hand-picked by Wingu Elite Adventures.`
+  : 'Safari and adventure destinations beyond Kenya, curated by Wingu Elite Adventures: Tanzania, Uganda, Rwanda and further afield.';
+---
+<Base title={meta.title} description={description} crumbs={crumbs}>
+  <PageHero title={meta.title} eyebrow="Destinations" lead={country === 'kenya' ? 'From the great migration on the Mara to the snows of Mount Kenya and the white sands of Diani.' : 'Beyond our borders: the wider wonders of Africa and the world.'} crumbs={crumbs}>
+    <nav class="tabs" aria-label="Destination region">
+      {(Object.keys(COUNTRIES) as (keyof typeof COUNTRIES)[]).map((c) => (
+        <a href={`/destinations/${c}/`} class="chip" aria-current={c === country ? 'page' : undefined}>{COUNTRIES[c].label}</a>
+      ))}
+    </nav>
+  </PageHero>
+  <section class="section">
+    <div class="container">
+      {list.length > 0 ? (
+        <div class="grid grid--3">{list.map((d) => <DestinationCard destination={d} />)}</div>
+      ) : (
+        <div class="empty">
+          <h2 class="h3">New destinations are on their way</h2>
+          <p class="muted">We’re curating journeys beyond Kenya. Tell us where you’d like to go and we’ll plan it.</p>
+          <a href="/contact/" class="btn">Talk to us</a>
+        </div>
+      )}
+    </div>
+  </section>
+  <CtaBand />
+</Base>
+<style>
+  .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  .empty { display: grid; justify-items: center; gap: 1rem; text-align: center; padding: 4rem 1rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); }
+</style>

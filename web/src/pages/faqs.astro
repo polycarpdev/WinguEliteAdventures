@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { faqs, content, stripHtml, paragraphs } from '../lib/content';
+
+const groups = content.faq_categories
+  .map((c) => ({ ...c, items: faqs.filter((f) => f.category === c.value) }))
+  .filter((g) => g.items.length);
+const crumbs = [{ name: 'FAQs', href: '/faqs/' }];
+const schema = faqs.length
+  ? [{
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: stripHtml(f.answer) },
+      })),
+    }]
+  : [];
+---
+<Base title="Safari FAQs" description="Answers to common questions about booking a Kenya safari with Wingu Elite Adventures: payments, packing, visas, best time to travel and more." crumbs={crumbs} schema={schema}>
+  <PageHero title="Frequently asked questions" eyebrow="Good to know" lead="Everything you might wonder before your first safari. Can’t find it? Just ask us." crumbs={crumbs} />
+  <section class="section">
+    <div class="container faq-layout">
+      {groups.length > 1 && (
+        <nav class="faq-nav" aria-label="FAQ categories">
+          {groups.map((g) => <a href={`#${g.value}`} class="chip">{g.label}</a>)}
+        </nav>
+      )}
+      <div class="faq-groups">
+        {groups.map((g) => (
+          <section id={g.value} class="faq-group">
+            <h2 class="h3">{g.label}</h2>
+            {g.items.map((f) => (
+              <details class="faq">
+                <summary>{f.question}<Icon name="chevron" /></summary>
+                <div class="faq__answer prose prose--compact" set:html={paragraphs(f.answer)} />
+              </details>
+            ))}
+          </section>
+        ))}
+        <div class="faq-more">
+          <p>Still have a question?</p>
+          <a href="/contact/" class="btn">Contact our team <Icon name="arrow-right" /></a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <CtaBand />
+</Base>
+<style>
+  .faq-layout { display: grid; gap: 2.5rem; }
+  @media (min-width: 1100px) { .faq-layout { grid-template-columns: 15rem 1fr; gap: 5rem; align-items: start; } }
+  .faq-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  @media (min-width: 1100px) { .faq-nav { position: sticky; top: calc(var(--header-h) + 2rem); flex-direction: column; align-items: flex-start; } }
+  .faq-groups { display: grid; gap: 3rem; max-width: 50rem; }
+  .faq-group h2 { margin-bottom: 1rem; }
+  .faq { border-bottom: 1px solid var(--line); }
+  .faq summary {
+    list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem;
+    padding: 1.3rem 0; font-weight: 600; font-size: 1.05rem;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary :global(svg) { width: 1.3rem; height: 1.3rem; flex: none; color: var(--olive); transition: transform 0.3s var(--ease); }
+  .faq[open] summary :global(svg) { transform: rotate(180deg); }
+  .faq summary:hover { color: var(--olive); }
+  .faq__answer { padding-bottom: 1.4rem; }
+  .faq-more { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.75rem 2rem; border-radius: var(--radius-lg); background: var(--sand); }
+  .faq-more p { font-family: var(--serif); font-size: 1.35rem; }
+</style>

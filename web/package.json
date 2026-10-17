@@ -1,0 +1,22 @@
+{
+  "name": "wingu-elite-web",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "astro": "6.4.8"
+  },
+  "overrides": {
+    "rollup": "npm:@rollup/wasm-node@4.64.8",
+    "sharp": "file:./stubs/empty",
+    "@napi-rs/lzma-linux-x64-gnu": "file:./stubs/empty"
+  }
+}

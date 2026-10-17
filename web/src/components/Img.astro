@@ -1,0 +1,35 @@
+---
+import type { Img } from '../lib/content';
+interface Props {
+  image: Img | null | undefined;
+  sizes?: string;
+  alt?: string;
+  eager?: boolean;
+  class?: string;
+}
+const { image, sizes = '100vw', alt, eager = false, class: cls } = Astro.props;
+---
+{image ? (
+  <img
+    src={image.src}
+    srcset={image.srcset}
+    sizes={sizes}
+    width={image.width}
+    height={image.height}
+    alt={alt ?? image.alt}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding={eager ? 'sync' : 'async'}
+    fetchpriority={eager ? 'high' : undefined}
+    class={cls}
+  />
+) : (
+  <div class:list={['img-fallback', cls]} role="img" aria-label={alt ?? ''}></div>
+)}
+<style>
+  .img-fallback {
+    width: 100%; height: 100%; min-height: 12rem;
+    background:
+      radial-gradient(circle at 30% 30%, rgb(202 168 103 / 0.35), transparent 60%),
+      linear-gradient(135deg, var(--olive-600), var(--olive-900));
+  }
+</style>

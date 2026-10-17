@@ -1,0 +1,248 @@
+---
+import Base from '../layouts/Base.astro';
+import Img from '../components/Img.astro';
+import Icon from '../components/Icon.astro';
+import DestinationCard from '../components/DestinationCard.astro';
+import ItineraryCard from '../components/ItineraryCard.astro';
+import PostCard from '../components/PostCard.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { site } from '../config/site';
+import { destinations, itineraries, posts, testimonials, heroImage, usd, stripHtml } from '../lib/content';
+
+const featuredDest = [...destinations].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 6);
+const signature = [...itineraries].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 3);
+const reviews = [...testimonials].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 3);
+const recent = posts.slice(0, 3);
+const heroSizes = '100vw';
+
+const pillars = [
+  { icon: 'compass', title: 'Private by design', text: 'Your own vehicle, your own guide and your own pace. No crowded minivans, no fixed departures.' },
+  { icon: 'users', title: 'Guides born here', text: 'Maasai and Samburu guides who read the land, track wildlife and share the stories behind it.' },
+  { icon: 'leaf', title: 'Light footprint', text: 'Camps and lodges chosen for how well they treat the land, the wildlife and the communities around them.' },
+  { icon: 'shield', title: 'Cared for, end to end', text: 'Airport pickup to farewell, a Nairobi team on call 24/7 while you are on safari.' },
+] as const;
+---
+<Base
+  title={site.tagline}
+  description="Kenyan-owned luxury safari company crafting private Masai Mara, Amboseli, Mount Kenya and Diani adventures with expert local guides. Get a tailored quote in 24 hours."
+  image={heroImage?.src}
+  imageAlt="Wildlife on a Wingu Elite Adventures safari in Kenya"
+  overlayHeader
+  preloadImage={heroImage ? { srcset: heroImage.srcset, sizes: heroSizes } : null}
+>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero__bg">
+      <Img image={heroImage} sizes={heroSizes} eager alt="" />
+    </div>
+    <div class="container hero__inner">
+      <span class="eyebrow hero__eyebrow">Karibu Kenya</span>
+      <h1 class="display hero__title">
+        Luxury Kenya safaris,<br />
+        <em>crafted above the ordinary</em>
+      </h1>
+      <p class="hero__lead">
+        Private, handcrafted journeys through the Masai Mara, Amboseli, Mount Kenya and beyond, led by guides who grew up on this land.
+      </p>
+      <div class="hero__actions">
+        <a href="/bookings/" class="btn btn--gold btn--lg">Plan my safari <Icon name="arrow-right" /></a>
+        <a href="/itineraries/" class="btn btn--ghost btn--lg">Explore safaris</a>
+      </div>
+    </div>
+    <div class="hero__stats">
+      <div class="container">
+        <ul>
+          {site.stats.map((s) => (
+            <li><strong>{s.value}</strong><span>{s.label}</span></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Intro -->
+  <section class="section intro">
+    <div class="container intro__grid">
+      <div class="intro__art" data-reveal>
+        <img src="/brand/logo-640.webp" width="640" height="587" alt="Wingu Elite Adventures emblem: a safari Land Cruiser beneath a golden cloud" loading="lazy" decoding="async" />
+      </div>
+      <div class="intro__copy stack" data-reveal style="--stack:1.25rem">
+        <span class="eyebrow">Why “Wingu”</span>
+        <h2 class="h2">In Swahili, <em class="accent">wingu</em> means cloud.</h2>
+        <p class="lead">
+          It’s the endless sky over the savannah at first light, and the standard we hold ourselves to. Every Wingu
+          journey is private, unhurried and designed around the people taking it.
+        </p>
+        <p class="muted">
+          We are a Kenyan-owned company. We know which valley the lions favour in October, which camp serves
+          sundowners with the best view of Kilimanjaro, and how to get you there without the crowds.
+        </p>
+        <a href="/about/" class="link-arrow">Our story <Icon name="arrow-right" /></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Destinations -->
+  {featuredDest.length > 0 && (
+    <section class="section section--sand">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div>
+            <span class="eyebrow">Destinations</span>
+            <h2 class="h2">Kenya’s most iconic wild places</h2>
+          </div>
+          <a href="/destinations/kenya/" class="btn btn--outline">All destinations <Icon name="arrow-right" /></a>
+        </div>
+        <div class="grid grid--3">
+          {featuredDest.map((d) => <DestinationCard destination={d} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Signature safaris -->
+  {signature.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div>
+            <span class="eyebrow">Signature safaris</span>
+            <h2 class="h2">Journeys our guests love most</h2>
+            <p class="lead">Private itineraries you can take as they are or reshape completely: dates, pace, lodges and all.</p>
+          </div>
+          <a href="/itineraries/" class="btn btn--outline">View all safaris <Icon name="arrow-right" /></a>
+        </div>
+        {signature.length === 1 ? (
+          <article class="feature" data-reveal>
+            <div class="feature__media">
+              <Img image={signature[0].image} sizes="(min-width: 1100px) 55vw, 100vw" alt={signature[0].title} />
+              <span class="badge feature__badge">{signature[0].duration_days} days</span>
+            </div>
+            <div class="feature__body stack">
+              <p class="card__meta"><span><Icon name="pin" />{signature[0].destination.name}</span><span><Icon name="mountain" />{signature[0].difficulty_label}</span><span><Icon name="users" />Max {signature[0].max_group_size}</span></p>
+              <h3 class="h2"><a href={`/itineraries/${signature[0].slug}/`}>{signature[0].title}</a></h3>
+              <p class="muted clamp-3">{stripHtml(signature[0].overview_html)}</p>
+              <div class="feature__foot">
+                <p class="price"><small>From</small>{usd(signature[0].price_from)} <span class="muted" style="font-size:.85rem;font-family:var(--sans)">per person</span></p>
+                <span class="btn">View itinerary <Icon name="arrow-right" /></span>
+              </div>
+            </div>
+          </article>
+        ) : (
+          <div class="grid grid--3">{signature.map((i) => <ItineraryCard itinerary={i} />)}</div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Pillars -->
+  <section class="section section--ink pillars">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <span class="eyebrow">The Wingu difference</span>
+        <h2 class="h2">Elite means the details nobody else thinks of</h2>
+      </div>
+      <div class="grid grid--4">
+        {pillars.map((p) => (
+          <div class="pillar" data-reveal>
+            <span class="pillar__icon"><Icon name={p.icon} /></span>
+            <h3 class="h3">{p.title}</h3>
+            <p>{p.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  {reviews.length > 0 && (
+    <section class="section section--sand">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div>
+            <span class="eyebrow">Guest stories</span>
+            <h2 class="h2">In their words</h2>
+          </div>
+          <a href="/testimonials/" class="btn btn--outline">All reviews <Icon name="arrow-right" /></a>
+        </div>
+        <div class="grid grid--3">{reviews.map((t) => <TestimonialCard t={t} />)}</div>
+      </div>
+    </section>
+  )}
+
+  <!-- Journal -->
+  {recent.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div>
+            <span class="eyebrow">Safari journal</span>
+            <h2 class="h2">Field notes & travel advice</h2>
+          </div>
+          <a href="/blog/" class="btn btn--outline">Read the journal <Icon name="arrow-right" /></a>
+        </div>
+        <div class="grid grid--3">{recent.map((p) => <PostCard post={p} />)}</div>
+      </div>
+    </section>
+  )}
+
+  <CtaBand />
+</Base>
+
+<style>
+  .hero {
+    position: relative; isolation: isolate; color: var(--cream);
+    min-height: 100vh; min-height: 100svh;
+    display: grid; grid-template-rows: 1fr auto;
+    background: var(--ink);
+  }
+  .hero__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+  .hero__bg :global(img), .hero__bg :global(.img-fallback) { width: 100%; height: 100%; object-fit: cover; }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__bg :global(img) { animation: hero-zoom 18s var(--ease) both; }
+  }
+  @keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+  .hero__bg::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgb(39 29 15 / 0.55) 0%, rgb(39 29 15 / 0.1) 30%, rgb(39 29 15 / 0.35) 60%, rgb(39 29 15 / 0.9) 100%),
+      linear-gradient(90deg, rgb(39 29 15 / 0.55), transparent 65%);
+  }
+  .hero__inner { align-self: end; display: grid; justify-items: start; gap: 1.3rem; padding-top: calc(var(--header-h) + 3rem); padding-bottom: clamp(2.5rem, 5vw, 4rem); }
+  .hero__eyebrow { color: var(--gold-300); font-size: 2rem; }
+  .hero__title { max-width: 19ch; }
+  .hero__title em { font-style: italic; color: var(--gold-100); }
+  .hero__lead { max-width: 36rem; font-size: clamp(1.05rem, 1.4vw, 1.25rem); color: rgb(247 242 234 / 0.88); }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.5rem; }
+  .hero__stats { border-top: 1px solid rgb(247 242 234 / 0.18); background: rgb(39 29 15 / 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .hero__stats ul { list-style: none; padding: 1.25rem 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  @media (min-width: 900px) { .hero__stats ul { grid-template-columns: repeat(4, 1fr); } }
+  .hero__stats li { display: grid; gap: 0.1rem; }
+  .hero__stats strong { font-family: var(--serif); font-weight: 500; font-size: clamp(1.4rem, 2.2vw, 1.9rem); color: var(--gold-100); line-height: 1.1; }
+  .hero__stats span { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgb(247 242 234 / 0.7); }
+
+  .intro__grid { display: grid; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+  @media (min-width: 900px) { .intro__grid { grid-template-columns: 0.9fr 1.1fr; } }
+  .intro__art { position: relative; justify-self: center; max-width: 30rem; }
+  .intro__art::before {
+    content: ''; position: absolute; inset: 8% 4% 4%; z-index: -1; border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(202 168 103 / 0.45), transparent); filter: blur(12px);
+  }
+
+  .feature { position: relative; display: grid; border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow); }
+  @media (min-width: 900px) { .feature { grid-template-columns: 1.15fr 1fr; } }
+  .feature__media { position: relative; min-height: 18rem; }
+  .feature__media :global(img), .feature__media :global(.img-fallback) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+  .feature:hover .feature__media :global(img) { transform: scale(1.04); }
+  .feature__badge { position: absolute; top: 1.25rem; left: 1.25rem; }
+  .feature__body { padding: clamp(1.75rem, 4vw, 3.25rem); align-self: center; --stack: 1.1rem; }
+  .feature__body a { text-decoration: none; }
+  .feature__body a::after { content: ''; position: absolute; inset: 0; }
+  .feature__foot { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+
+  .pillar { display: grid; gap: 0.75rem; align-content: start; padding: 1.75rem; border-radius: var(--radius); border: 1px solid rgb(247 242 234 / 0.1); background: rgb(247 242 234 / 0.03); }
+  .pillar p { color: rgb(247 242 234 / 0.72); font-size: 0.95rem; }
+  .pillar__icon { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 999px; background: rgb(202 168 103 / 0.15); color: var(--gold-300); }
+  .pillar__icon :global(svg) { width: 1.4rem; height: 1.4rem; }
+</style>

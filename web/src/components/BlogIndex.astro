@@ -1,0 +1,40 @@
+---
+import PostCard from './PostCard.astro';
+import Img from './Img.astro';
+import { categories, formatDate, readingMinutes, type Post } from '../lib/content';
+interface Props { list: Post[]; active?: string }
+const { list, active } = Astro.props;
+const [lead, ...rest] = list;
+---
+{categories.length > 0 && (
+  <nav class="cats" aria-label="Journal categories">
+    <a href="/blog/" class="chip" aria-current={!active ? 'page' : undefined}>All</a>
+    {categories.map((c) => <a href={`/blog/category/${c.slug}/`} class="chip" aria-current={active === c.slug ? 'page' : undefined}>{c.name}</a>)}
+  </nav>
+)}
+{lead ? (
+  <>
+    <article class="lead-post" data-reveal>
+      <div class="lead-post__media"><Img image={lead.image} sizes="(min-width: 900px) 55vw, 100vw" alt={lead.title} /></div>
+      <div class="lead-post__body">
+        {lead.category && <span class="eyebrow">{lead.category.name}</span>}
+        <h2 class="h2"><a href={`/blog/${lead.slug}/`}>{lead.title}</a></h2>
+        <p class="muted">{lead.excerpt}</p>
+        <p class="card__meta"><time datetime={lead.published_date}>{formatDate(lead.published_date)}</time><span>{readingMinutes(lead.content_html)} min read</span></p>
+      </div>
+    </article>
+    {rest.length > 0 && <div class="grid grid--3">{rest.map((p) => <PostCard post={p} />)}</div>}
+  </>
+) : (
+  <p class="lead">New stories are on the way. Check back soon.</p>
+)}
+<style>
+  .cats { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2.5rem; }
+  .lead-post { position: relative; display: grid; gap: 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow-sm); margin-bottom: 2.5rem; }
+  @media (min-width: 900px) { .lead-post { grid-template-columns: 1.2fr 1fr; } }
+  .lead-post__media { min-height: 16rem; position: relative; }
+  .lead-post__media :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .lead-post__body { display: grid; gap: 1rem; align-content: center; padding: clamp(1.75rem, 4vw, 3.25rem); }
+  .lead-post a { text-decoration: none; }
+  .lead-post a::after { content: ''; position: absolute; inset: 0; }
+</style>
