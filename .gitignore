@@ -41,3 +41,4 @@ php.ini
 # Deploy config (server-specific)
 deploy/config.sh
 web/dist.new/
+backend/tmp/
