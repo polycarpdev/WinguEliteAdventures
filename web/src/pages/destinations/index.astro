@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import RegionCard from '../../components/RegionCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { regions } from '../../lib/content';
+import { abs } from '../../lib/schema';
+
+const crumbs = [{ name: 'Destinations', href: '/destinations/' }];
+const schema = [{
+  '@type': 'ItemList',
+  name: 'Wingu Elite destinations by region',
+  itemListElement: regions.map((r, i) => ({ '@type': 'ListItem', position: i + 1, url: abs(`/destinations/${r.slug}/`), name: r.name })),
+}];
+---
+<Base
+  title="Destinations: East Africa, Africa & International"
+  description="Explore Wingu Elite destinations: Kenya, Tanzania, Uganda and Rwanda safaris in East Africa, journeys across Africa from Egypt to the Cape, and handpicked international escapes."
+  crumbs={crumbs}
+  schema={schema}
+>
+  <PageHero title="Where would you like to go?" eyebrow="Destinations" lead="From the great migration to the Maldives: private journeys across East Africa, the wider continent and beyond." crumbs={crumbs} />
+  <section class="section">
+    <div class="container grid grid--3">
+      {regions.map((r) => <RegionCard region={r} />)}
+    </div>
+  </section>
+  <CtaBand title="Somewhere else in mind?" text="If it’s not listed, ask anyway. We design trips across Africa and the world, with the same private, unhurried care." />
+</Base>

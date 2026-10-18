@@ -1,0 +1,87 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import DestinationCard from '../../../components/DestinationCard.astro';
+import ItineraryCard from '../../../components/ItineraryCard.astro';
+import Icon from '../../../components/Icon.astro';
+import CtaBand from '../../../components/CtaBand.astro';
+import {
+  regions, inCountry, liveCountries, itineraries, coverFor, countryUrl, clip, type Region, type Country,
+} from '../../../lib/content';
+import { abs } from '../../../lib/schema';
+
+// Only countries with destinations get a page (no thin, empty pages for search engines).
+export function getStaticPaths() {
+  return regions.flatMap((r) => liveCountries(r).map((c) => ({ params: { region: r.slug, country: c.slug }, props: { r, c } })));
+}
+const { r, c } = Astro.props as { r: Region; c: Country };
+const list = inCountry(c.slug);
+const trips = itineraries.filter((i) => i.destination.country_slug === c.slug);
+const neighbours = liveCountries(r).filter((x) => x.slug !== c.slug);
+const cover = coverFor(c.image, list);
+const url = countryUrl(r.slug, c.slug);
+const crumbs = [
+  { name: 'Destinations', href: '/destinations/' },
+  { name: r.name, href: `/destinations/${r.slug}/` },
+  { name: c.name, href: url },
+];
+const description = clip(
+  `${c.name} safaris and tours with Wingu Elite Adventures: ${list.map((d) => d.name).slice(0, 6).join(', ')}. ${c.intro}`,
+);
+const schema = [{
+  '@type': 'TouristDestination',
+  name: c.name,
+  url: abs(url),
+  ...(cover && { image: abs(cover.src) }),
+  containedInPlace: { '@type': 'Place', name: r.name },
+  includesAttraction: list.map((d) => ({ '@type': 'TouristAttraction', name: d.name, url: abs(`/destinations/detail/${d.slug}/`) })),
+}];
+---
+<Base title={`${c.name} Safaris & Tours`} description={description} crumbs={crumbs} schema={schema} image={cover?.src} overlayHeader={!!cover}>
+  <PageHero
+    title={`${c.name} safaris & tours`}
+    eyebrow={r.name}
+    lead={c.intro ? clip(c.intro, 220) : `${list.length} handpicked destination${list.length > 1 ? 's' : ''}, explored privately with a Wingu guide.`}
+    image={cover}
+    crumbs={crumbs}
+    size="lg"
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Where to go</span>
+        <h2 class="h2">{c.name} destinations</h2>
+      </div>
+      <div class="grid grid--3">{list.map((d) => <DestinationCard destination={d} />)}</div>
+    </div>
+  </section>
+
+  {trips.length > 0 && (
+    <section class="section section--sand">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div><span class="eyebrow">Ready-made journeys</span><h2 class="h2">{c.name} safari packages</h2></div>
+          <a href="/itineraries/" class="btn btn--outline">All safaris <Icon name="arrow-right" /></a>
+        </div>
+        <div class="grid grid--3">{trips.map((i) => <ItineraryCard itinerary={i} />)}</div>
+      </div>
+    </section>
+  )}
+
+  {neighbours.length > 0 && (
+    <section class="section section--tight">
+      <div class="container neighbours">
+        <span>Combine with:</span>
+        {neighbours.map((x) => <a href={countryUrl(r.slug, x.slug)} class="link-arrow">{x.name} <Icon name="arrow-right" /></a>)}
+        <a href={`/destinations/${r.slug}/`} class="link-arrow">All of {r.name} <Icon name="arrow-right" /></a>
+      </div>
+    </section>
+  )}
+
+  <CtaBand title={`Plan your ${c.name} journey`} />
+</Base>
+
+<style>
+  .neighbours { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.75rem 2rem; color: var(--muted); }
+</style>

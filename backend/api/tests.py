@@ -10,7 +10,7 @@ from django.test import TestCase, override_settings
 
 from bookings.models import Booking
 from contact.models import ContactMessage
-from destinations.models import Destination
+from destinations.models import Country, Destination
 
 ORIGIN = 'http://localhost:4321'
 _TMP = Path(tempfile.mkdtemp())
@@ -23,7 +23,7 @@ class FormApiTests(TestCase):
     def setUp(self):
         cache.clear()
         self.dest = Destination.objects.create(
-            name='Masai Mara', country='kenya', description='x', short_description='x', featured_image='x.jpg')
+            name='Masai Mara', country=Country.objects.get(slug='kenya'), description='x', short_description='x', featured_image='x.jpg')
         self.t = int(time.time() * 1000) - 10_000
 
     def post(self, url, payload, origin=ORIGIN):

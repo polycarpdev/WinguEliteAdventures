@@ -1,19 +1,41 @@
 ---
 import { nav } from '../config/site';
+import { regions } from '../lib/content';
 import Brand from './Brand.astro';
 import Icon from './Icon.astro';
 
 const { overlay = false } = Astro.props as { overlay?: boolean };
 const path = Astro.url.pathname;
-const isActive = (href: string) =>
-  href === '/destinations/kenya/' ? path.startsWith('/destinations/') : path.startsWith(href);
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 ---
 <header class="site-header" data-overlay={overlay ? '' : undefined} data-header>
   <div class="container site-header__inner">
     <Brand />
     <nav class="site-nav" id="site-nav" aria-label="Main">
       <ul class="site-nav__list">
-        {nav.map((item) => (
+        {nav.map((item) => item.regions ? (
+          <li class="has-sub" data-sub>
+            <a href={item.href} class="site-nav__link" aria-current={isActive(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+            <button class="sub-toggle" type="button" aria-expanded="false" aria-label={`Show ${item.label} menu`} data-sub-toggle>
+              <Icon name="chevron" />
+            </button>
+            <div class="sub">
+              <ul class="sub__list">
+                {regions.map((r) => (
+                  <li>
+                    <a href={`/destinations/${r.slug}/`} class="sub__link" aria-current={path.startsWith(`/destinations/${r.slug}/`) ? 'page' : undefined}>
+                      <strong>{r.name}</strong>
+                      {r.countries.length > 0 && <span>{r.countries.slice(0, 4).map((c) => c.name).join(', ')}{r.countries.length > 4 && '…'}</span>}
+                    </a>
+                  </li>
+                ))}
+                <li><a href={item.href} class="sub__all">All destinations <Icon name="arrow-right" /></a></li>
+              </ul>
+            </div>
+          </li>
+        ) : (
           <li>
             <a href={item.href} class="site-nav__link" aria-current={isActive(item.href) ? 'page' : undefined}>
               {item.label}
@@ -21,7 +43,7 @@ const isActive = (href: string) =>
           </li>
         ))}
       </ul>
-      <a href="/bookings/" class="btn btn--gold site-nav__cta">Plan your safari</a>
+      <a href="/bookings/" class="btn btn--gold site-nav__cta">Book Now</a>
     </nav>
     <button class="menu-toggle" type="button" aria-controls="site-nav" aria-expanded="false" data-menu-toggle>
       <span class="sr-only">Menu</span>
@@ -59,14 +81,14 @@ const isActive = (href: string) =>
   }
   .site-header__inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
 
-  .site-nav__list { list-style: none; padding: 0; display: flex; gap: 0.25rem; }
+  .site-nav__list { list-style: none; padding: 0; display: flex; gap: 0.1rem; }
   .site-nav__link {
-    position: relative; display: block; padding: 0.5rem 0.85rem;
-    font-size: 0.92rem; font-weight: 600; text-decoration: none; opacity: 0.88;
+    position: relative; display: block; padding: 0.5rem 0.62rem;
+    font-size: 0.9rem; font-weight: 600; text-decoration: none; opacity: 0.88; white-space: nowrap;
     transition: opacity 0.2s;
   }
   .site-nav__link::after {
-    content: ''; position: absolute; left: 0.85rem; right: 0.85rem; bottom: 0.2rem; height: 1.5px;
+    content: ''; position: absolute; left: 0.62rem; right: 0.62rem; bottom: 0.2rem; height: 1.5px;
     background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.35s var(--ease);
   }
   .site-nav__link:hover, .site-nav__link[aria-current='page'] { opacity: 1; }
@@ -78,8 +100,31 @@ const isActive = (href: string) =>
   [data-open] .menu-toggle__open { display: none; }
   [data-open] .menu-toggle__close { display: block; }
 
+  /* --- Destinations sub-menu --- */
+  .has-sub { position: relative; display: flex; align-items: center; }
+  .sub-toggle { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; margin-left: -0.45rem; color: inherit; opacity: 0.75; }
+  .sub-toggle :global(svg) { width: 0.95rem; height: 0.95rem; transition: transform 0.25s var(--ease); }
+  .sub__list { list-style: none; padding: 0; display: grid; gap: 0.15rem; }
+  .sub__link { display: grid; gap: 0.1rem; padding: 0.7rem 0.9rem; border-radius: var(--radius-sm); text-decoration: none; transition: background 0.2s; }
+  .sub__link strong { font-family: var(--serif); font-weight: 500; font-size: 1.05rem; }
+  .sub__link span { font-size: 0.78rem; color: var(--muted); }
+  .sub__link:hover, .sub__link[aria-current='page'] { background: var(--sand); }
+  .sub__link:hover strong, .sub__link[aria-current='page'] strong { color: var(--olive); }
+  .sub__all { display: inline-flex; align-items: center; gap: 0.4rem; margin: 0.35rem 0.9rem 0.2rem; font-size: 0.85rem; font-weight: 700; color: var(--olive); text-decoration: none; }
+  .sub__all :global(svg) { width: 1rem; height: 1rem; }
+
   @media (min-width: 1100px) {
     .site-nav { display: flex; align-items: center; gap: 1.25rem; }
+    .sub {
+      position: absolute; top: calc(100% + 0.6rem); left: -0.5rem; width: 21rem; z-index: 5;
+      padding: 0.6rem; border-radius: var(--radius); background: var(--white); color: var(--ink);
+      box-shadow: var(--shadow); border: 1px solid var(--line);
+      opacity: 0; visibility: hidden; transform: translateY(-0.4rem);
+      transition: opacity 0.2s var(--ease), transform 0.2s var(--ease), visibility 0.2s;
+    }
+    .sub::before { content: ''; position: absolute; left: 0; right: 0; top: -0.8rem; height: 0.8rem; } /* hover bridge */
+    .has-sub:hover .sub, .has-sub:focus-within .sub, .has-sub[data-sub-open] .sub { opacity: 1; visibility: visible; transform: none; }
+    .has-sub:hover .sub-toggle :global(svg), .has-sub[data-sub-open] .sub-toggle :global(svg) { transform: rotate(180deg); }
   }
 
   @media (max-width: 1099.98px) {
@@ -95,12 +140,19 @@ const isActive = (href: string) =>
     }
     [data-open] .site-nav { opacity: 1; visibility: visible; transform: none; }
     .site-nav__list { flex-direction: column; gap: 0; }
+    .site-nav__list > li { border-bottom: 1px solid var(--line); }
     .site-nav__link {
-      padding: 1rem 0; font-family: var(--serif); font-size: 1.9rem; font-weight: 400;
-      border-bottom: 1px solid var(--line); opacity: 1;
+      padding: 0.8rem 0; font-family: var(--serif); font-size: 1.6rem; font-weight: 400; opacity: 1;
     }
     .site-nav__link::after { display: none; }
     .site-nav__link[aria-current='page'] { color: var(--olive); font-style: italic; }
+    .has-sub { flex-wrap: wrap; justify-content: space-between; }
+    .sub-toggle { width: 2.75rem; height: 2.75rem; margin: 0; border-radius: 999px; background: var(--sand); opacity: 1; }
+    .sub-toggle :global(svg) { width: 1.25rem; height: 1.25rem; }
+    .has-sub[data-sub-open] .sub-toggle :global(svg) { transform: rotate(180deg); }
+    .sub { flex-basis: 100%; display: none; padding: 0 0 0.9rem; }
+    .has-sub[data-sub-open] .sub { display: block; }
+    .sub__link { padding: 0.6rem 0.9rem; background: rgb(239 230 214 / 0.55); }
     .site-nav__cta { width: 100%; min-height: 3.6rem; font-size: 1rem; }
   }
 </style>
@@ -121,6 +173,22 @@ const isActive = (href: string) =>
     setOpen(false);
     toggle.addEventListener('click', () => setOpen(!header.hasAttribute('data-open')));
     header.querySelectorAll('.site-nav a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+
+    // Destinations sub-menu: tap the chevron to expand (mobile) or open (keyboard/touch on desktop).
+    header.querySelectorAll<HTMLElement>('[data-sub]').forEach((li) => {
+      const btn = li.querySelector<HTMLButtonElement>('[data-sub-toggle]')!;
+      btn.addEventListener('click', () => {
+        const open = !li.hasAttribute('data-sub-open');
+        li.toggleAttribute('data-sub-open', open);
+        btn.setAttribute('aria-expanded', String(open));
+      });
+      li.addEventListener('mouseleave', () => {
+        if (window.matchMedia('(min-width: 1100px)').matches) {
+          li.removeAttribute('data-sub-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
 
     const onScroll = () => {
       document.querySelector('[data-header]')?.toggleAttribute('data-scrolled', window.scrollY > 24);

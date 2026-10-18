@@ -7,7 +7,7 @@
 </div>
 <div class="ck-toolbar">
   {% if ct.search %}<form class="ck-search" role="search">{% icon 'search' %}<input class="input" type="search" name="q" value="{{ q }}" placeholder="Search {{ ct.plural|lower }}…">{% for k, v in active.items %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}</form>{% endif %}
-  {% for param, f in ct.filters.items %}
+  {% for param, f in filters.items %}
   <nav class="tabs">
     <a class="chip" href="?{% if q %}q={{ q|urlencode }}{% endif %}" {% if param not in active %}aria-current="page"{% endif %}>All</a>
     {% for v, label in f.1 %}<a class="chip" href="?{{ param }}={{ v }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% for k, av in active.items %}{% if k == param and av == v|stringformat:'s' %}aria-current="page"{% endif %}{% endfor %}>{{ label }}</a>{% endfor %}

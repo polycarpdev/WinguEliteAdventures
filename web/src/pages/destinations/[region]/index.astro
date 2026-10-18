@@ -1,0 +1,115 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import DestinationCard from '../../../components/DestinationCard.astro';
+import Icon from '../../../components/Icon.astro';
+import CtaBand from '../../../components/CtaBand.astro';
+import {
+  regions, inRegion, inCountry, liveCountries, comingCountries, coverFor, countryUrl, clip, type Region,
+} from '../../../lib/content';
+import { abs } from '../../../lib/schema';
+
+export function getStaticPaths() {
+  return regions.map((r) => ({ params: { region: r.slug }, props: { r } }));
+}
+const { r } = Astro.props as { r: Region };
+const all = inRegion(r.slug);
+const live = liveCountries(r);
+const coming = comingCountries(r);
+const others = regions.filter((x) => x.slug !== r.slug);
+const crumbs = [{ name: 'Destinations', href: '/destinations/' }, { name: r.name, href: `/destinations/${r.slug}/` }];
+const placeNames = r.countries.map((c) => c.name);
+const description = clip(
+  `${r.name} trips with Wingu Elite Adventures: ${placeNames.slice(0, 6).join(', ')}. ${r.description || r.tagline}`,
+);
+const schema = [{
+  '@type': 'Place',
+  name: r.name,
+  url: abs(`/destinations/${r.slug}/`),
+  containsPlace: r.countries.map((c) => ({ '@type': 'Place', name: c.name })),
+}];
+---
+<Base title={`${r.name} Safaris & Holidays`} description={description} crumbs={crumbs} schema={schema} image={coverFor(r.image, all)?.src} overlayHeader={!!coverFor(r.image, all)}>
+  <PageHero title={r.name} eyebrow="Destinations" lead={r.tagline || undefined} image={coverFor(r.image, all)} crumbs={crumbs} size="lg">
+    <nav class="tabs" aria-label="Regions">
+      {regions.map((x) => <a href={`/destinations/${x.slug}/`} class="chip chip--hero" aria-current={x.slug === r.slug ? 'page' : undefined}>{x.name}</a>)}
+    </nav>
+  </PageHero>
+
+  {r.description && (
+    <section class="section section--tight">
+      <div class="container container--mid">
+        <p class="intro" data-reveal>{r.description}</p>
+      </div>
+    </section>
+  )}
+
+  {live.map((c, idx) => {
+    const list = inCountry(c.slug);
+    return (
+      <section class:list={['section', 'section--tight', { 'section--sand': idx % 2 === 0 }]}>
+        <div class="container">
+          <div class="section-head section-head--split">
+            <div>
+              <span class="eyebrow">{r.name}</span>
+              <h2 class="h2">{c.name}</h2>
+              {c.intro && <p class="lead">{clip(c.intro, 220)}</p>}
+            </div>
+            <a href={countryUrl(r.slug, c.slug)} class="btn btn--outline">
+              {list.length > 3 ? `All ${list.length} in ${c.name}` : `Explore ${c.name}`} <Icon name="arrow-right" />
+            </a>
+          </div>
+          <div class="grid grid--3">{list.slice(0, 3).map((d) => <DestinationCard destination={d} />)}</div>
+        </div>
+      </section>
+    );
+  })}
+
+  {coming.length > 0 && (
+    <section class="section section--tight">
+      <div class="container on-request" data-reveal>
+        <div>
+          <span class="eyebrow">{live.length ? 'Also in ' + r.name : 'Tailor-made'}</span>
+          <h2 class="h2">{live.length ? 'More places, planned on request' : `Plan your ${r.name} journey`}</h2>
+          <p class="lead">
+            We design private trips to each of these. Tell us where and when, and a specialist will send a tailored
+            itinerary within 24 hours.
+          </p>
+        </div>
+        <ul class="places">
+          {coming.map((c) => (
+            <li><a href={`/contact/?subject=${encodeURIComponent(`Trip to ${c.name}`)}`} class="place"><Icon name="pin" />{c.name}</a></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="other-regions-wrap">
+    <div class="container other-regions">
+      <span>Explore other regions:</span>
+      {others.map((x) => <a href={`/destinations/${x.slug}/`} class="link-arrow">{x.name} <Icon name="arrow-right" /></a>)}
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<style>
+  .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+  .chip--hero { color: inherit; border-color: currentColor; opacity: 0.9; }
+  .chip--hero[aria-current='page'] { background: var(--gold-300); border-color: var(--gold-300); color: var(--ink); opacity: 1; }
+  .intro { font-family: var(--serif); font-size: clamp(1.25rem, 2vw, 1.6rem); line-height: 1.5; text-align: center; color: var(--ink-soft); }
+  .on-request { display: grid; gap: 2rem; padding: clamp(1.75rem, 4vw, 3rem); border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow-sm); }
+  @media (min-width: 900px) { .on-request { grid-template-columns: 1fr 1fr; align-items: center; gap: 4rem; } }
+  .places { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .place {
+    display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.7rem 1.15rem; border-radius: 999px;
+    border: 1px solid var(--line-strong); font-weight: 600; text-decoration: none; transition: all 0.2s var(--ease);
+  }
+  .place :global(svg) { width: 1rem; height: 1rem; color: var(--gold); }
+  .place:hover { border-color: var(--olive); background: var(--olive); color: var(--cream); }
+  .place:hover :global(svg) { color: var(--gold-300); }
+  .other-regions-wrap { padding-bottom: clamp(3rem, 6vw, 5rem); }
+  .other-regions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 2rem; justify-content: center; color: var(--muted); }
+</style>

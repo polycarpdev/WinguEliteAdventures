@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
-import { destinations, itineraries, usd } from '../../lib/content';
+import { regions, liveCountries, inCountry, itineraries, usd } from '../../lib/content';
 import { site } from '../../config/site';
 
 const crumbs = [{ name: 'Plan your safari', href: '/bookings/' }];
@@ -13,7 +13,7 @@ const accommodation = [
 ];
 ---
 <Base title="Plan & Book Your Safari" description="Request a private, tailor-made Kenya safari quote from Wingu Elite Adventures. Share your dates and wishes, and a specialist replies within 24 hours." crumbs={crumbs}>
-  <PageHero title="Plan your safari" eyebrow="Tailor-made" lead="Share a few details and a Wingu specialist will send a personalised itinerary and quote within 24 hours. No payment needed now." crumbs={crumbs} />
+  <PageHero title="Book now" eyebrow="Tailor-made" lead="Share a few details and a Wingu specialist will send a personalised itinerary and quote within 24 hours. No payment needed now." crumbs={crumbs} />
 
   <section class="section">
     <div class="container booking">
@@ -25,7 +25,11 @@ const accommodation = [
               <label for="destination">Destination <span class="req">*</span></label>
               <select id="destination" name="destination" class="input" required>
                 <option value="">Choose a destination</option>
-                {destinations.map((d) => <option value={d.slug}>{d.name}</option>)}
+                {regions.flatMap((r) => liveCountries(r)).map((c) => (
+                  <optgroup label={c.name}>
+                    {inCountry(c.slug).map((d) => <option value={d.slug}>{d.name}</option>)}
+                  </optgroup>
+                ))}
               </select>
               <p class="field-error" data-error-for="destination"></p>
             </div>

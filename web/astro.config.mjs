@@ -8,6 +8,11 @@ export default defineConfig({
   site: 'https://wingueliteadventures.co.ke',
   trailingSlash: 'always', // matches the old Django URLs exactly
   compressHTML: true,
+  // Old URLs from before regions existed. Production 301s these in .htaccess;
+  // this also covers `astro dev` and leaves a redirect page in the build.
+  redirects: {
+    '/destinations/kenya/': '/destinations/east-africa/kenya/',
+  },
   // Scope class travels with the `class` prop, so parents can style child components.
   scopedStyleStrategy: 'class',
   build: {

@@ -26,6 +26,9 @@ ErrorDocument 404 /404.html
   RewriteCond %{REQUEST_URI} !^/\.well-known/
   RewriteRule ^ https://wingueliteadventures.co.ke%{REQUEST_URI} [L,R=301,NE]
 
+  # Old destination listing URLs (before regions) keep their search ranking
+  RewriteRule ^destinations/kenya/?$ /destinations/east-africa/kenya/ [L,R=301]
+
   # Add the trailing slash the site uses: /about -> /about/
   RewriteCond %{REQUEST_URI} !^/(cockpit|api|ckeditor5|static|media)/
   RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}/index.html -f

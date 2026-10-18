@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from blog.models import BlogCategory, BlogPost
 from core.models import FAQ, TeamMember
-from destinations.models import Destination
+from destinations.models import Destination, Region
 from gallery.models import GalleryAlbum
 from itineraries.models import Itinerary
 from testimonials.models import Testimonial
@@ -30,7 +30,8 @@ def destination(d, full=True):
         'id': d.id,
         'name': d.name,
         'slug': d.slug,
-        'country': d.country,
+        'country': {'name': d.country.name, 'slug': d.country.slug},
+        'region': {'name': d.country.region.name, 'slug': d.country.region.slug},
         'short_description': d.short_description,
         'image': image_data(d.featured_image, d.name),
         'is_featured': d.is_featured,
@@ -46,7 +47,11 @@ def itinerary(i):
         'id': i.id,
         'title': i.title,
         'slug': i.slug,
-        'destination': {'name': i.destination.name, 'slug': i.destination.slug, 'country': i.destination.country},
+        'destination': {
+            'name': i.destination.name, 'slug': i.destination.slug,
+            'country': i.destination.country.name, 'country_slug': i.destination.country.slug,
+            'region_slug': i.destination.country.region.slug,
+        },
         'duration_days': i.duration_days,
         'difficulty': i.difficulty,
         'difficulty_label': i.get_difficulty_display(),
@@ -98,9 +103,20 @@ def build_content():
     return {
         'generated_at': timezone.now().isoformat(),
         'site_url': settings.SITE_URL,
-        'destinations': [destination(d) for d in Destination.objects.all()],
+        'regions': [
+            {
+                'name': r.name, 'slug': r.slug, 'tagline': r.tagline, 'description': r.description,
+                'image': image_data(r.image, r.name),
+                'countries': [
+                    {'name': c.name, 'slug': c.slug, 'intro': c.intro, 'image': image_data(c.image, c.name)}
+                    for c in r.countries.all()
+                ],
+            }
+            for r in Region.objects.prefetch_related('countries')
+        ],
+        'destinations': [destination(d) for d in Destination.objects.select_related('country__region')],
         'itineraries': [
-            itinerary(i) for i in Itinerary.objects.select_related('destination').prefetch_related('days')
+            itinerary(i) for i in Itinerary.objects.select_related('destination__country__region').prefetch_related('days')
         ],
         'blog': {
             'categories': [

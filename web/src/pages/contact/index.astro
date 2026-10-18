@@ -89,6 +89,11 @@ const schema = [{ '@type': 'ContactPage', name: 'Contact Wingu Elite Adventures'
   import { bindForm } from '../../lib/forms';
   document.addEventListener('astro:page-load', () => {
     const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
-    if (form) bindForm(form, '/api/contact/', '/contact/success/');
+    if (!form) return;
+    bindForm(form, '/api/contact/', '/contact/success/');
+    // Links like /contact/?subject=Trip%20to%20Uganda prefill the subject.
+    const subject = new URLSearchParams(location.search).get('subject');
+    const field = form.elements.namedItem('subject') as HTMLInputElement | null;
+    if (subject && field && !field.value) field.value = subject.slice(0, 200);
   });
 </script>

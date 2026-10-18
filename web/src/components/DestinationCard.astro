@@ -11,7 +11,7 @@ const count = itinerariesFor(d.slug).length;
 <article class:list={['dest-card', { 'dest-card--tall': tall }]} data-reveal>
   <Img image={d.image} sizes="(min-width: 1100px) 33vw, (min-width: 640px) 50vw, 100vw" alt={`${d.name}, Kenya safari destination`} />
   <div class="dest-card__body">
-    <span class="dest-card__country"><Icon name="pin" /> {d.country === 'kenya' ? 'Kenya' : 'International'}</span>
+    <span class="dest-card__country"><Icon name="pin" /> {d.country.name}</span>
     <h3 class="dest-card__title"><a href={`/destinations/detail/${d.slug}/`}>{d.name}</a></h3>
     <p class="dest-card__desc clamp-2">{d.short_description}</p>
     <span class="dest-card__more">

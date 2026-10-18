@@ -25,6 +25,10 @@ def _cell(obj, attr):
     return value() if callable(value) else value
 
 
+def _related(ct):
+    return [f.name for f in ct.model._meta.get_fields() if f.many_to_one and f.name in ct.fields]
+
+
 @staff_required
 def content_list(request, key):
     ct = _ctype(key)
@@ -40,15 +44,16 @@ def content_list(request, key):
         if (v := request.GET.get(param)) not in (None, ''):
             qs = qs.filter(**{lookup: (v == '1') if lookup.startswith('is_') else v})
             active[param] = v
-    page = Paginator(qs, 24).get_page(request.GET.get('page'))
+    page = Paginator(qs.select_related(*_related(ct)), 24).get_page(request.GET.get('page'))
     rows = [{
         'obj': o,
         'cells': [_cell(o, attr) for attr, _ in ct.columns],
         'image': getattr(o, ct.image) if ct.image else None,
         'url': ct.public_url(o) if ct.public_url else None,
     } for o in page]
+    filters = {param: (lookup, choices() if callable(choices) else choices) for param, (lookup, choices) in ct.filters.items()}
     return render(request, 'cockpit/content/list.html', {
-        'ct': ct, 'types': TYPES, 'page': page, 'rows': rows, 'q': q, 'active': active,
+        'ct': ct, 'types': TYPES, 'page': page, 'rows': rows, 'q': q, 'active': active, 'filters': filters,
         'headers': [h for _, h in ct.columns],
     })
 
@@ -103,9 +108,13 @@ def content_delete(request, key, pk):
         {'label': m._meta.verbose_name_plural, 'count': len(objs)}
         for m, objs in collector.model_objs.items() if m is not ct.model and objs
     ]
-    if request.method == 'POST':
+    protected = [str(o) for o in list(collector.protected)[:8]]
+    if request.method == 'POST' and not protected:
         name = str(obj)
         obj.delete()
         messages.success(request, f'{ct.label} “{name}” deleted.')
         return redirect('cockpit:content_list', key=key)
-    return render(request, 'cockpit/content/delete.html', {'ct': ct, 'types': TYPES, 'obj': obj, 'affected': affected})
+    return render(request, 'cockpit/content/delete.html', {
+        'ct': ct, 'types': TYPES, 'obj': obj, 'affected': affected, 'protected': protected,
+        'protected_more': max(0, len(collector.protected) - len(protected)),
+    })

@@ -14,7 +14,8 @@ export interface Destination {
   id: number;
   name: string;
   slug: string;
-  country: 'kenya' | 'international';
+  country: { name: string; slug: string };
+  region: { name: string; slug: string };
   short_description: string;
   description_html: string;
   image: Img | null;
@@ -32,7 +33,7 @@ export interface Itinerary {
   id: number;
   title: string;
   slug: string;
-  destination: { name: string; slug: string; country: string };
+  destination: { name: string; slug: string; country: string; country_slug: string; region_slug: string };
   duration_days: number;
   difficulty: string;
   difficulty_label: string;
@@ -80,9 +81,26 @@ export interface Testimonial {
   is_featured: boolean;
 }
 
+export interface Country {
+  name: string;
+  slug: string;
+  intro: string;
+  image: Img | null;
+}
+
+export interface Region {
+  name: string;
+  slug: string;
+  tagline: string;
+  description: string;
+  image: Img | null;
+  countries: Country[];
+}
+
 export interface Content {
   generated_at: string;
   site_url: string;
+  regions: Region[];
   destinations: Destination[];
   itineraries: Itinerary[];
   blog: { categories: { name: string; slug: string }[]; posts: Post[] };
@@ -94,16 +112,21 @@ export interface Content {
 }
 
 export const content = raw as unknown as Content;
-export const { destinations, itineraries, gallery, testimonials, team, faqs } = content;
+export const { regions, destinations, itineraries, gallery, testimonials, team, faqs } = content;
 export const posts = content.blog.posts;
 export const categories = content.blog.categories.filter((c) => posts.some((p) => p.category?.slug === c.slug));
 
-export const COUNTRIES = {
-  kenya: { label: 'Kenya', title: 'Kenya Safari Destinations' },
-  international: { label: 'Beyond Kenya', title: 'International Destinations' },
-} as const;
-
-export const byCountry = (country: string) => destinations.filter((d) => d.country === country);
+// --- Regions > countries > destinations ------------------------------------
+export const inCountry = (countrySlug: string) => destinations.filter((d) => d.country.slug === countrySlug);
+export const inRegion = (regionSlug: string) => destinations.filter((d) => d.region.slug === regionSlug);
+/** Countries with at least one destination get their own page. */
+export const liveCountries = (r: Region) => r.countries.filter((c) => inCountry(c.slug).length > 0);
+export const comingCountries = (r: Region) => r.countries.filter((c) => inCountry(c.slug).length === 0);
+export const regionOf = (slug: string) => regions.find((r) => r.slug === slug);
+export const countryUrl = (regionSlug: string, countrySlug: string) => `/destinations/${regionSlug}/${countrySlug}/`;
+/** Cover image for a region or country: its own, else the best of its destinations. */
+export const coverFor = (img: Img | null, list: Destination[]) =>
+  img ?? [...list].filter((d) => d.image).sort((a, b) => (b.image!.width - a.image!.width))[0]?.image ?? null;
 export const itinerariesFor = (destSlug: string) => itineraries.filter((i) => i.destination.slug === destSlug);
 
 /** Hero photo: the company's own gallery shots first, then featured destinations. */

@@ -5,7 +5,7 @@ from typing import Callable
 
 from blog.models import BlogCategory, BlogPost
 from core.models import FAQ, TeamMember
-from destinations.models import Destination
+from destinations.models import Country, Destination, Region
 from gallery.models import GalleryAlbum
 from itineraries.models import Itinerary
 from testimonials.models import Testimonial
@@ -52,13 +52,34 @@ TYPES = [
     ContentType(
         key='destinations', model=Destination, label='Destination', plural='Destinations', icon='pin',
         fields=['name', 'slug', 'country', 'short_description', 'featured_image', 'is_featured', 'description'],
-        columns=[('name', 'Destination'), ('get_country_display', 'Region'), ('is_featured', 'Featured')],
-        search=['name', 'short_description'],
-        filters={'country': ('country', Destination.COUNTRY_CHOICES),
+        columns=[('name', 'Destination'), (lambda o: o.country.name, 'Country'), (lambda o: o.country.region.name, 'Region'),
+                 ('is_featured', 'Featured')],
+        search=['name', 'short_description', 'country__name'],
+        filters={'region': ('country__region__slug', lambda: list(Region.objects.values_list('slug', 'name'))),
                  'featured': ('is_featured', _bool_choices('Featured', 'Not featured'))},
         image='featured_image',
         public_url=lambda o: f'/destinations/detail/{o.slug}/',
-        help='Parks, reserves and places. Each safari belongs to one destination.',
+        help='Parks, reserves, beaches and cities. Each belongs to a country; each safari belongs to a destination.',
+    ),
+    ContentType(
+        key='countries', model=Country, label='Country', plural='Countries', icon='globe',
+        fields=['name', 'slug', 'region', 'order', 'image', 'intro'],
+        columns=[('name', 'Country / place'), ('region', 'Region'), (lambda o: o.destinations.count(), 'Destinations'),
+                 ('order', 'Order')],
+        search=['name'],
+        filters={'region': ('region__slug', lambda: list(Region.objects.values_list('slug', 'name')))},
+        image='image',
+        public_url=lambda o: f'/destinations/{o.region.slug}/{o.slug}/' if o.destinations.exists() else None,
+        help='Countries or places (Kenya, Tanzania, Dubai, Bali…). Their page appears once they have a destination.',
+    ),
+    ContentType(
+        key='regions', model=Region, label='Region', plural='Regions', icon='map',
+        fields=['name', 'slug', 'tagline', 'order', 'image', 'description'],
+        columns=[('name', 'Region'), (lambda o: o.countries.count(), 'Countries'), ('order', 'Order')],
+        search=['name'],
+        image='image',
+        public_url=lambda o: f'/destinations/{o.slug}/',
+        help='The groups in the Destinations menu: East Africa, Africa, International.',
     ),
     ContentType(
         key='posts', model=BlogPost, label='Blog post', plural='Blog posts', icon='pen',

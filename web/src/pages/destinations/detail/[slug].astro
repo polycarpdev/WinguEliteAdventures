@@ -5,7 +5,7 @@ import ItineraryCard from '../../../components/ItineraryCard.astro';
 import DestinationCard from '../../../components/DestinationCard.astro';
 import Icon from '../../../components/Icon.astro';
 import CtaBand from '../../../components/CtaBand.astro';
-import { destinations, itinerariesFor, clip, COUNTRIES, type Destination } from '../../../lib/content';
+import { destinations, itinerariesFor, clip, countryUrl, type Destination } from '../../../lib/content';
 import { abs } from '../../../lib/schema';
 
 export function getStaticPaths() {
@@ -13,10 +13,16 @@ export function getStaticPaths() {
 }
 const { d } = Astro.props as { d: Destination };
 const trips = itinerariesFor(d.slug);
-const nearby = destinations.filter((x) => x.slug !== d.slug && x.country === d.country).slice(0, 3);
-const region = COUNTRIES[d.country] ?? COUNTRIES.kenya;
+// Same country first, then the rest of the region.
+const nearby = destinations
+  .filter((x) => x.slug !== d.slug && x.region.slug === d.region.slug)
+  .sort((a, b) => Number(b.country.slug === d.country.slug) - Number(a.country.slug === d.country.slug))
+  .slice(0, 3);
+const countryHref = countryUrl(d.region.slug, d.country.slug);
 const crumbs = [
-  { name: 'Destinations', href: `/destinations/${d.country}/` },
+  { name: 'Destinations', href: '/destinations/' },
+  { name: d.region.name, href: `/destinations/${d.region.slug}/` },
+  { name: d.country.name, href: countryHref },
   { name: d.name, href: `/destinations/detail/${d.slug}/` },
 ];
 const schema = [{
@@ -25,7 +31,7 @@ const schema = [{
   description: clip(d.short_description, 300),
   url: abs(`/destinations/detail/${d.slug}/`),
   ...(d.image && { image: abs(d.image.src) }),
-  ...(d.country === 'kenya' && { containedInPlace: { '@type': 'Country', name: 'Kenya' } }),
+  containedInPlace: { '@type': 'Place', name: d.country.name, url: abs(countryHref) },
   touristType: ['Wildlife safari', 'Nature', 'Adventure'],
 }];
 ---
@@ -38,7 +44,7 @@ const schema = [{
   schema={schema}
   overlayHeader
 >
-  <PageHero title={d.name} eyebrow={region.label} lead={clip(d.short_description, 220)} image={d.image} crumbs={crumbs} size="lg" />
+  <PageHero title={d.name} eyebrow={`${d.country.name} · ${d.region.name}`} lead={clip(d.short_description, 220)} image={d.image} crumbs={crumbs} size="lg" />
 
   <section class="section">
     <div class="container dest">
@@ -71,8 +77,8 @@ const schema = [{
     <section class="section">
       <div class="container">
         <div class="section-head section-head--split">
-          <div><span class="eyebrow">Keep exploring</span><h2 class="h2">More {region.label} destinations</h2></div>
-          <a href={`/destinations/${d.country}/`} class="btn btn--outline">See all <Icon name="arrow-right" /></a>
+          <div><span class="eyebrow">Keep exploring</span><h2 class="h2">More in {d.country.name}{nearby.some((x) => x.country.slug !== d.country.slug) && ` & ${d.region.name}`}</h2></div>
+          <a href={countryHref} class="btn btn--outline">All of {d.country.name} <Icon name="arrow-right" /></a>
         </div>
         <div class="grid grid--3">{nearby.map((x) => <DestinationCard destination={x} />)}</div>
       </div>

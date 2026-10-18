@@ -1,6 +1,6 @@
 ---
 import { site } from '../config/site';
-import { byCountry } from '../lib/content';
+import { destinations, regions } from '../lib/content';
 import CloudMark from './CloudMark.astro';
 import Icon from './Icon.astro';
 
@@ -9,7 +9,7 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [
   'instagram' | 'facebook' | 'tiktok' | 'youtube' | 'tripadvisor',
   string,
 ][];
-const kenya = byCountry('kenya').slice(0, 6);
+const topParks = [...destinations].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 6);
 ---
 <footer class="site-footer">
   <div class="container">
@@ -30,8 +30,7 @@ const kenya = byCountry('kenya').slice(0, 6);
         <h2>Explore</h2>
         <ul>
           <li><a href="/itineraries/">Safari packages</a></li>
-          <li><a href="/destinations/kenya/">Kenya destinations</a></li>
-          <li><a href="/destinations/international/">Beyond Kenya</a></li>
+          {regions.map((r) => <li><a href={`/destinations/${r.slug}/`}>{r.name}</a></li>)}
           <li><a href="/gallery/">Gallery</a></li>
           <li><a href="/blog/">Safari journal</a></li>
         </ul>
@@ -40,7 +39,7 @@ const kenya = byCountry('kenya').slice(0, 6);
       <div class="site-footer__col">
         <h2>Top parks</h2>
         <ul>
-          {kenya.map((d) => <li><a href={`/destinations/detail/${d.slug}/`}>{d.name.replace(/ (National (Park|Reserve)|Adventures)$/,'')}</a></li>)}
+          {topParks.map((d) => <li><a href={`/destinations/detail/${d.slug}/`}>{d.name.replace(/ (National (Park|Reserve)|Adventures)$/,'')}</a></li>)}
         </ul>
       </div>
 
@@ -49,7 +48,7 @@ const kenya = byCountry('kenya').slice(0, 6);
         <ul>
           <li><a href="/about/">About us</a></li>
           <li><a href="/team/">Our team</a></li>
-          <li><a href="/testimonials/">Guest reviews</a></li>
+          <li><a href="/testimonials/">Reviews</a></li>
           <li><a href="/faqs/">FAQs</a></li>
           <li><a href="/contact/">Contact</a></li>
         </ul>
@@ -63,7 +62,7 @@ const kenya = byCountry('kenya').slice(0, 6);
           {site.whatsapp && <li><Icon name="whatsapp" /><a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener">WhatsApp us</a></li>}
           <li><Icon name="pin" /><span>{site.address.locality}, {site.address.country}</span></li>
         </ul>
-        <a href="/bookings/" class="btn btn--gold site-footer__cta">Plan your safari</a>
+        <a href="/bookings/" class="btn btn--gold site-footer__cta">Book Now</a>
       </div>
     </div>
 

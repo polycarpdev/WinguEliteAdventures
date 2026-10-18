@@ -1,0 +1,53 @@
+---
+import type { Region } from '../lib/content';
+import { inRegion, coverFor, liveCountries } from '../lib/content';
+import Img from './Img.astro';
+import Icon from './Icon.astro';
+
+interface Props { region: Region }
+const { region: r } = Astro.props;
+const list = inRegion(r.slug);
+const cover = coverFor(r.image, list);
+const names = r.countries.slice(0, 5).map((c) => c.name);
+const live = liveCountries(r).length;
+---
+<article class="region-card" data-reveal>
+  <Img image={cover} sizes="(min-width: 1100px) 33vw, (min-width: 640px) 50vw, 100vw" alt={r.name} />
+  <div class="region-card__body">
+    <span class="region-card__count">
+      {list.length > 0 ? `${list.length} destination${list.length > 1 ? 's' : ''}` : 'Tailor-made trips'}
+      {live > 1 && ` · ${live} countries`}
+    </span>
+    <h2 class="region-card__title"><a href={`/destinations/${r.slug}/`}>{r.name}</a></h2>
+    {r.tagline && <p class="region-card__tagline">{r.tagline}</p>}
+    {names.length > 0 && <p class="region-card__places">{names.join(' · ')}{r.countries.length > 5 && ' …'}</p>}
+    <span class="region-card__more">Explore {r.name} <Icon name="arrow-right" /></span>
+  </div>
+</article>
+
+<style>
+  .region-card {
+    position: relative; isolation: isolate; overflow: hidden; min-height: 30rem;
+    display: flex; align-items: flex-end; border-radius: var(--radius-lg);
+    color: var(--cream); background: linear-gradient(135deg, var(--olive-600), var(--olive-950));
+  }
+  .region-card > :global(img), .region-card > :global(.img-fallback) {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;
+    transition: transform 1.1s var(--ease);
+  }
+  .region-card::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(180deg, rgb(39 29 15 / 0.05) 20%, rgb(39 29 15 / 0.9) 100%);
+  }
+  .region-card:hover > :global(img) { transform: scale(1.05); }
+  .region-card__body { display: grid; gap: 0.6rem; padding: clamp(1.5rem, 2.5vw, 2.2rem); }
+  .region-card__count { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-300); }
+  .region-card__title { font-size: clamp(1.8rem, 2.6vw, 2.4rem); }
+  .region-card__title a { text-decoration: none; }
+  .region-card__title a::after { content: ''; position: absolute; inset: 0; }
+  .region-card__tagline { color: rgb(247 242 234 / 0.85); font-size: 0.95rem; }
+  .region-card__places { font-size: 0.82rem; color: rgb(247 242 234 / 0.65); }
+  .region-card__more { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem; font-weight: 600; font-size: 0.9rem; }
+  .region-card__more :global(svg) { width: 1rem; height: 1rem; transition: transform 0.3s var(--ease); }
+  .region-card:hover .region-card__more :global(svg) { transform: translateX(4px); }
+</style>

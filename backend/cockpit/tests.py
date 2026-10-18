@@ -14,7 +14,7 @@ from analytics.models import PageView
 from blog.models import BlogPost
 from bookings.models import Booking
 from contact.models import ContactMessage
-from destinations.models import Destination
+from destinations.models import Country, Destination, Region
 from gallery.models import GalleryAlbum
 from itineraries.models import Itinerary
 
@@ -43,7 +43,8 @@ class CockpitTests(TestCase):
     def setUp(self):
         self.staff = User.objects.create_user('staff', password='pw-12345!', is_staff=True, first_name='Amina')
         self.client.force_login(self.staff)
-        self.dest = Destination.objects.create(name='Masai Mara', description='<p>x</p>', short_description='x', featured_image=jpeg())
+        self.kenya = Country.objects.get(slug='kenya')
+        self.dest = Destination.objects.create(name='Masai Mara', country=self.kenya, description='<p>x</p>', short_description='x', featured_image=jpeg())
         self.trip = Itinerary.objects.create(title='Mara Classic', destination=self.dest, duration_days=3,
                                              price_from=900, overview='<p>x</p>', featured_image=jpeg())
         start = date.today() + timedelta(days=20)
@@ -93,7 +94,7 @@ class CockpitTests(TestCase):
 
     def test_duplicate_name_gets_unique_slug(self):
         self.client.post('/cockpit/content/destinations/new/', {
-            'name': 'Masai Mara', 'slug': '', 'country': 'kenya', 'short_description': 's',
+            'name': 'Masai Mara', 'slug': '', 'country': self.kenya.pk, 'short_description': 's',
             'description': '<p>d</p>', 'featured_image': jpeg()})
         self.assertTrue(Destination.objects.filter(slug='masai-mara-2').exists())
 
@@ -124,6 +125,19 @@ class CockpitTests(TestCase):
         self.assertContains(r, 'itineraries')
         self.client.post(f'/cockpit/content/destinations/{self.dest.pk}/delete/')
         self.assertFalse(Destination.objects.exists())
+
+    def test_country_in_use_cannot_be_deleted(self):
+        r = self.client.post(f'/cockpit/content/countries/{self.kenya.pk}/delete/')
+        self.assertContains(r, 'still in use')
+        self.assertTrue(Country.objects.filter(pk=self.kenya.pk).exists())
+
+    def test_region_filter_and_new_country(self):
+        r = self.client.get('/cockpit/content/destinations/?region=east-africa')
+        self.assertContains(r, 'Masai Mara')
+        self.assertNotContains(self.client.get('/cockpit/content/destinations/?region=africa'), 'Masai Mara')
+        africa = Region.objects.get(slug='africa')
+        self.client.post('/cockpit/content/countries/new/', {'name': 'Ethiopia', 'slug': '', 'region': africa.pk, 'order': 9, 'intro': ''})
+        self.assertTrue(Country.objects.filter(slug='ethiopia', region=africa).exists())
 
     def test_booking_status_update_sets_replied(self):
         self.client.post(f'/cockpit/bookings/{self.booking.pk}/', {'status': 'quote_sent', 'admin_notes': 'Sent PDF'})

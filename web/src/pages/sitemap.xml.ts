@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { destinations, itineraries, posts, categories, gallery, content } from '../lib/content';
+import { destinations, itineraries, posts, categories, gallery, content, regions, liveCountries, countryUrl } from '../lib/content';
 
 const SITE = 'https://wingueliteadventures.co.ke';
 
@@ -8,8 +8,9 @@ export const GET: APIRoute = () => {
   const entries: { loc: string; lastmod?: string; priority: number }[] = [
     { loc: '/', lastmod: built, priority: 1.0 },
     { loc: '/itineraries/', lastmod: built, priority: 0.9 },
-    { loc: '/destinations/kenya/', lastmod: built, priority: 0.9 },
-    { loc: '/destinations/international/', priority: 0.6 },
+    { loc: '/destinations/', lastmod: built, priority: 0.9 },
+    ...regions.map((r) => ({ loc: `/destinations/${r.slug}/`, lastmod: built, priority: 0.85 })),
+    ...regions.flatMap((r) => liveCountries(r).map((c) => ({ loc: countryUrl(r.slug, c.slug), lastmod: built, priority: 0.85 }))),
     { loc: '/bookings/', priority: 0.8 },
     { loc: '/about/', priority: 0.7 },
     { loc: '/team/', priority: 0.5 },
