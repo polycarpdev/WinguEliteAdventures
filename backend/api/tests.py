@@ -46,6 +46,23 @@ class FormApiTests(TestCase):
         self.assertEqual(Booking.objects.count(), 1)
         self.assertEqual(len(mail.outbox), 2)  # admin notification + guest acknowledgement
 
+    def test_booking_by_days_and_nights(self):
+        payload = self.booking_payload(days=5, nights=4)
+        payload.pop('end_date')
+        r = self.post('/api/bookings/', payload)
+        self.assertEqual(r.status_code, 200, r.content)
+        b = Booking.objects.get()
+        self.assertEqual((b.duration_days, b.duration_nights, (b.end_date - b.start_date).days), (5, 4, 4))
+
+    def test_nights_must_match_days(self):
+        r = self.post('/api/bookings/', self.booking_payload(days=5, nights=2))
+        self.assertIn('nights', r.json()['errors'])
+
+    def test_end_date_still_accepted(self):
+        self.post('/api/bookings/', self.booking_payload())
+        b = Booking.objects.get()
+        self.assertEqual((b.duration_days, b.duration_nights), (6, 5))
+
     def test_booking_validation(self):
         r = self.post('/api/bookings/', self.booking_payload(
             email='bad', destination='nope', start_date='2020-01-01', adults=0, accommodation_preference='x'))

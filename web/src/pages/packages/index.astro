@@ -8,11 +8,11 @@ import { abs } from '../../lib/schema';
 
 const destOptions = [...new Map(itineraries.map((i) => [i.destination.slug, i.destination.name])).entries()];
 const diffOptions = [...new Map(itineraries.map((i) => [i.difficulty, i.difficulty_label])).entries()];
-const crumbs = [{ name: 'Safaris', href: '/itineraries/' }];
+const crumbs = [{ name: 'Packages', href: '/packages/' }];
 const schema = [{
   '@type': 'ItemList',
   name: 'Wingu Elite safari packages',
-  itemListElement: itineraries.map((i, idx) => ({ '@type': 'ListItem', position: idx + 1, url: abs(`/itineraries/${i.slug}/`), name: i.title })),
+  itemListElement: itineraries.map((i, idx) => ({ '@type': 'ListItem', position: idx + 1, url: abs(`/packages/${i.slug}/`), name: i.title })),
 }];
 ---
 <Base
@@ -21,7 +21,7 @@ const schema = [{
   crumbs={crumbs}
   schema={schema}
 >
-  <PageHero title="Safari packages" eyebrow="Itineraries" lead="Every journey is private and fully adjustable. Start with one of ours, then make it yours." crumbs={crumbs} />
+  <PageHero title="Our packages" eyebrow="Days & nights, your way" lead="Every package is private and sold by days and nights. Start with one of ours, then stretch or shorten it to fit." crumbs={crumbs} />
   <section class="section">
     <div class="container">
       {(destOptions.length > 1 || diffOptions.length > 1) && (

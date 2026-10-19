@@ -77,7 +77,7 @@ class CockpitTests(TestCase):
             with self.subTest(t=t.key):
                 self.assertEqual(self.client.get(f'/cockpit/content/{t.key}/').status_code, 200)
                 self.assertEqual(self.client.get(f'/cockpit/content/{t.key}/new/').status_code, 200)
-        self.assertEqual(self.client.get(f'/cockpit/content/safaris/{self.trip.pk}/').status_code, 200)
+        self.assertEqual(self.client.get(f'/cockpit/content/packages/{self.trip.pk}/').status_code, 200)
         self.assertEqual(self.client.get('/cockpit/content/nope/').status_code, 404)
 
     def test_create_post_sets_author_slug_and_rebuild_flag(self):
@@ -98,8 +98,8 @@ class CockpitTests(TestCase):
             'description': '<p>d</p>', 'featured_image': jpeg()})
         self.assertTrue(Destination.objects.filter(slug='masai-mara-2').exists())
 
-    def test_safari_with_days(self):
-        r = self.client.post(f'/cockpit/content/safaris/{self.trip.pk}/', {
+    def test_package_with_days(self):
+        r = self.client.post(f'/cockpit/content/packages/{self.trip.pk}/', {
             'title': 'Mara Classic', 'slug': self.trip.slug, 'destination': self.dest.pk, 'duration_days': 3,
             'difficulty': 'easy', 'max_group_size': 6, 'price_from': '950', 'overview': '<p>o</p>',
             'includes': '', 'excludes': '',
@@ -109,6 +109,17 @@ class CockpitTests(TestCase):
         self.assertEqual(r.status_code, 302, r.content[:2000])
         self.trip.refresh_from_db()
         self.assertEqual((self.trip.price_from, self.trip.days.count()), (950, 1))
+        self.assertEqual(self.trip.duration_label, '3 days / 2 nights')  # nights default to days - 1
+
+    def test_hero_slide_exported(self):
+        from api.export import build_content
+        from core.models import HeroSlide
+        HeroSlide.objects.create(headline='Luxury Kenya safaris,', highlight='crafted above the ordinary', image_desktop=jpeg('h.jpg'))
+        HeroSlide.objects.create(headline='Hidden', image_desktop=jpeg('x.jpg'), is_active=False)
+        hero = build_content()['hero']
+        self.assertEqual([h['headline'] for h in hero], ['Luxury Kenya safaris,'])
+        self.assertIsNone(hero[0]['mobile'])
+        self.assertTrue(hero[0]['desktop']['srcset'])
 
     def test_album_multi_upload(self):
         album = GalleryAlbum.objects.create(name='Mara', cover_image=jpeg())

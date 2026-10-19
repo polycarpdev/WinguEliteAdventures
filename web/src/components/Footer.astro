@@ -29,7 +29,7 @@ const topParks = [...destinations].sort((a, b) => Number(b.is_featured) - Number
       <div class="site-footer__col">
         <h2>Explore</h2>
         <ul>
-          <li><a href="/itineraries/">Safari packages</a></li>
+          <li><a href="/packages/">Packages</a></li>
           {regions.map((r) => <li><a href={`/destinations/${r.slug}/`}>{r.name}</a></li>)}
           <li><a href="/gallery/">Gallery</a></li>
           <li><a href="/blog/">Safari journal</a></li>

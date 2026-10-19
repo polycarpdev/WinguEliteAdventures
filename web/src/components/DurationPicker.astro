@@ -1,0 +1,115 @@
+---
+// Days / nights selector. Nights are kept equal to days or one less (how trips
+// are sold). Emits a bubbling `duration-change` event with { days, nights }.
+interface Props {
+  days?: number;
+  nights?: number;
+  name?: boolean;        // render form inputs named "days" / "nights"
+  compact?: boolean;
+  dark?: boolean;
+}
+const { days = 4, nights = Math.max(days - 1, 0), name = false, compact = false, dark = false } = Astro.props;
+const uid = `dur-${Math.random().toString(36).slice(2, 8)}`;
+---
+<div class:list={['duration', { 'duration--compact': compact, 'duration--dark': dark }]} data-duration data-days={days} data-nights={nights} role="group" aria-label="Trip length">
+  <div class="duration__unit">
+    <span class="duration__label" id={`${uid}-d`}>Days</span>
+    <div class="duration__stepper">
+      <button type="button" data-step="days" data-delta="-1" aria-label="Fewer days">−</button>
+      <output data-out="days" aria-labelledby={`${uid}-d`} aria-live="polite">{days}</output>
+      <button type="button" data-step="days" data-delta="1" aria-label="More days">+</button>
+    </div>
+  </div>
+  <div class="duration__unit">
+    <span class="duration__label" id={`${uid}-n`}>Nights</span>
+    <div class="duration__stepper">
+      <button type="button" data-step="nights" data-delta="-1" aria-label="Fewer nights">−</button>
+      <output data-out="nights" aria-labelledby={`${uid}-n`} aria-live="polite">{nights}</output>
+      <button type="button" data-step="nights" data-delta="1" aria-label="More nights">+</button>
+    </div>
+  </div>
+  {name && (
+    <>
+      <input type="hidden" name="days" value={days} data-in="days" />
+      <input type="hidden" name="nights" value={nights} data-in="nights" />
+    </>
+  )}
+</div>
+
+<style>
+  .duration { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .duration__unit {
+    display: grid; gap: 0.35rem; padding: 0.7rem 0.8rem 0.75rem; border-radius: var(--radius-sm);
+    border: 1px solid var(--line-strong); background: var(--white);
+  }
+  .duration__label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .duration__stepper { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; }
+  .duration__stepper output { font-family: var(--serif); font-size: 1.6rem; line-height: 1; min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
+  .duration__stepper button {
+    display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 999px;
+    border: 1px solid var(--line-strong); color: var(--olive); font-size: 1.15rem; line-height: 1;
+    transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .duration__stepper button:hover:not(:disabled) { background: var(--olive); border-color: var(--olive); color: var(--cream); }
+  .duration__stepper button:active:not(:disabled) { transform: scale(0.92); }
+  .duration__stepper button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .duration--compact .duration__unit { padding: 0.5rem 0.65rem; }
+  .duration--compact .duration__stepper output { font-size: 1.3rem; }
+  .duration--compact .duration__stepper button { width: 1.85rem; height: 1.85rem; }
+  .duration--dark .duration__unit { background: rgb(247 242 234 / 0.06); border-color: rgb(247 242 234 / 0.2); }
+  .duration--dark .duration__label { color: rgb(247 242 234 / 0.7); }
+  .duration--dark .duration__stepper button { border-color: rgb(247 242 234 / 0.3); color: var(--gold-300); }
+</style>
+
+<script>
+  const MAX_DAYS = 30;
+
+  function bind(root: HTMLElement) {
+    if (root.dataset.bound) return;
+    root.dataset.bound = '1';
+    let days = Number(root.dataset.days) || 1;
+    let nights = Number(root.dataset.nights);
+    if (Number.isNaN(nights)) nights = Math.max(days - 1, 0);
+
+    const render = () => {
+      root.querySelector('[data-out="days"]')!.textContent = String(days);
+      root.querySelector('[data-out="nights"]')!.textContent = String(nights);
+      const inD = root.querySelector<HTMLInputElement>('[data-in="days"]');
+      const inN = root.querySelector<HTMLInputElement>('[data-in="nights"]');
+      if (inD) inD.value = String(days);
+      if (inN) inN.value = String(nights);
+      const btn = (unit: string, delta: string) => root.querySelector<HTMLButtonElement>(`[data-step="${unit}"][data-delta="${delta}"]`)!;
+      btn('days', '-1').disabled = days <= 1;
+      btn('days', '1').disabled = days >= MAX_DAYS;
+      btn('nights', '-1').disabled = nights <= Math.max(days - 1, 0);
+      btn('nights', '1').disabled = nights >= days;
+      root.dataset.days = String(days);
+      root.dataset.nights = String(nights);
+      root.dispatchEvent(new CustomEvent('duration-change', { bubbles: true, detail: { days, nights } }));
+    };
+
+    // External setters, e.g. when a package is chosen in the booking form.
+    (root as any).setDuration = (d: number, n?: number) => {
+      days = Math.min(Math.max(1, d), MAX_DAYS);
+      nights = n === undefined ? Math.max(days - 1, 0) : Math.min(Math.max(n, days - 1, 0), days);
+      render();
+    };
+
+    root.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-step]');
+      if (!b || b.disabled) return;
+      const delta = Number(b.dataset.delta);
+      if (b.dataset.step === 'days') {
+        const gap = days - nights; // keep the same days/nights shape
+        days = Math.min(Math.max(1, days + delta), MAX_DAYS);
+        nights = Math.max(days - gap, 0);
+      } else {
+        nights = Math.min(Math.max(nights + delta, days - 1, 0), days);
+      }
+      render();
+    });
+    render();
+  }
+
+  document.addEventListener('astro:page-load', () => document.querySelectorAll<HTMLElement>('[data-duration]').forEach(bind));
+</script>

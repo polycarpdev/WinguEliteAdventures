@@ -13,12 +13,13 @@
 <div class="ck-grid ck-grid--detail">
   <div class="ck-grid">
     <section class="panel">
-      <div class="panel__head"><h2>Trip</h2>{% if b.itinerary %}<a href="/itineraries/{{ b.itinerary.slug }}/" target="_blank" rel="noopener">View package →</a>{% endif %}</div>
+      <div class="panel__head"><h2>Trip</h2>{% if b.itinerary %}<a href="/packages/{{ b.itinerary.slug }}/" target="_blank" rel="noopener">View package →</a>{% endif %}</div>
       <dl class="dl">
         <div><dt>Destination</dt><dd>{{ b.destination|default:"—" }}</dd></div>
         <div><dt>Package</dt><dd>{{ b.itinerary|default:"Custom safari" }}</dd></div>
         <div><dt>Arrival</dt><dd>{{ b.start_date|date:"D j M Y" }}</dd></div>
-        <div><dt>Departure</dt><dd>{{ b.end_date|date:"D j M Y" }}{% if nights is not None %} <span class="muted">({{ nights }} night{{ nights|pluralize }})</span>{% endif %}</dd></div>
+        <div><dt>Departure</dt><dd>{{ b.end_date|date:"D j M Y" }}</dd></div>
+        <div><dt>Duration</dt><dd>{% if b.duration_days %}{{ b.duration_days }} day{{ b.duration_days|pluralize }} / {{ b.duration_nights }} night{{ b.duration_nights|pluralize }}{% elif nights is not None %}{{ nights|add:1 }} days / {{ nights }} night{{ nights|pluralize }}{% else %}—{% endif %}</dd></div>
         <div><dt>Travellers</dt><dd>{{ b.adults }} adult{{ b.adults|pluralize }}, {{ b.children }} child{{ b.children|pluralize:"ren" }}</dd></div>
         <div><dt>Accommodation</dt><dd>{{ b.get_accommodation_preference_display }}</dd></div>
         {% if b.itinerary %}<div><dt>Est. value</dt><dd>{{ b.itinerary.price_from|money }}{% if b.adults > 1 %} × {{ b.adults }}{% endif %}</dd></div>{% endif %}

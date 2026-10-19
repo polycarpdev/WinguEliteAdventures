@@ -1,5 +1,12 @@
 // @ts-check
+import { readFileSync } from 'node:fs';
 import { defineConfig, passthroughImageService } from 'astro/config';
+
+// Package slugs, for per-package redirects from the old /itineraries/<slug>/ URLs.
+let packageSlugs = [];
+try {
+  packageSlugs = JSON.parse(readFileSync(new URL('./src/data/content.json', import.meta.url), 'utf8')).itineraries.map((i) => i.slug);
+} catch {}
 
 // Django dev server the Astro dev server proxies forms and media to.
 const API = process.env.API_ORIGIN ?? 'http://127.0.0.1:8000';
@@ -12,6 +19,8 @@ export default defineConfig({
   // this also covers `astro dev` and leaves a redirect page in the build.
   redirects: {
     '/destinations/kenya/': '/destinations/east-africa/kenya/',
+    '/itineraries/': '/packages/',
+    ...Object.fromEntries(packageSlugs.map((slug) => [`/itineraries/${slug}/`, `/packages/${slug}/`])),
   },
   // Scope class travels with the `class` prop, so parents can style child components.
   scopedStyleStrategy: 'class',

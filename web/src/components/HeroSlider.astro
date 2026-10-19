@@ -1,0 +1,229 @@
+---
+// Home page hero slider, managed in the cockpit (Hero slides).
+// Desktop images 2560x1280, phone images 1080x2340. Only the first slide's
+// image loads with the page; the rest load just before they're shown.
+import type { HeroSlide } from '../lib/content';
+import { site } from '../config/site';
+import Icon from './Icon.astro';
+
+interface Props { slides: HeroSlide[] }
+const { slides } = Astro.props;
+const MOBILE = '(max-width: 767px)';
+const many = slides.length > 1;
+---
+<section class="hero" data-hero aria-roledescription={many ? 'carousel' : undefined} aria-label="Featured journeys">
+  <div class="hero__slides">
+    {slides.map((s, i) => {
+      const eager = i === 0;
+      return (
+        <div class:list={['hero__slide', { 'is-active': i === 0 }]} data-slide aria-hidden={i === 0 ? undefined : 'true'}>
+          <picture>
+            {s.mobile && (
+              eager
+                ? <source media={MOBILE} srcset={s.mobile.srcset} sizes="100vw" />
+                : <source media={MOBILE} data-srcset={s.mobile.srcset} sizes="100vw" />
+            )}
+            {eager ? (
+              <img src={s.desktop.src} srcset={s.desktop.srcset} sizes="100vw" width={s.desktop.width} height={s.desktop.height}
+                   alt={s.desktop.alt} fetchpriority="high" decoding="async" />
+            ) : (
+              <img data-src={s.desktop.src} data-srcset={s.desktop.srcset} sizes="100vw" width={s.desktop.width} height={s.desktop.height}
+                   alt={s.desktop.alt} decoding="async" />
+            )}
+          </picture>
+        </div>
+      );
+    })}
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__copies">
+      {slides.map((s, i) => (
+        <div class:list={['hero__copy', { 'is-active': i === 0 }]} data-copy aria-hidden={i === 0 ? undefined : 'true'}>
+          {s.eyebrow && <span class="eyebrow hero__eyebrow">{s.eyebrow}</span>}
+          {i === 0
+            ? <h1 class="display hero__title">{s.headline}{s.highlight && <><br /><em>{s.highlight}</em></>}</h1>
+            : <p class="display hero__title">{s.headline}{s.highlight && <><br /><em>{s.highlight}</em></>}</p>}
+          {s.subtitle && <p class="hero__lead">{s.subtitle}</p>}
+          <div class="hero__actions">
+            <a href={s.button.url} class="btn btn--gold btn--lg" tabindex={i === 0 ? undefined : -1}>{s.button.label} <Icon name="arrow-right" /></a>
+            {s.second && <a href={s.second.url} class="btn btn--ghost btn--lg" tabindex={i === 0 ? undefined : -1}>{s.second.label}</a>}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {many && (
+      <div class="hero__nav">
+        <button type="button" class="hero__arrow" data-prev aria-label="Previous slide"><Icon name="arrow-left" /></button>
+        <div class="hero__dots" role="tablist" aria-label="Choose slide">
+          {slides.map((s, i) => (
+            <button type="button" role="tab" class:list={['hero__dot', { 'is-active': i === 0 }]} data-dot={i}
+                    aria-label={`Slide ${i + 1}: ${s.headline}`} aria-selected={i === 0 ? 'true' : 'false'}><span></span></button>
+          ))}
+        </div>
+        <button type="button" class="hero__arrow" data-next aria-label="Next slide"><Icon name="arrow-right" /></button>
+      </div>
+    )}
+  </div>
+
+  <div class="hero__stats">
+    <div class="container">
+      <ul>{site.stats.map((st) => <li><strong>{st.value}</strong><span>{st.label}</span></li>)}</ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    --slide-ms: 7000ms;
+    position: relative; isolation: isolate; color: var(--cream);
+    min-height: 100vh; min-height: 100svh;
+    display: grid; grid-template-rows: 1fr auto; background: var(--ink); overflow: hidden;
+  }
+  .hero__slides { position: absolute; inset: 0; z-index: -1; }
+  .hero__slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s var(--ease); }
+  .hero__slide.is-active { opacity: 1; }
+  .hero__slide picture, .hero__slide img { width: 100%; height: 100%; }
+  .hero__slide img { object-fit: cover; transform: scale(1.08); transition: transform 9s cubic-bezier(0.25, 0.1, 0.25, 1); }
+  .hero__slide.is-active img { transform: scale(1); }
+  .hero__slides::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(180deg, rgb(39 29 15 / 0.55) 0%, rgb(39 29 15 / 0.08) 28%, rgb(39 29 15 / 0.3) 58%, rgb(39 29 15 / 0.92) 100%),
+      linear-gradient(90deg, rgb(39 29 15 / 0.6), transparent 62%);
+  }
+
+  .hero__inner { align-self: end; display: grid; gap: 2rem; padding-top: calc(var(--header-h) + 4rem); padding-bottom: clamp(2rem, 4vw, 3.25rem); }
+  .hero__copies { display: grid; }
+  .hero__copy { grid-area: 1 / 1; display: grid; justify-items: start; align-content: end; gap: 1.2rem; visibility: hidden; }
+  .hero__copy.is-active { visibility: visible; }
+  .hero__copy > * { opacity: 0; transform: translateY(1.4rem); transition: opacity 0.7s var(--ease), transform 0.9s var(--ease); }
+  .hero__copy.is-active > * { opacity: 1; transform: none; }
+  .hero__copy.is-active > :nth-child(2) { transition-delay: 0.08s; }
+  .hero__copy.is-active > :nth-child(3) { transition-delay: 0.16s; }
+  .hero__copy.is-active > :nth-child(4) { transition-delay: 0.24s; }
+  .hero__eyebrow { color: var(--gold-300); font-size: 2rem; margin: 0; }
+  .hero__title { max-width: 19ch; font-family: var(--serif); font-weight: 400; }
+  .hero__title :global(em) { font-style: italic; color: var(--gold-100); }
+  .hero__lead { max-width: 36rem; font-size: clamp(1.05rem, 1.4vw, 1.25rem); color: rgb(247 242 234 / 0.88); }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.4rem; }
+
+  .hero__nav { display: flex; align-items: center; gap: 1rem; }
+  .hero__dots { display: flex; gap: 0.5rem; }
+  .hero__dot { position: relative; width: 2.2rem; height: 1.6rem; padding: 0; transition: width 0.4s var(--ease); }
+  .hero__dot.is-active { width: 4rem; }
+  .hero__dot span { position: absolute; left: 0; right: 0; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 3px; background: rgb(247 242 234 / 0.38); overflow: hidden; }
+  .hero__dot span::after { content: ''; position: absolute; inset: 0; background: var(--gold-300); transform: scaleX(0); transform-origin: left; }
+  .hero__dot.is-active span::after { animation: dot-progress var(--slide-ms) linear forwards; }
+  .hero[data-paused] .hero__dot.is-active span::after { animation-play-state: paused; }
+  .hero[data-static] .hero__dot.is-active span::after { animation: none; transform: scaleX(1); }
+  @keyframes dot-progress { to { transform: scaleX(1); } }
+  .hero__arrow {
+    display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 999px;
+    border: 1px solid rgb(247 242 234 / 0.35); color: var(--cream); transition: background 0.2s, border-color 0.2s;
+  }
+  .hero__arrow:hover { background: rgb(247 242 234 / 0.12); border-color: var(--cream); }
+  .hero__arrow :global(svg) { width: 1.1rem; height: 1.1rem; }
+  @media (max-width: 639.98px) { .hero__arrow { display: none; } }
+
+  .hero__stats { border-top: 1px solid rgb(247 242 234 / 0.18); background: rgb(39 29 15 / 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .hero__stats ul { list-style: none; padding: 1.25rem 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  @media (min-width: 900px) { .hero__stats ul { grid-template-columns: repeat(4, 1fr); } }
+  .hero__stats li { display: grid; gap: 0.1rem; }
+  .hero__stats strong { font-family: var(--serif); font-weight: 500; font-size: clamp(1.4rem, 2.2vw, 1.9rem); color: var(--gold-100); line-height: 1.1; }
+  .hero__stats span { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgb(247 242 234 / 0.7); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__slide, .hero__slide img, .hero__copy > * { transition: none; }
+    .hero__slide img { transform: none; }
+  }
+</style>
+
+<script>
+  let timer: number | undefined;
+  let onVisibility: (() => void) | undefined;
+
+  function initHero() {
+    clearTimeout(timer);
+    const hero = document.querySelector<HTMLElement>('[data-hero]');
+    if (!hero) return;
+    const slides = [...hero.querySelectorAll<HTMLElement>('[data-slide]')];
+    const copies = [...hero.querySelectorAll<HTMLElement>('[data-copy]')];
+    const dots = [...hero.querySelectorAll<HTMLButtonElement>('[data-dot]')];
+    if (slides.length < 2) return;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ms = 7000;
+    let index = 0;
+    let paused = false;
+    if (reduce) hero.setAttribute('data-static', '');
+
+    // Promote data-src/data-srcset to real attributes so the browser fetches it.
+    const load = (i: number) => {
+      slides[i]?.querySelectorAll<HTMLElement>('[data-srcset], [data-src]').forEach((el) => {
+        if (el.dataset.srcset) { el.setAttribute('srcset', el.dataset.srcset); delete el.dataset.srcset; }
+        if (el.dataset.src) { el.setAttribute('src', el.dataset.src); delete el.dataset.src; }
+      });
+    };
+
+    const show = (i: number) => {
+      index = (i + slides.length) % slides.length;
+      load(index);
+      load(index + 1 === slides.length ? 0 : index + 1); // warm the next one
+      [slides, copies].forEach((list) => list.forEach((el, n) => {
+        el.classList.toggle('is-active', n === index);
+        if (n === index) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', 'true');
+      }));
+      copies.forEach((c, n) => c.querySelectorAll('a').forEach((a) => (n === index ? a.removeAttribute('tabindex') : a.setAttribute('tabindex', '-1'))));
+      dots.forEach((d, n) => {
+        d.classList.remove('is-active');
+        d.setAttribute('aria-selected', String(n === index));
+      });
+      void dots[index]?.offsetWidth; // restart the progress animation
+      dots[index]?.classList.add('is-active');
+      schedule();
+    };
+
+    const schedule = () => {
+      clearTimeout(timer);
+      if (reduce || paused) return;
+      timer = window.setTimeout(() => show(index + 1), ms);
+    };
+    const setPaused = (p: boolean) => {
+      paused = p;
+      hero.toggleAttribute('data-paused', p);
+      if (p) clearTimeout(timer); else schedule();
+    };
+
+    hero.querySelector('[data-next]')?.addEventListener('click', () => show(index + 1));
+    hero.querySelector('[data-prev]')?.addEventListener('click', () => show(index - 1));
+    dots.forEach((d) => d.addEventListener('click', () => show(Number(d.dataset.dot))));
+    hero.addEventListener('mouseenter', () => setPaused(true));
+    hero.addEventListener('mouseleave', () => setPaused(false));
+    hero.addEventListener('focusin', () => setPaused(true));
+    hero.addEventListener('focusout', () => setPaused(false));
+    hero.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') show(index + 1);
+      if (e.key === 'ArrowLeft') show(index - 1);
+    });
+    let x0: number | null = null;
+    hero.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    hero.addEventListener('touchend', (e) => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 45) show(index + (dx < 0 ? 1 : -1));
+      x0 = null;
+    });
+    if (onVisibility) document.removeEventListener('visibilitychange', onVisibility);
+    onVisibility = () => setPaused(document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    // Fetch slide 2 once the first image has painted, then start the timer.
+    const first = slides[0].querySelector('img');
+    const start = () => { load(1); schedule(); };
+    if (first && !first.complete) first.addEventListener('load', start, { once: true }); else start();
+  }
+
+  document.addEventListener('astro:page-load', initHero);
+  document.addEventListener('astro:before-swap', () => clearTimeout(timer));
+</script>

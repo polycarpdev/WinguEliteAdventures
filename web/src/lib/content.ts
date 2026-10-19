@@ -35,6 +35,8 @@ export interface Itinerary {
   slug: string;
   destination: { name: string; slug: string; country: string; country_slug: string; region_slug: string };
   duration_days: number;
+  duration_nights: number;
+  duration_label: string;
   difficulty: string;
   difficulty_label: string;
   max_group_size: number;
@@ -97,9 +99,21 @@ export interface Region {
   countries: Country[];
 }
 
+export interface HeroSlide {
+  eyebrow: string;
+  headline: string;
+  highlight: string;
+  subtitle: string;
+  desktop: Img;
+  mobile: Img | null;
+  button: { label: string; url: string };
+  second: { label: string; url: string } | null;
+}
+
 export interface Content {
   generated_at: string;
   site_url: string;
+  hero: HeroSlide[];
   regions: Region[];
   destinations: Destination[];
   itineraries: Itinerary[];
@@ -113,6 +127,9 @@ export interface Content {
 
 export const content = raw as unknown as Content;
 export const { regions, destinations, itineraries, gallery, testimonials, team, faqs } = content;
+export const heroSlides = content.hero ?? [];
+/** Short duration badge, e.g. "4D · 3N". */
+export const shortDuration = (days: number, nights: number) => `${days}D · ${nights}N`;
 export const posts = content.blog.posts;
 export const categories = content.blog.categories.filter((c) => posts.some((p) => p.category?.slug === c.slug));
 

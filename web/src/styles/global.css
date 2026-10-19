@@ -309,7 +309,7 @@ em.accent, .accent-italic { font-style: italic; color: var(--olive); }
 .prose [style*='font-family'] { font-family: inherit !important; }
 
 /* --- Forms --------------------------------------------------------------- */
-.field { display: grid; gap: 0.45rem; }
+.field { display: grid; gap: 0.45rem; align-content: start; }
 .field label, .field legend { font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); }
 .field .req { color: var(--gold); }
 .input {

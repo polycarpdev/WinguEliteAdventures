@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Img from '../components/Img.astro';
+import HeroSlider from '../components/HeroSlider.astro';
 import Icon from '../components/Icon.astro';
 import DestinationCard from '../components/DestinationCard.astro';
 import ItineraryCard from '../components/ItineraryCard.astro';
@@ -8,13 +9,28 @@ import PostCard from '../components/PostCard.astro';
 import TestimonialCard from '../components/TestimonialCard.astro';
 import CtaBand from '../components/CtaBand.astro';
 import { site } from '../config/site';
-import { destinations, itineraries, posts, testimonials, heroImage, usd, stripHtml } from '../lib/content';
+import { destinations, itineraries, posts, testimonials, heroImage, heroSlides, usd, stripHtml, type HeroSlide } from '../lib/content';
 
 const featuredDest = [...destinations].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 6);
 const signature = [...itineraries].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 3);
 const reviews = [...testimonials].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 3);
 const recent = posts.slice(0, 3);
-const heroSizes = '100vw';
+// Slides come from the cockpit; until some are added, show the default hero.
+const slides: HeroSlide[] = heroSlides.length ? heroSlides : heroImage ? [{
+  eyebrow: 'Karibu Kenya',
+  headline: 'Luxury Kenya safaris,',
+  highlight: 'crafted above the ordinary',
+  subtitle: 'Private, handcrafted journeys through the Masai Mara, Amboseli, Mount Kenya and beyond, led by guides who grew up on this land.',
+  desktop: heroImage,
+  mobile: null,
+  button: { label: 'Book Now', url: '/bookings/' },
+  second: { label: 'Explore packages', url: '/packages/' },
+}] : [];
+const lead = slides[0];
+const preload = lead ? [
+  ...(lead.mobile ? [{ srcset: lead.mobile.srcset, sizes: '100vw', media: '(max-width: 767px)' }] : []),
+  { srcset: lead.desktop.srcset, sizes: '100vw', media: lead.mobile ? '(min-width: 768px)' : undefined },
+] : [];
 
 const pillars = [
   { icon: 'compass', title: 'Private by design', text: 'Your own vehicle, your own guide and your own pace. No crowded minivans, no fixed departures.' },
@@ -26,40 +42,13 @@ const pillars = [
 <Base
   title={site.tagline}
   description="Kenyan-owned luxury safari company crafting private Masai Mara, Amboseli, Mount Kenya and Diani adventures with expert local guides. Get a tailored quote in 24 hours."
-  image={heroImage?.src}
+  image={lead?.desktop.src ?? heroImage?.src}
   imageAlt="Wildlife on a Wingu Elite Adventures safari in Kenya"
   overlayHeader
-  preloadImage={heroImage ? { srcset: heroImage.srcset, sizes: heroSizes } : null}
+  preloadImages={preload}
 >
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero__bg">
-      <Img image={heroImage} sizes={heroSizes} eager alt="" />
-    </div>
-    <div class="container hero__inner">
-      <span class="eyebrow hero__eyebrow">Karibu Kenya</span>
-      <h1 class="display hero__title">
-        Luxury Kenya safaris,<br />
-        <em>crafted above the ordinary</em>
-      </h1>
-      <p class="hero__lead">
-        Private, handcrafted journeys through the Masai Mara, Amboseli, Mount Kenya and beyond, led by guides who grew up on this land.
-      </p>
-      <div class="hero__actions">
-        <a href="/bookings/" class="btn btn--gold btn--lg">Book Now <Icon name="arrow-right" /></a>
-        <a href="/itineraries/" class="btn btn--ghost btn--lg">Itineraries</a>
-      </div>
-    </div>
-    <div class="hero__stats">
-      <div class="container">
-        <ul>
-          {site.stats.map((s) => (
-            <li><strong>{s.value}</strong><span>{s.label}</span></li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </section>
+  <!-- Hero (slides managed in the cockpit) -->
+  <HeroSlider slides={slides} />
 
   <!-- Intro -->
   <section class="section intro">
@@ -107,25 +96,25 @@ const pillars = [
       <div class="container">
         <div class="section-head section-head--split">
           <div>
-            <span class="eyebrow">Signature safaris</span>
+            <span class="eyebrow">Signature packages</span>
             <h2 class="h2">Journeys our guests love most</h2>
             <p class="lead">Private itineraries you can take as they are or reshape completely: dates, pace, lodges and all.</p>
           </div>
-          <a href="/itineraries/" class="btn btn--outline">View all safaris <Icon name="arrow-right" /></a>
+          <a href="/packages/" class="btn btn--outline">View all packages <Icon name="arrow-right" /></a>
         </div>
         {signature.length === 1 ? (
           <article class="feature" data-reveal>
             <div class="feature__media">
               <Img image={signature[0].image} sizes="(min-width: 1100px) 55vw, 100vw" alt={signature[0].title} />
-              <span class="badge feature__badge">{signature[0].duration_days} days</span>
+              <span class="badge feature__badge">{signature[0].duration_label}</span>
             </div>
             <div class="feature__body stack">
-              <p class="card__meta"><span><Icon name="pin" />{signature[0].destination.name}</span><span><Icon name="mountain" />{signature[0].difficulty_label}</span><span><Icon name="users" />Max {signature[0].max_group_size}</span></p>
-              <h3 class="h2"><a href={`/itineraries/${signature[0].slug}/`}>{signature[0].title}</a></h3>
+              <p class="card__meta"><span><Icon name="pin" />{signature[0].destination.name}</span><span><Icon name="clock" />{signature[0].duration_label}</span><span><Icon name="mountain" />{signature[0].difficulty_label}</span><span><Icon name="users" />Max {signature[0].max_group_size}</span></p>
+              <h3 class="h2"><a href={`/packages/${signature[0].slug}/`}>{signature[0].title}</a></h3>
               <p class="muted clamp-3">{stripHtml(signature[0].overview_html)}</p>
               <div class="feature__foot">
                 <p class="price"><small>From</small>{usd(signature[0].price_from)} <span class="muted" style="font-size:.85rem;font-family:var(--sans)">per person</span></p>
-                <span class="btn">View itinerary <Icon name="arrow-right" /></span>
+                <span class="btn">View package <Icon name="arrow-right" /></span>
               </div>
             </div>
           </article>
@@ -191,36 +180,6 @@ const pillars = [
 </Base>
 
 <style>
-  .hero {
-    position: relative; isolation: isolate; color: var(--cream);
-    min-height: 100vh; min-height: 100svh;
-    display: grid; grid-template-rows: 1fr auto;
-    background: var(--ink);
-  }
-  .hero__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
-  .hero__bg :global(img), .hero__bg :global(.img-fallback) { width: 100%; height: 100%; object-fit: cover; }
-  @media (prefers-reduced-motion: no-preference) {
-    .hero__bg :global(img) { animation: hero-zoom 18s var(--ease) both; }
-  }
-  @keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
-  .hero__bg::after {
-    content: ''; position: absolute; inset: 0;
-    background:
-      linear-gradient(180deg, rgb(39 29 15 / 0.55) 0%, rgb(39 29 15 / 0.1) 30%, rgb(39 29 15 / 0.35) 60%, rgb(39 29 15 / 0.9) 100%),
-      linear-gradient(90deg, rgb(39 29 15 / 0.55), transparent 65%);
-  }
-  .hero__inner { align-self: end; display: grid; justify-items: start; gap: 1.3rem; padding-top: calc(var(--header-h) + 3rem); padding-bottom: clamp(2.5rem, 5vw, 4rem); }
-  .hero__eyebrow { color: var(--gold-300); font-size: 2rem; }
-  .hero__title { max-width: 19ch; }
-  .hero__title em { font-style: italic; color: var(--gold-100); }
-  .hero__lead { max-width: 36rem; font-size: clamp(1.05rem, 1.4vw, 1.25rem); color: rgb(247 242 234 / 0.88); }
-  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.5rem; }
-  .hero__stats { border-top: 1px solid rgb(247 242 234 / 0.18); background: rgb(39 29 15 / 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-  .hero__stats ul { list-style: none; padding: 1.25rem 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-  @media (min-width: 900px) { .hero__stats ul { grid-template-columns: repeat(4, 1fr); } }
-  .hero__stats li { display: grid; gap: 0.1rem; }
-  .hero__stats strong { font-family: var(--serif); font-weight: 500; font-size: clamp(1.4rem, 2.2vw, 1.9rem); color: var(--gold-100); line-height: 1.1; }
-  .hero__stats span { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgb(247 242 234 / 0.7); }
 
   .intro__grid { display: grid; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
   @media (min-width: 900px) { .intro__grid { grid-template-columns: 0.9fr 1.1fr; } }

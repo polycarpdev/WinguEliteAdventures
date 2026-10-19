@@ -5,6 +5,7 @@ import ItineraryCard from '../../../components/ItineraryCard.astro';
 import DestinationCard from '../../../components/DestinationCard.astro';
 import Icon from '../../../components/Icon.astro';
 import CtaBand from '../../../components/CtaBand.astro';
+import DurationPicker from '../../../components/DurationPicker.astro';
 import { destinations, itinerariesFor, clip, countryUrl, type Destination } from '../../../lib/content';
 import { abs } from '../../../lib/schema';
 
@@ -50,11 +51,16 @@ const schema = [{
     <div class="container dest">
       <article class="prose" set:html={d.description_html} />
       <aside class="dest__aside">
-        <div class="aside-card">
+        <div class="aside-card" data-plan data-slug={d.slug}>
           <span class="eyebrow">Plan a visit</span>
           <h2 class="h3">Experience {d.name} privately</h2>
-          <p class="muted">Tell us your dates and we’ll build a tailored itinerary around {d.name}, with lodges, guides and transfers taken care of.</p>
-          <a href={`/bookings/?destination=${d.slug}`} class="btn btn--block">Request a quote <Icon name="arrow-right" /></a>
+          <p class="muted">Choose how long you’d like to stay. We’ll build the itinerary around {d.name}, with lodges, guides and transfers taken care of.</p>
+          <DurationPicker days={3} nights={2} compact />
+          <label class="plan-date">
+            <span>Arrival <span class="muted">(optional)</span></span>
+            <input type="date" class="input" data-plan-date />
+          </label>
+          <a href={`/bookings/?destination=${d.slug}&days=3&nights=2`} class="btn btn--block" data-plan-link>Request a quote <Icon name="arrow-right" /></a>
           <a href="/contact/" class="btn btn--outline btn--block">Ask a question</a>
         </div>
       </aside>
@@ -92,4 +98,26 @@ const schema = [{
   @media (min-width: 1100px) { .dest { grid-template-columns: 1fr 22rem; gap: 5rem; align-items: start; } }
   .dest__aside { position: sticky; top: calc(var(--header-h) + 1.5rem); }
   .aside-card { display: grid; gap: 0.9rem; padding: 2rem; border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow); }
+  .plan-date { display: grid; gap: 0.35rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .plan-date .muted { text-transform: none; letter-spacing: 0; font-weight: 500; }
+  .plan-date .input { min-height: 2.8rem; }
 </style>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const card = document.querySelector<HTMLElement>('[data-plan]');
+    if (!card) return;
+    const picker = card.querySelector<HTMLElement>('[data-duration]')!;
+    const date = card.querySelector<HTMLInputElement>('[data-plan-date]')!;
+    const link = card.querySelector<HTMLAnchorElement>('[data-plan-link]')!;
+    date.min = new Date().toISOString().slice(0, 10);
+    const update = () => {
+      const q = new URLSearchParams({ destination: card.dataset.slug!, days: picker.dataset.days!, nights: picker.dataset.nights! });
+      if (date.value) q.set('date', date.value);
+      link.href = `/bookings/?${q}`;
+    };
+    picker.addEventListener('duration-change', update);
+    date.addEventListener('change', update);
+    update();
+  });
+</script>

@@ -29,6 +29,8 @@ class Booking(models.Model):
     itinerary = models.ForeignKey(Itinerary, on_delete=models.SET_NULL, null=True, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
+    duration_days = models.PositiveIntegerField('Days', null=True, blank=True)
+    duration_nights = models.PositiveIntegerField('Nights', null=True, blank=True)
     adults = models.PositiveIntegerField(default=1)
     children = models.PositiveIntegerField(default=0)
     accommodation_preference = models.CharField(max_length=20, choices=ACCOMMODATION_CHOICES)

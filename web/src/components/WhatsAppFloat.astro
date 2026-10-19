@@ -1,0 +1,61 @@
+---
+// Floating WhatsApp chat button (bottom-right), like a live-chat bubble.
+// The message mentions the page the visitor is on, so staff have context.
+import { site } from '../config/site';
+import Icon from './Icon.astro';
+
+const base = `https://wa.me/${site.whatsapp}`;
+---
+{site.whatsapp && (
+  <a href={`${base}?text=${encodeURIComponent('Hi Wingu Elite! I’d like help planning a trip.')}`}
+     class="wa-float" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp"
+     data-wa-float data-base={base} data-astro-prefetch="false" transition:persist="wa-float">
+    <Icon name="whatsapp" />
+    <span class="wa-float__tip">Chat with us</span>
+  </a>
+)}
+
+<style>
+  .wa-float {
+    position: fixed; z-index: 45;
+    right: max(1.1rem, env(safe-area-inset-right)); bottom: max(1.1rem, env(safe-area-inset-bottom));
+    display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 999px;
+    background: #25d366; color: #fff; text-decoration: none;
+    box-shadow: 0 6px 20px -4px rgb(0 0 0 / 0.35), 0 0 0 0 rgb(37 211 102 / 0.5);
+    transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), bottom 0.3s var(--ease);
+    animation: wa-in 0.6s var(--ease) 1.2s both;
+  }
+  .wa-float :global(svg) { width: 1.75rem; height: 1.75rem; }
+  .wa-float:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 10px 26px -4px rgb(0 0 0 / 0.4); }
+  .wa-float:focus-visible { outline: 3px solid var(--gold-300); outline-offset: 3px; }
+  .wa-float__tip {
+    position: absolute; right: calc(100% + 0.7rem); top: 50%; translate: 0 -50%;
+    padding: 0.45rem 0.8rem; border-radius: 999px; background: var(--ink); color: var(--cream);
+    font-size: 0.82rem; font-weight: 600; white-space: nowrap;
+    opacity: 0; pointer-events: none; transform: translateX(6px); transition: opacity 0.2s, transform 0.2s;
+  }
+  .wa-float:hover .wa-float__tip, .wa-float:focus-visible .wa-float__tip { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .wa-float { animation: wa-in 0.6s var(--ease) 1.2s both, wa-pulse 2.4s ease-out 3s 2; }
+  }
+  @keyframes wa-in { from { opacity: 0; transform: translateY(1rem) scale(0.8); } }
+  @keyframes wa-pulse { 0% { box-shadow: 0 6px 20px -4px rgb(0 0 0 / 0.35), 0 0 0 0 rgb(37 211 102 / 0.55); } 100% { box-shadow: 0 6px 20px -4px rgb(0 0 0 / 0.35), 0 0 0 16px rgb(37 211 102 / 0); } }
+  /* Sit above the sticky "Book now" bar on package pages (phones/tablets). */
+  @media (max-width: 1099.98px) {
+    :global(body:has(.mobile-book)) .wa-float { bottom: calc(5.4rem + env(safe-area-inset-bottom)); }
+  }
+</style>
+
+<script>
+  // Keep the pre-filled message relevant to the page being viewed.
+  document.addEventListener('astro:page-load', () => {
+    const a = document.querySelector<HTMLAnchorElement>('[data-wa-float]');
+    if (!a) return;
+    const title = document.title.split(' | ')[0];
+    const onHome = location.pathname === '/';
+    const msg = onHome
+      ? 'Hi Wingu Elite! I’d like help planning a trip.'
+      : `Hi Wingu Elite! I’m looking at “${title}” on your website and have a question.`;
+    a.href = `${a.dataset.base}?text=${encodeURIComponent(msg)}`;
+  });
+</script>

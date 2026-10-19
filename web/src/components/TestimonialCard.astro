@@ -16,7 +16,7 @@ const initials = t.client_name.split(/\s+/).map((w) => w[0]).slice(0, 2).join(''
     {t.photo ? <Img image={t.photo} sizes="3rem" class="quote-card__avatar" alt="" /> : <span class="quote-card__avatar quote-card__initials">{initials}</span>}
     <span>
       <strong>{t.client_name}</strong>
-      {t.trip && <a href={`/itineraries/${t.trip.slug}/`}>{t.trip.title}</a>}
+      {t.trip && <a href={`/packages/${t.trip.slug}/`}>{t.trip.title}</a>}
     </span>
   </figcaption>
 </figure>

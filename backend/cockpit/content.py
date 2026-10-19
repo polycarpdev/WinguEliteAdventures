@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Callable
 
 from blog.models import BlogCategory, BlogPost
-from core.models import FAQ, TeamMember
+from core.models import FAQ, HeroSlide, TeamMember
 from destinations.models import Country, Destination, Region
 from gallery.models import GalleryAlbum
 from itineraries.models import Itinerary
@@ -38,16 +38,26 @@ def _bool_choices(yes, no):
 
 TYPES = [
     ContentType(
-        key='safaris', model=Itinerary, label='Safari', plural='Safaris', icon='compass',
-        fields=['title', 'slug', 'destination', 'duration_days', 'difficulty', 'max_group_size', 'price_from',
-                'featured_image', 'is_featured', 'overview', 'includes', 'excludes'],
-        columns=[('title', 'Safari'), ('destination', 'Destination'), ('duration_days', 'Days'),
+        key='hero', model=HeroSlide, label='Hero slide', plural='Hero slides', icon='image',
+        fields=['headline', 'highlight', 'eyebrow', 'subtitle', 'image_desktop', 'image_mobile', 'alt',
+                'button_label', 'button_url', 'second_label', 'second_url', 'order', 'is_active'],
+        columns=[('headline', 'Headline'), ('highlight', 'Second line'), ('order', 'Order'), ('is_active', 'Live')],
+        search=['headline', 'highlight', 'subtitle'],
+        image='image_desktop',
+        public_url=lambda o: '/',
+        help='The big rotating slides at the top of the home page. Desktop image 2560 × 1280 px, phone image 1080 × 2340 px.',
+    ),
+    ContentType(
+        key='packages', model=Itinerary, label='Package', plural='Packages', icon='compass',
+        fields=['title', 'slug', 'destination', 'duration_days', 'duration_nights', 'difficulty', 'max_group_size',
+                'price_from', 'featured_image', 'is_featured', 'overview', 'includes', 'excludes'],
+        columns=[('title', 'Package'), ('destination', 'Destination'), ('duration_label', 'Duration'),
                  (lambda o: f'${o.price_from:,.0f}', 'From'), ('is_featured', 'Featured')],
         search=['title', 'destination__name'],
         filters={'featured': ('is_featured', _bool_choices('Featured', 'Not featured'))},
         image='featured_image', inline='days',
-        public_url=lambda o: f'/itineraries/{o.slug}/',
-        help='Safari packages with a day-by-day itinerary. Featured safaris appear on the home page.',
+        public_url=lambda o: f'/packages/{o.slug}/',
+        help='Packages sold by days and nights, with a day-by-day itinerary. Featured packages appear on the home page.',
     ),
     ContentType(
         key='destinations', model=Destination, label='Destination', plural='Destinations', icon='pin',
@@ -59,7 +69,7 @@ TYPES = [
                  'featured': ('is_featured', _bool_choices('Featured', 'Not featured'))},
         image='featured_image',
         public_url=lambda o: f'/destinations/detail/{o.slug}/',
-        help='Parks, reserves, beaches and cities. Each belongs to a country; each safari belongs to a destination.',
+        help='Parks, reserves, beaches and cities. Each belongs to a country; each package belongs to a destination.',
     ),
     ContentType(
         key='countries', model=Country, label='Country', plural='Countries', icon='globe',
@@ -110,7 +120,7 @@ TYPES = [
     ContentType(
         key='testimonials', model=Testimonial, label='Testimonial', plural='Testimonials', icon='quote',
         fields=['client_name', 'client_photo', 'trip', 'rating', 'date', 'is_featured', 'review'],
-        columns=[('client_name', 'Guest'), ('trip', 'Safari'), ('rating', 'Rating'), ('is_featured', 'Featured'), ('date', 'Date')],
+        columns=[('client_name', 'Guest'), ('trip', 'Package'), ('rating', 'Rating'), ('is_featured', 'Featured'), ('date', 'Date')],
         search=['client_name', 'review'],
         filters={'featured': ('is_featured', _bool_choices('Featured', 'Not featured'))},
         image='client_photo',

@@ -28,6 +28,7 @@ ErrorDocument 404 /404.html
 
   # Old destination listing URLs (before regions) keep their search ranking
   RewriteRule ^destinations/kenya/?$ /destinations/east-africa/kenya/ [L,R=301]
+  RewriteRule ^itineraries(/.*)?$ /packages$1 [L,R=301]
 
   # Add the trailing slash the site uses: /about -> /about/
   RewriteCond %{REQUEST_URI} !^/(cockpit|api|ckeditor5|static|media)/

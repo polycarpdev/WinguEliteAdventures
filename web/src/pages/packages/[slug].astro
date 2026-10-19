@@ -5,7 +5,8 @@ import ItineraryCard from '../../components/ItineraryCard.astro';
 import TestimonialCard from '../../components/TestimonialCard.astro';
 import Icon from '../../components/Icon.astro';
 import CtaBand from '../../components/CtaBand.astro';
-import { itineraries, testimonials, usd, clip, stripHtml, type Itinerary } from '../../lib/content';
+import DurationPicker from '../../components/DurationPicker.astro';
+import { itineraries, testimonials, usd, clip, stripHtml, shortDuration, type Itinerary } from '../../lib/content';
 import { abs, ORG_ID } from '../../lib/schema';
 import { site } from '../../config/site';
 
@@ -15,14 +16,14 @@ export function getStaticPaths() {
 const { i } = Astro.props as { i: Itinerary };
 const reviews = testimonials.filter((t) => t.trip?.slug === i.slug).slice(0, 3);
 const related = itineraries.filter((x) => x.slug !== i.slug).slice(0, 3);
-const crumbs = [{ name: 'Safaris', href: '/itineraries/' }, { name: i.title, href: `/itineraries/${i.slug}/` }];
-const description = clip(`${i.duration_days}-day private ${i.destination.name} safari from ${usd(i.price_from)} per person. ${stripHtml(i.overview_html)}`);
+const crumbs = [{ name: 'Packages', href: '/packages/' }, { name: i.title, href: `/packages/${i.slug}/` }];
+const description = clip(`${i.duration_label} private ${i.destination.name} package from ${usd(i.price_from)} per person. ${stripHtml(i.overview_html)}`);
 
 const schema = [{
   '@type': 'TouristTrip',
   name: i.title,
   description: clip(i.overview_html, 300),
-  url: abs(`/itineraries/${i.slug}/`),
+  url: abs(`/packages/${i.slug}/`),
   ...(i.image && { image: abs(i.image.src) }),
   touristType: ['Safari', 'Wildlife', 'Adventure'],
   provider: { '@id': ORG_ID },
@@ -40,20 +41,20 @@ const schema = [{
     price: i.price_from.toFixed(2),
     priceCurrency: site.currency,
     availability: 'https://schema.org/InStock',
-    url: abs(`/bookings/?itinerary=${i.slug}`),
+    url: abs(`/bookings/?package=${i.slug}`),
     seller: { '@id': ORG_ID },
   },
 }];
 
 const facts = [
-  { icon: 'clock', label: 'Duration', value: `${i.duration_days} days` },
+  { icon: 'clock', label: 'Duration', value: i.duration_label },
   { icon: 'pin', label: 'Destination', value: i.destination.name },
   { icon: 'mountain', label: 'Activity level', value: i.difficulty_label },
   { icon: 'users', label: 'Group size', value: `Private · up to ${i.max_group_size}` },
 ] as const;
 ---
-<Base title={`${i.title} | ${i.duration_days}-Day Safari`} description={description} image={i.image?.src} imageAlt={i.title} crumbs={crumbs} schema={schema} overlayHeader>
-  <PageHero title={i.title} eyebrow={`${i.duration_days}-day private safari`} image={i.image} crumbs={crumbs} size="lg" />
+<Base title={`${i.title} | ${i.duration_label}`} description={description} image={i.image?.src} imageAlt={i.title} crumbs={crumbs} schema={schema} overlayHeader>
+  <PageHero title={i.title} eyebrow={`${i.duration_label} · private package`} image={i.image} crumbs={crumbs} size="lg" />
 
   <div class="facts-bar">
     <div class="container facts">
@@ -108,18 +109,40 @@ const facts = [
       </div>
 
       <aside class="trip__aside">
-        <div class="book-card">
-          <p class="price book-card__price"><small>From</small>{usd(i.price_from)}<span> per person</span></p>
+        <form class="book-card" data-book-card data-slug={i.slug} data-price={i.price_from} data-days={i.duration_days} data-nights={i.duration_nights} action="/bookings/">
+          <div class="book-card__top">
+            <p class="price book-card__price"><small>From</small>{usd(i.price_from)}<span> per person</span></p>
+            <span class="book-card__base">{shortDuration(i.duration_days, i.duration_nights)}</span>
+          </div>
+          <div class="book-card__field">
+            <span class="book-card__label">Trip length</span>
+            <DurationPicker days={i.duration_days} nights={i.duration_nights} compact />
+          </div>
+          <div class="book-card__row">
+            <label class="book-card__field">
+              <span class="book-card__label">Arrival</span>
+              <input type="date" name="date" class="input" data-date />
+            </label>
+            <label class="book-card__field">
+              <span class="book-card__label">Adults</span>
+              <select name="adults" class="input" data-adults>
+                {Array.from({ length: Math.max(i.max_group_size, 2) }, (_, n) => n + 1).map((n) => <option value={n} selected={n === 2}>{n}</option>)}
+              </select>
+            </label>
+          </div>
+          <p class="book-card__estimate" data-estimate aria-live="polite">
+            Estimated <strong>{usd(i.price_from * 2)}</strong> for 2 adults, {i.duration_label.toLowerCase()}
+          </p>
+          <a href={`/bookings/?package=${i.slug}`} class="btn btn--lg btn--block" data-book-link>Book this package <Icon name="arrow-right" /></a>
           <ul class="book-card__points">
             <li><Icon name="check" /> Private vehicle & guide</li>
-            <li><Icon name="check" /> Flexible dates and pace</li>
-            <li><Icon name="check" /> Tailored quote within 24h</li>
+            <li><Icon name="check" /> Change days, nights & pace freely</li>
+            <li><Icon name="check" /> Tailored quote within 24h, no payment now</li>
           </ul>
-          <a href={`/bookings/?itinerary=${i.slug}`} class="btn btn--lg btn--block">Book this safari <Icon name="arrow-right" /></a>
           {site.whatsapp
-            ? <a href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in the ${i.title} safari.`)}`} class="btn btn--outline btn--block" target="_blank" rel="noopener"><Icon name="whatsapp" /> Ask on WhatsApp</a>
+            ? <a href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in the ${i.title} package (${i.duration_label}).`)}`} class="btn btn--outline btn--block" target="_blank" rel="noopener"><Icon name="whatsapp" /> Ask on WhatsApp</a>
             : <a href="/contact/" class="btn btn--outline btn--block">Ask a question</a>}
-        </div>
+        </form>
       </aside>
     </div>
   </section>
@@ -127,7 +150,7 @@ const facts = [
   {reviews.length > 0 && (
     <section class="section section--sand">
       <div class="container">
-        <div class="section-head"><span class="eyebrow">Guest stories</span><h2 class="h2">Travellers on this safari</h2></div>
+        <div class="section-head"><span class="eyebrow">Guest stories</span><h2 class="h2">Travellers on this package</h2></div>
         <div class="grid grid--3">{reviews.map((t) => <TestimonialCard t={t} />)}</div>
       </div>
     </section>
@@ -136,19 +159,55 @@ const facts = [
   {related.length > 0 && (
     <section class="section">
       <div class="container">
-        <div class="section-head"><span class="eyebrow">You may also like</span><h2 class="h2">More safaris</h2></div>
+        <div class="section-head"><span class="eyebrow">You may also like</span><h2 class="h2">More packages</h2></div>
         <div class="grid grid--3">{related.map((x) => <ItineraryCard itinerary={x} />)}</div>
       </div>
     </section>
   )}
 
   <div class="mobile-book">
-    <p class="price"><small>From</small>{usd(i.price_from)}</p>
-    <a href={`/bookings/?itinerary=${i.slug}`} class="btn">Book now</a>
+    <p class="price"><small>{shortDuration(i.duration_days, i.duration_nights)} · from</small>{usd(i.price_from)}</p>
+    <a href={`/bookings/?package=${i.slug}`} class="btn" data-book-link>Book now</a>
   </div>
 
   <CtaBand />
 </Base>
+
+<script>
+  // Package booking card: days/nights + date + adults -> live estimate and a
+  // prefilled link to the booking form.
+  document.addEventListener('astro:page-load', () => {
+    const card = document.querySelector<HTMLFormElement>('[data-book-card]');
+    if (!card) return;
+    const picker = card.querySelector<HTMLElement>('[data-duration]')!;
+    const date = card.querySelector<HTMLInputElement>('[data-date]')!;
+    const adults = card.querySelector<HTMLSelectElement>('[data-adults]')!;
+    const estimate = card.querySelector<HTMLElement>('[data-estimate]')!;
+    const links = document.querySelectorAll<HTMLAnchorElement>('[data-book-link]');
+    const base = { days: Number(card.dataset.days), nights: Number(card.dataset.nights) };
+    const price = Number(card.dataset.price);
+    const usd = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+    const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
+    date.min = new Date().toISOString().slice(0, 10);
+    card.addEventListener('submit', (e) => e.preventDefault());
+
+    const update = () => {
+      const days = Number(picker.dataset.days), nights = Number(picker.dataset.nights), a = Number(adults.value);
+      const custom = days !== base.days || nights !== base.nights;
+      // Scale the base price by days for a rough guide; the real quote is tailored.
+      const est = Math.round((price * a * days) / base.days / 10) * 10;
+      estimate.innerHTML = `Estimated <strong>${usd(est)}</strong> for ${plural(a, 'adult')}, ${plural(days, 'day')} / ${plural(nights, 'night')}` +
+        (custom ? `<em>Custom length: we’ll tailor the itinerary and confirm the price.</em>` : '');
+      const q = new URLSearchParams({ package: card.dataset.slug!, days: String(days), nights: String(nights), adults: String(a) });
+      if (date.value) q.set('date', date.value);
+      links.forEach((l) => (l.href = `/bookings/?${q}`));
+    };
+    picker.addEventListener('duration-change', update);
+    date.addEventListener('change', update);
+    adults.addEventListener('change', update);
+    update();
+  });
+</script>
 
 <style>
   .facts-bar { background: var(--white); border-bottom: 1px solid var(--line); }
@@ -196,6 +255,15 @@ const facts = [
   .book-card { display: grid; gap: 1.1rem; padding: 2rem; border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow); }
   .book-card__price { font-size: 2.2rem; line-height: 1.1; }
   .book-card__price span { font-family: var(--sans); font-size: 0.9rem; color: var(--muted); }
+  .book-card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .book-card__base { padding: 0.35rem 0.7rem; border-radius: 999px; background: var(--gold-100); color: #7a5d1c; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+  .book-card__field { display: grid; gap: 0.4rem; min-width: 0; }
+  .book-card__label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .book-card__row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.6rem; }
+  .book-card__row .input { min-height: 2.8rem; padding: 0.55rem 0.75rem; }
+  .book-card__estimate { padding: 0.75rem 0.9rem; border-radius: var(--radius-sm); background: var(--cream); font-size: 0.88rem; color: var(--ink-soft); }
+  .book-card__estimate strong { color: var(--olive); font-size: 1.05rem; }
+  .book-card__estimate :global(em) { display: block; font-style: normal; font-size: 0.8rem; color: var(--gold); margin-top: 0.15rem; }
   .book-card__points { list-style: none; padding: 0; display: grid; gap: 0.55rem; font-size: 0.93rem; }
   .book-card__points li { display: flex; gap: 0.6rem; align-items: center; }
   .book-card__points :global(svg) { width: 1.1rem; height: 1.1rem; color: var(--olive); }

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from blog.models import BlogCategory, BlogPost
-from core.models import FAQ, TeamMember
+from core.models import FAQ, HeroSlide, TeamMember
 from destinations.models import Destination, Region
 from gallery.models import GalleryAlbum
 from itineraries.models import Itinerary
@@ -53,6 +53,8 @@ def itinerary(i):
             'region_slug': i.destination.country.region.slug,
         },
         'duration_days': i.duration_days,
+        'duration_nights': i.duration_nights,
+        'duration_label': i.duration_label,
         'difficulty': i.difficulty,
         'difficulty_label': i.get_difficulty_display(),
         'max_group_size': i.max_group_size,
@@ -98,11 +100,22 @@ def testimonial(t):
     }
 
 
+def hero_slide(s):
+    return {
+        'eyebrow': s.eyebrow, 'headline': s.headline, 'highlight': s.highlight, 'subtitle': s.subtitle,
+        'desktop': image_data(s.image_desktop, s.alt or str(s)),
+        'mobile': image_data(s.image_mobile, s.alt or str(s)),
+        'button': {'label': s.button_label, 'url': s.button_url},
+        'second': {'label': s.second_label, 'url': s.second_url} if s.second_label and s.second_url else None,
+    }
+
+
 def build_content():
     posts = BlogPost.objects.filter(is_published=True).select_related('author', 'category')
     return {
         'generated_at': timezone.now().isoformat(),
         'site_url': settings.SITE_URL,
+        'hero': [h for h in (hero_slide(s) for s in HeroSlide.objects.filter(is_active=True)) if h['desktop']],
         'regions': [
             {
                 'name': r.name, 'slug': r.slug, 'tagline': r.tagline, 'description': r.description,

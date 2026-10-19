@@ -12,8 +12,8 @@ export const site = {
 
   email: 'info@wingueliteadventures.co.ke',
   bookingsEmail: 'bookings@wingueliteadventures.co.ke',
-  phone: '', // e.g. '+254 712 345 678'
-  whatsapp: '', // digits only, e.g. '254712345678'
+  phone: '+254 708 507 364',
+  whatsapp: '254708507364', // digits only
   address: { locality: 'Nairobi', country: 'Kenya', countryCode: 'KE' },
   hours: [
     { days: 'Monday – Friday', time: '8:00 AM – 6:00 PM' },

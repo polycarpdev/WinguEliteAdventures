@@ -1,6 +1,6 @@
 ---
 import type { Itinerary } from '../lib/content';
-import { usd, stripHtml } from '../lib/content';
+import { usd, stripHtml, shortDuration } from '../lib/content';
 import Img from './Img.astro';
 import Icon from './Icon.astro';
 
@@ -10,16 +10,17 @@ const { itinerary: i } = Astro.props;
 <article class="card" data-reveal data-destination={i.destination.slug} data-difficulty={i.difficulty}>
   <div class="card__media">
     <div class="card__badges">
-      <span class="badge">{i.duration_days} days</span>
+      <span class="badge badge--dur" title={i.duration_label}>{shortDuration(i.duration_days, i.duration_nights)}</span>
       {i.is_featured && <span class="badge badge--gold">Signature</span>}
     </div>
-    <Img image={i.image} sizes="(min-width: 1100px) 33vw, (min-width: 640px) 50vw, 100vw" alt={`${i.title} safari`} />
+    <Img image={i.image} sizes="(min-width: 1100px) 33vw, (min-width: 640px) 50vw, 100vw" alt={`${i.title} package`} />
   </div>
   <div class="card__body">
     <div class="card__meta">
       <span><Icon name="pin" />{i.destination.name}</span>
+      <span><Icon name="clock" />{i.duration_label}</span>
     </div>
-    <h3 class="card__title"><a href={`/itineraries/${i.slug}/`}>{i.title}</a></h3>
+    <h3 class="card__title"><a href={`/packages/${i.slug}/`}>{i.title}</a></h3>
     <p class="muted clamp-2">{stripHtml(i.overview_html)}</p>
     <div class="card__meta">
       <span><Icon name="mountain" />{i.difficulty_label}</span>
@@ -33,4 +34,5 @@ const { itinerary: i } = Astro.props;
 </article>
 <style>
   .badge--gold { background: var(--gold-300); }
+  .badge--dur { background: var(--ink); color: var(--gold-100); letter-spacing: 0.08em; }
 </style>

@@ -26,7 +26,7 @@
 
 <div class="ck-grid ck-grid--2">
   <section class="panel"><div class="panel__head"><h2>Requested destinations</h2></div>{% include 'cockpit/partials/bars.html' with rows=by_destination %}</section>
-  <section class="panel"><div class="panel__head"><h2>Requested safaris</h2></div>{% include 'cockpit/partials/bars.html' with rows=by_package gold=1 empty="No bookings tied to a package yet." %}</section>
+  <section class="panel"><div class="panel__head"><h2>Requested packages</h2></div>{% include 'cockpit/partials/bars.html' with rows=by_package gold=1 empty="No bookings tied to a package yet." %}</section>
   <section class="panel"><div class="panel__head"><h2>How guests found us</h2></div>{% include 'cockpit/partials/bars.html' with rows=sources gold=1 %}</section>
   <section class="panel"><div class="panel__head"><h2>Guest countries</h2></div>{% include 'cockpit/partials/bars.html' with rows=countries %}</section>
 </div>

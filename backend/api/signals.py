@@ -7,15 +7,15 @@ from django.conf import settings
 from django.db.models.signals import post_delete, post_save
 
 from blog.models import BlogCategory, BlogPost
-from core.models import FAQ, TeamMember
-from destinations.models import Destination
+from core.models import FAQ, HeroSlide, TeamMember
+from destinations.models import Country, Destination, Region
 from gallery.models import GalleryAlbum, GalleryImage
 from itineraries.models import Itinerary, ItineraryDay
 from testimonials.models import Testimonial
 
 CONTENT_MODELS = (
     Destination, Itinerary, ItineraryDay, BlogCategory, BlogPost,
-    GalleryAlbum, GalleryImage, Testimonial, TeamMember, FAQ,
+    GalleryAlbum, GalleryImage, Testimonial, TeamMember, FAQ, HeroSlide, Region, Country,
 )
 
 

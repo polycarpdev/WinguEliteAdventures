@@ -2,7 +2,7 @@
 import json
 import logging
 import time
-from datetime import date
+from datetime import date, timedelta
 
 from django.conf import settings
 from django.core.cache import cache
@@ -132,7 +132,15 @@ def _booking(data):
     phone = _text(data, errors, 'phone', 'Phone', 20)
     country = _text(data, errors, 'country', 'Country', 100)
     start = _date(data, errors, 'start_date', 'Start date')
-    end = _date(data, errors, 'end_date', 'End date')
+    days = nights = None
+    if data.get('days') not in (None, ''):
+        days = _int(data, errors, 'days', 'Days', 1, 60, 1)
+        nights = _int(data, errors, 'nights', 'Nights', 0, 60, max(days - 1, 0))
+        if 'days' not in errors and 'nights' not in errors and abs(days - nights) > 1:
+            errors['nights'] = 'Nights should be the same as days, or one less.'
+        end = start + timedelta(days=nights) if start and 'nights' not in errors else None
+    else:
+        end = _date(data, errors, 'end_date', 'End date')
     adults = _int(data, errors, 'adults', 'Adults', 1, 50, 1)
     children = _int(data, errors, 'children', 'Children', 0, 50, 0)
     accommodation = str(data.get('accommodation_preference') or '')
@@ -145,6 +153,9 @@ def _booking(data):
         errors['start_date'] = 'Start date cannot be in the past.'
     if start and end and end < start:
         errors['end_date'] = 'End date must be after the start date.'
+    if days is None and start and end:
+        nights = (end - start).days
+        days = nights + 1
 
     destination = Destination.objects.filter(slug=data.get('destination') or '').first()
     if not destination:
@@ -161,6 +172,7 @@ def _booking(data):
     b = Booking.objects.create(
         full_name=full_name, email=email, phone=phone, country=country,
         destination=destination, itinerary=itinerary, start_date=start, end_date=end,
+        duration_days=days, duration_nights=nights,
         adults=adults, children=children, accommodation_preference=accommodation,
         special_requests=special, how_did_you_hear=heard,
     )
@@ -168,7 +180,7 @@ def _booking(data):
         f'New booking request: {b.full_name} ({b.destination})',
         f'Name: {b.full_name}\nEmail: {b.email}\nPhone: {b.phone}\nCountry: {b.country}\n'
         f'Destination: {b.destination}\nPackage: {b.itinerary or "-"}\n'
-        f'Dates: {b.start_date} to {b.end_date}\nTravellers: {b.adults} adults, {b.children} children\n'
+        f'Dates: {b.start_date} to {b.end_date} ({b.duration_days} days / {b.duration_nights} nights)\nTravellers: {b.adults} adults, {b.children} children\n'
         f'Accommodation: {b.get_accommodation_preference_display()}\n\n{b.special_requests}\n\n'
         f'Open in cockpit: {settings.SITE_URL}/cockpit/bookings/{b.pk}/',
         reply_to=b.email,
@@ -176,7 +188,7 @@ def _booking(data):
         ack_subject='We received your safari request - Wingu Elite Adventures',
         ack_body=(
             f'Hi {b.full_name},\n\nThank you for choosing Wingu Elite Adventures. We have received your '
-            f'request for {b.destination} ({b.start_date} to {b.end_date}) and a safari specialist will '
+            f'request for {b.destination} ({b.duration_days} days / {b.duration_nights} nights from {b.start_date}) and a safari specialist will '
             f'get back to you within 24 hours with a tailored quote.\n\nKaribu!\nWingu Elite Adventures\n'
             f'{settings.SITE_URL}'
         ),

@@ -31,7 +31,8 @@ Staff accounts need **Staff status**; create the first with `manage.py createsup
 - **Analytics:** cookie-less page views from the public site (`/api/hit/`), no consent banner needed
 - **Reports:** bookings per month, status funnel, destinations, packages, lead sources, CSV export
 - **Bookings / Messages:** search, status workflow, internal notes, one-click email/WhatsApp/call
-- **Website content:** safaris (with day-by-day itinerary), destinations, blog, gallery
+- **Hero slides:** home page slider. Desktop image **2560 × 1280 px**, phone image **1080 × 2340 px**
+- **Website content:** packages (days/nights + day-by-day itinerary), regions, countries, destinations, blog, gallery
   (multi-photo upload), testimonials, team, FAQs. Saving publishes within ~5 minutes.
 
 Same stylesheet as the public site (`web/src/styles/global.css` served as `/static/site/global.css`)

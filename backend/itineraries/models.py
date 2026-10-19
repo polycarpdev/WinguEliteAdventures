@@ -9,7 +9,8 @@ class Itinerary(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE, related_name='itineraries')
-    duration_days = models.PositiveIntegerField()
+    duration_days = models.PositiveIntegerField('Days')
+    duration_nights = models.PositiveIntegerField('Nights', blank=True, help_text='Leave blank for days − 1.')
     difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES, default='moderate')
     max_group_size = models.PositiveIntegerField(default=10)
     price_from = models.DecimalField(max_digits=10, decimal_places=2)
@@ -31,10 +32,17 @@ class Itinerary(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
+        if self.duration_nights is None:
+            self.duration_nights = max(self.duration_days - 1, 0)
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return self.title
+
+    @property
+    def duration_label(self):
+        d, n = self.duration_days, self.duration_nights
+        return f"{d} day{'s' if d != 1 else ''} / {n} night{'s' if n != 1 else ''}"
 
 
 class ItineraryDay(models.Model):

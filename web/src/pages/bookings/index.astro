@@ -2,7 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
-import { regions, liveCountries, inCountry, itineraries, usd } from '../../lib/content';
+import DurationPicker from '../../components/DurationPicker.astro';
+import { regions, liveCountries, inCountry, itineraries, usd, shortDuration } from '../../lib/content';
 import { site } from '../../config/site';
 
 const crumbs = [{ name: 'Plan your safari', href: '/bookings/' }];
@@ -34,10 +35,14 @@ const accommodation = [
               <p class="field-error" data-error-for="destination"></p>
             </div>
             <div class="field">
-              <label for="itinerary">Safari package <span class="muted">(optional)</span></label>
+              <label for="itinerary">Package <span class="muted">(optional)</span></label>
               <select id="itinerary" name="itinerary" class="input">
-                <option value="">Custom / not sure yet</option>
-                {itineraries.map((i) => <option value={i.slug} data-destination={i.destination.slug}>{i.title} ({i.duration_days} days, from {usd(i.price_from)})</option>)}
+                <option value="">Custom trip / not sure yet</option>
+                {itineraries.map((i) => (
+                  <option value={i.slug} data-destination={i.destination.slug} data-days={i.duration_days} data-nights={i.duration_nights}>
+                    {i.title} · {shortDuration(i.duration_days, i.duration_nights)} · from {usd(i.price_from)}
+                  </option>
+                ))}
               </select>
               <p class="field-error" data-error-for="itinerary"></p>
             </div>
@@ -47,9 +52,11 @@ const accommodation = [
               <p class="field-error" data-error-for="start_date"></p>
             </div>
             <div class="field">
-              <label for="end_date">Departure date <span class="req">*</span></label>
-              <input id="end_date" name="end_date" type="date" class="input" required />
-              <p class="field-error" data-error-for="end_date"></p>
+              <span class="field__label">How long? <span class="req">*</span></span>
+              <DurationPicker name days={4} nights={3} />
+              <p class="trip-summary" data-trip-summary aria-live="polite"></p>
+              <p class="field-error" data-error-for="nights"></p>
+              <p class="field-error" data-error-for="days"></p>
             </div>
             <div class="field">
               <label for="adults">Adults <span class="req">*</span></label>
@@ -157,6 +164,8 @@ const accommodation = [
   .choice:hover .choice__card { border-color: var(--olive-600); }
   .choice input:checked + .choice__card { border-color: var(--olive); background: rgb(94 88 13 / 0.06); box-shadow: 0 0 0 3px rgb(94 88 13 / 0.12); }
   .choice input:focus-visible + .choice__card { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .field__label { font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); }
+  .trip-summary { font-size: 0.85rem; font-weight: 600; color: var(--olive); }
   .booking__form > .btn { justify-self: start; }
   .booking__note { font-size: 0.85rem; }
 
@@ -180,37 +189,54 @@ const accommodation = [
     const dest = form.elements.namedItem('destination') as HTMLSelectElement;
     const trip = form.elements.namedItem('itinerary') as HTMLSelectElement;
     const start = form.elements.namedItem('start_date') as HTMLInputElement;
-    const end = form.elements.namedItem('end_date') as HTMLInputElement;
+    const picker = form.querySelector<HTMLElement & { setDuration?: (d: number, n?: number) => void }>('[data-duration]')!;
+    const summary = form.querySelector<HTMLElement>('[data-trip-summary]')!;
+    const has = (sel: HTMLSelectElement, v: string | null) => !!v && [...sel.options].some((o) => o.value === v);
+    // If the picker hasn't initialised yet, seed the values it reads on start-up.
+    const setDuration = (d: number, n?: number) => {
+      if (picker.setDuration) return picker.setDuration(d, n);
+      picker.dataset.days = String(d);
+      picker.dataset.nights = String(n ?? Math.max(d - 1, 0));
+    };
+    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 
-    // Prefill from ?itinerary= or ?destination=
+    const updateSummary = () => {
+      const nights = Number(picker.dataset.nights);
+      if (!start.value) { summary.textContent = 'Pick an arrival date to see your departure.'; return; }
+      const out = new Date(start.value + 'T00:00:00');
+      out.setDate(out.getDate() + nights);
+      summary.textContent = `Departs ${fmt(out)}`;
+    };
+
+    // Prefill from links: ?package= (or ?itinerary=), ?destination=, ?date=, ?days=, ?nights=, ?adults=
     const params = new URLSearchParams(location.search);
-    const pickedTrip = params.get('itinerary');
-    if (pickedTrip && [...trip.options].some((o) => o.value === pickedTrip)) {
-      trip.value = pickedTrip;
-      dest.value = trip.selectedOptions[0].dataset.destination ?? '';
-    } else if (params.get('destination')) {
+    const pkg = params.get('package') ?? params.get('itinerary');
+    if (has(trip, pkg)) {
+      trip.value = pkg!;
+      const o = trip.selectedOptions[0];
+      dest.value = o.dataset.destination ?? '';
+      setDuration(Number(o.dataset.days), Number(o.dataset.nights));
+    } else if (has(dest, params.get('destination'))) {
       dest.value = params.get('destination')!;
     }
-
-    // A chosen package implies its destination.
-    trip.addEventListener('change', () => {
-      const d = trip.selectedOptions[0]?.dataset.destination;
-      if (d) dest.value = d;
-    });
-
+    if (params.get('days')) setDuration(Number(params.get('days')), params.get('nights') ? Number(params.get('nights')) : undefined);
     const today = new Date().toISOString().slice(0, 10);
     start.min = today;
-    end.min = today;
-    start.addEventListener('change', () => {
-      end.min = start.value || today;
-      if (end.value && end.value < start.value) end.value = '';
-      const sel = trip.selectedOptions[0];
-      const days = sel?.textContent?.match(/\((\d+) days/);
-      if (start.value && !end.value && days) {
-        const d = new Date(start.value);
-        d.setDate(d.getDate() + Number(days[1]) - 1);
-        end.value = d.toISOString().slice(0, 10);
-      }
+    if (params.get('date') && params.get('date')! >= today) start.value = params.get('date')!;
+    for (const k of ['adults', 'children']) {
+      const v = params.get(k);
+      if (v) (form.elements.namedItem(k) as HTMLInputElement).value = v;
+    }
+
+    // Choosing a package sets its destination and its days / nights.
+    trip.addEventListener('change', () => {
+      const o = trip.selectedOptions[0];
+      if (o?.dataset.destination) dest.value = o.dataset.destination;
+      if (o?.dataset.days) setDuration(Number(o.dataset.days), Number(o.dataset.nights));
     });
+
+    start.addEventListener('change', updateSummary);
+    picker.addEventListener('duration-change', updateSummary);
+    updateSummary();
   });
 </script>

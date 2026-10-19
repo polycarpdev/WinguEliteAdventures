@@ -4,12 +4,13 @@ import '../styles/global.css';
 import SEO, { type Props as SEOProps } from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 
 interface Props extends SEOProps {
   overlayHeader?: boolean;
-  preloadImage?: { srcset: string; sizes: string } | null;
+  preloadImages?: { srcset: string; sizes: string; media?: string }[];
 }
-const { overlayHeader = false, preloadImage, ...seo } = Astro.props;
+const { overlayHeader = false, preloadImages = [], ...seo } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -24,9 +25,9 @@ const { overlayHeader = false, preloadImage, ...seo } = Astro.props;
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="preload" href="/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin />
-    {preloadImage && (
-      <link rel="preload" as="image" imagesrcset={preloadImage.srcset} imagesizes={preloadImage.sizes} fetchpriority="high" />
-    )}
+    {preloadImages.map((p) => (
+      <link rel="preload" as="image" imagesrcset={p.srcset} imagesizes={p.sizes} media={p.media} fetchpriority="high" />
+    ))}
     <SEO {...seo} />
     <script is:inline>
       document.documentElement.classList.add('js');
@@ -42,6 +43,7 @@ const { overlayHeader = false, preloadImage, ...seo } = Astro.props;
       <slot />
     </main>
     <Footer />
+    <WhatsAppFloat />
 
     <style is:global>
       .main--offset { padding-top: var(--header-h); }
