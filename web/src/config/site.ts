@@ -37,7 +37,7 @@ export const site = {
   ],
 
   // Developer credit (footer, humans.txt, meta, JSON-LD).
-  developer: { name: 'polycarp dev', url: 'https://linktr.ee/polycarpdev' },
+  developer: { name: '@PolycarpDev', url: 'https://linktr.ee/polycarpdev' },
 };
 
 // Main menu (Gallery, Blog, Our Team and Reviews live in the footer). `regions: true` expands into the Destinations dropdown

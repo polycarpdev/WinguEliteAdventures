@@ -27,21 +27,17 @@ const weekdays = site.hours[0];
     <div class="site-footer__top">
       <!-- Brand & contact -->
       <div class="f-brand">
-        <a href="/" class="f-brand__logo" aria-label="Wingu Elite Adventures, home">
-          <img src="/brand/logo-320.webp" width="320" height="294" alt="Wingu Elite Adventures" loading="lazy" decoding="async" />
-        </a>
-        <p class="f-brand__line">Private safaris and journeys across Kenya, East Africa and beyond, crafted by people who call this land home.</p>
+        <div class="f-brand__head">
+          <a href="/" class="f-brand__logo" aria-label="Wingu Elite Adventures, home">
+            <img src="/brand/logo-320.webp" width="320" height="294" alt="Wingu Elite Adventures" loading="lazy" decoding="async" />
+          </a>
+          <p class="f-brand__line">Private safaris and journeys across Kenya, East Africa and beyond, crafted by people who call this land home.</p>
+        </div>
         <ul class="f-contact">
-          {site.phone && (
-            <li><span class="f-contact__icon"><Icon name="phone" /></span>
-              <span><small>Call or WhatsApp</small><a href={`tel:${tel}`}>{site.phone}</a></span></li>
-          )}
-          <li><span class="f-contact__icon"><Icon name="mail" /></span>
-            <span><small>Email</small><a href={`mailto:${site.email}`}>{site.email}</a></span></li>
-          <li><span class="f-contact__icon"><Icon name="pin" /></span>
-            <span><small>Office</small>{site.address.locality}, {site.address.country}</span></li>
-          <li><span class="f-contact__icon"><Icon name="clock" /></span>
-            <span><small>Open</small>{weekdays.days.replace(' – ', '–')}, {weekdays.time}</span></li>
+          {site.phone && <li><span class="f-contact__icon" title="Call or WhatsApp"><Icon name="phone" /></span><a href={`tel:${tel}`}>{site.phone}</a></li>}
+          <li><span class="f-contact__icon" title="Email"><Icon name="mail" /></span><a href={`mailto:${site.email}`}>{site.email}</a></li>
+          <li><span class="f-contact__icon" title="Office"><Icon name="pin" /></span><span>{site.address.locality}, {site.address.country}</span></li>
+          <li><span class="f-contact__icon" title="Opening hours"><Icon name="clock" /></span><span>{weekdays.days.replace('Monday – Friday', 'Mon–Fri')}, {weekdays.time}</span></li>
         </ul>
       </div>
 
@@ -102,7 +98,7 @@ const weekdays = site.hours[0];
         &copy; {year} {site.name}. All rights reserved.
       </p>
       <p class="credit">
-        Built with <Icon name="heart" class="credit__heart" label="love" /> by
+        Built by
         <a href={site.developer.url} target="_blank" rel="noopener author">{site.developer.name}</a>
       </p>
     </div>
@@ -114,7 +110,7 @@ const weekdays = site.hours[0];
     --f-bg: #1d1810;
     position: relative; isolation: isolate;
     background: var(--f-bg); color: rgb(247 242 234 / 0.7); font-size: 0.95rem;
-    padding-top: clamp(3.5rem, 7vw, 5.5rem);
+    padding-top: clamp(2.25rem, 4vw, 3.25rem);
   }
   .site-footer a { text-decoration: none; transition: color 0.2s; }
 
@@ -130,39 +126,40 @@ const weekdays = site.hours[0];
   }
   .site-footer__watermark {
     position: absolute; right: -1rem; bottom: 2.5rem; font-family: var(--script); font-weight: 700;
-    font-size: clamp(8rem, 18vw, 17rem); line-height: 1; color: rgb(247 242 234 / 0.035); pointer-events: none; user-select: none;
+    font-size: clamp(6rem, 12vw, 11rem); line-height: 1; color: rgb(247 242 234 / 0.035); pointer-events: none; user-select: none;
   }
 
-  .site-footer__top { display: grid; grid-template-columns: 1fr 1fr; gap: 2.75rem 1.5rem; padding-bottom: 3.5rem; align-items: start; }
+  .site-footer__top { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem 1.5rem; padding-bottom: 2.25rem; align-items: start; }
   .f-brand, .f-plan { grid-column: 1 / -1; }
   @media (max-width: 639.98px) { .f-col--popular { display: none; } }
-  @media (min-width: 640px) { .site-footer__top { grid-template-columns: repeat(3, 1fr); gap: 3rem 2.5rem; } }
+  @media (min-width: 640px) { .site-footer__top { grid-template-columns: repeat(3, 1fr); gap: 2rem 2.5rem; } }
   @media (min-width: 1100px) {
-    .site-footer__top { grid-template-columns: 1.55fr 0.8fr 0.9fr 0.8fr 1.35fr; gap: 3rem; }
+    .site-footer__top { grid-template-columns: 1.7fr 0.75fr 0.85fr 0.85fr 1.3fr; gap: 2.5rem; }
     .f-brand, .f-plan { grid-column: auto; }
   }
 
-  .f-brand { display: grid; gap: 1.3rem; align-content: start; max-width: 26rem; }
-  .f-brand__logo { width: 8.5rem; }
+  .f-brand { display: grid; gap: 1.1rem; align-content: start; max-width: 28rem; }
+  .f-brand__head { display: flex; align-items: center; gap: 1rem; }
+  .f-brand__logo { width: 5.5rem; flex: none; }
   .f-brand__logo img { width: 100%; height: auto; filter: drop-shadow(0 8px 20px rgb(0 0 0 / 0.4)); }
-  .f-brand__line { font-size: 0.95rem; line-height: 1.6; }
-  .f-contact { list-style: none; padding: 0; display: grid; gap: 0.85rem; }
-  .f-contact li { display: flex; align-items: center; gap: 0.85rem; min-width: 0; }
-  .f-contact li > span:last-child { display: grid; min-width: 0; color: var(--cream); overflow-wrap: anywhere; }
+  .f-brand__line { font-size: 0.88rem; line-height: 1.55; }
+  .f-contact { list-style: none; padding: 0; display: grid; gap: 0.5rem; font-size: 0.9rem; }
+  .f-contact li { display: flex; align-items: center; gap: 0.7rem; min-width: 0; color: var(--cream); overflow-wrap: anywhere; }
+  .f-contact a { color: var(--cream); }
   .f-contact small { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(247 242 234 / 0.45); }
   .f-contact a:hover { color: var(--gold-300); }
   .f-contact__icon {
-    display: grid; place-items: center; flex: none; width: 2.5rem; height: 2.5rem; border-radius: 999px;
+    display: grid; place-items: center; flex: none; width: 1.9rem; height: 1.9rem; border-radius: 999px;
     background: rgb(202 168 103 / 0.12); border: 1px solid rgb(202 168 103 / 0.25); color: var(--gold-300);
   }
-  .f-contact__icon :global(svg) { width: 1.05rem; height: 1.05rem; }
+  .f-contact__icon :global(svg) { width: 0.9rem; height: 0.9rem; }
 
   .f-col__title {
     font-family: var(--sans); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--gold-300); margin-bottom: 1.25rem; padding-bottom: 0.8rem; position: relative;
+    color: var(--gold-300); margin-bottom: 0.9rem; padding-bottom: 0.6rem; position: relative;
   }
   .f-col__title::after { content: ''; position: absolute; left: 0; bottom: 0; width: 1.75rem; height: 2px; border-radius: 2px; background: var(--gold-300); }
-  .f-col ul { list-style: none; padding: 0; display: grid; gap: 0.7rem; }
+  .f-col ul { list-style: none; padding: 0; display: grid; gap: 0.45rem; font-size: 0.9rem; }
   .f-col a { position: relative; display: inline-block; color: rgb(247 242 234 / 0.75); transition: color 0.25s, transform 0.25s var(--ease); }
   .f-col a::before {
     content: '→'; position: absolute; left: -1.1rem; opacity: 0; color: var(--gold-300);
@@ -172,18 +169,18 @@ const weekdays = site.hours[0];
   .f-col a:hover::before { opacity: 1; transform: none; }
 
   .f-plan {
-    display: grid; gap: 0.7rem; align-content: start; padding: 1.75rem; border-radius: var(--radius-lg);
+    display: grid; gap: 0.5rem; align-content: start; padding: 1.25rem 1.35rem; border-radius: var(--radius-lg);
     background: linear-gradient(160deg, rgb(94 88 13 / 0.55), rgb(42 39 6 / 0.65));
     border: 1px solid rgb(202 168 103 / 0.22); box-shadow: 0 20px 50px -25px rgb(0 0 0 / 0.6);
   }
-  .f-plan__eyebrow { font-family: var(--script); font-weight: 700; font-size: 1.5rem; color: var(--gold-300); line-height: 1; }
-  .f-plan__title { font-family: var(--serif); font-size: 1.35rem; color: var(--cream); line-height: 1.25; }
-  .f-plan__phone { font-family: var(--serif); font-size: 1.6rem; color: var(--gold-100); letter-spacing: 0.01em; }
+  .f-plan__eyebrow { font-family: var(--script); font-weight: 700; font-size: 1.3rem; color: var(--gold-300); line-height: 1; }
+  .f-plan__title { font-family: var(--serif); font-size: 1.1rem; color: var(--cream); line-height: 1.25; }
+  .f-plan__phone { font-family: var(--serif); font-size: 1.35rem; color: var(--gold-100); letter-spacing: 0.01em; }
   .f-plan__phone:hover { color: var(--gold-300); }
-  .f-plan__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.3rem; }
+  .f-plan__actions { display: flex; gap: 0.45rem; margin-top: 0.2rem; }
   .f-plan__wa, .f-plan__book {
-    display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.7rem 1.1rem; border-radius: 999px;
-    font-size: 0.88rem; font-weight: 700; transition: transform 0.2s, background 0.2s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; flex: 1; padding: 0.6rem 0.8rem; border-radius: 999px; white-space: nowrap;
+    font-size: 0.82rem; font-weight: 700; transition: transform 0.2s, background 0.2s;
   }
   .f-plan__wa { background: #25d366; color: #fff; }
   .f-plan__book { background: var(--gold-300); color: var(--ink); }
@@ -201,7 +198,7 @@ const weekdays = site.hours[0];
 
   .site-footer__bottom {
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
-    padding-block: 1.6rem calc(1.6rem + env(safe-area-inset-bottom));
+    padding-block: 1.1rem calc(1.1rem + env(safe-area-inset-bottom));
     border-top: 1px solid rgb(247 242 234 / 0.1); font-size: 0.84rem; color: rgb(247 242 234 / 0.5);
   }
   .site-footer__legal { display: inline-flex; align-items: center; gap: 0.6rem; }
