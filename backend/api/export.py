@@ -58,7 +58,9 @@ def itinerary(i):
         'difficulty': i.difficulty,
         'difficulty_label': i.get_difficulty_display(),
         'max_group_size': i.max_group_size,
-        'price_from': float(i.price_from),
+        'price_from': float(i.price_from) if i.price_from is not None else None,
+        'summary': i.summary,
+        'badge': i.badge,
         'overview_html': rich(i.overview),
         'includes_html': rich(i.includes),
         'excludes_html': rich(i.excludes),
@@ -66,7 +68,8 @@ def itinerary(i):
         'is_featured': i.is_featured,
         'updated_at': iso(i.updated_at),
         'days': [
-            {'day_number': d.day_number, 'title': d.title, 'description_html': rich(d.description)}
+            {'day_number': d.day_number, 'title': d.title, 'description_html': rich(d.description),
+             'accommodation': d.accommodation, 'meals': d.meals}
             for d in i.days.all()
         ],
     }
@@ -115,7 +118,7 @@ def build_content():
     return {
         'generated_at': timezone.now().isoformat(),
         'site_url': settings.SITE_URL,
-        'hero': [h for h in (hero_slide(s) for s in HeroSlide.objects.filter(is_active=True)) if h['desktop']],
+        'hero': [h for h in (hero_slide(s) for s in HeroSlide.objects.filter(is_active=True)) if h['desktop']][:5],
         'regions': [
             {
                 'name': r.name, 'slug': r.slug, 'tagline': r.tagline, 'description': r.description,

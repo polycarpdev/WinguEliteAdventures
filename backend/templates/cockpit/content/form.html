@@ -41,6 +41,10 @@
           {% include 'cockpit/partials/field.html' with field=f.title %}
           {% if f.instance.pk %}<label class="check" style="color:var(--danger)">{{ f.DELETE }} Remove day</label>{% endif %}
         </div>
+        <div class="day__stay">
+          {% include 'cockpit/partials/field.html' with field=f.accommodation %}
+          {% include 'cockpit/partials/field.html' with field=f.meals %}
+        </div>
         {% include 'cockpit/partials/field.html' with field=f.description %}
         {% if f.non_field_errors %}<div class="form-alert">{{ f.non_field_errors|join:" " }}</div>{% endif %}
       </div>

@@ -1,0 +1,30 @@
+---
+// Compact destination card (same size as the journal cards) for the home page.
+import type { Destination } from '../lib/content';
+import { itinerariesFor, clip } from '../lib/content';
+import Img from './Img.astro';
+import Icon from './Icon.astro';
+
+interface Props { destination: Destination }
+const { destination: d } = Astro.props;
+const count = itinerariesFor(d.slug).length;
+---
+<article class="card dmini" data-reveal>
+  <div class="card__media">
+    <div class="card__badges"><span class="badge"><Icon name="pin" /> {d.country.name}</span></div>
+    <Img image={d.image} sizes="(min-width: 1100px) 30vw, (min-width: 640px) 50vw, 100vw" alt={`${d.name}, ${d.country.name}`} />
+  </div>
+  <div class="card__body">
+    <h3 class="card__title"><a href={`/destinations/detail/${d.slug}/`}>{d.name}</a></h3>
+    <p class="muted clamp-2">{clip(d.short_description, 140)}</p>
+    <div class="card__foot">
+      <span class="dmini__count">{count > 0 ? `${count} package${count > 1 ? 's' : ''}` : 'Tailor-made trips'}</span>
+      <span class="link-arrow">Explore <Icon name="arrow-right" /></span>
+    </div>
+  </div>
+</article>
+<style>
+  .dmini .card__media { aspect-ratio: 16 / 10; }
+  .dmini .badge :global(svg) { width: 0.85rem; height: 0.85rem; color: var(--gold); }
+  .dmini__count { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+</style>

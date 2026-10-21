@@ -46,7 +46,7 @@ const { overlayHeader = false, preloadImages = [], ...seo } = Astro.props;
     <WhatsAppFloat />
 
     <style is:global>
-      .main--offset { padding-top: var(--header-h); }
+      .main--offset { padding-top: calc(var(--header-h) + var(--topbar-h)); }
     </style>
 
     <script>

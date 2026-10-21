@@ -36,6 +36,9 @@ class FAQ(models.Model):
     def __str__(self):
         return self.question
 
+MAX_HERO_SLIDES = 5
+
+
 class HeroSlide(models.Model):
     """A slide in the home page hero. Desktop image 2560x1280, phone image 1080x2340."""
     eyebrow = models.CharField(max_length=60, blank=True, help_text='Small script line above the headline, e.g. "Karibu Kenya".')
@@ -60,3 +63,12 @@ class HeroSlide(models.Model):
 
     def __str__(self):
         return f'{self.headline} {self.highlight}'.strip()
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.is_active:
+            live = HeroSlide.objects.filter(is_active=True).exclude(pk=self.pk).count()
+            if live >= MAX_HERO_SLIDES:
+                raise ValidationError(
+                    f'The home page shows at most {MAX_HERO_SLIDES} slides. Untick “Show on website” on another slide first, '
+                    'or save this one with it unticked.')

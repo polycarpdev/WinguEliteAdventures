@@ -13,7 +13,12 @@ class Itinerary(models.Model):
     duration_nights = models.PositiveIntegerField('Nights', blank=True, help_text='Leave blank for days − 1.')
     difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES, default='moderate')
     max_group_size = models.PositiveIntegerField(default=10)
-    price_from = models.DecimalField(max_digits=10, decimal_places=2)
+    price_from = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
+                                     help_text='Per person, USD. Leave blank to show “On Request”.')
+    summary = models.CharField(max_length=180, blank=True, default='',
+                               help_text='One or two lines for package cards. Leave blank to use the overview.')
+    badge = models.CharField(max_length=30, blank=True, default='',
+                             help_text='Optional label on the card photo, e.g. “Most requested”, “Combined”, “Beach”.')
     
     # FIXED: Use CKEditor5Field
     overview = CKEditor5Field('Overview', config_name='default')
@@ -49,7 +54,9 @@ class ItineraryDay(models.Model):
     itinerary = models.ForeignKey(Itinerary, on_delete=models.CASCADE, related_name='days')
     day_number = models.PositiveIntegerField()
     title = models.CharField(max_length=200)
-    
+    accommodation = models.CharField(max_length=150, blank=True, default='', help_text='e.g. Masai Mara Sopa Lodge (or similar)')
+    meals = models.CharField(max_length=60, blank=True, default='', help_text='e.g. Full board, Breakfast & dinner')
+
     # FIXED: Use CKEditor5Field
     description = CKEditor5Field('Description', config_name='default')
     

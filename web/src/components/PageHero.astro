@@ -38,7 +38,7 @@ const { title, eyebrow, lead, image, crumbs, size = 'md' } = Astro.props;
   .page-hero__title { max-width: 52rem; }
   .page-hero__lead { margin-top: 0.4rem; }
 
-  .page-hero--image { color: var(--cream); background: var(--ink); min-height: clamp(22rem, 52vh, 34rem); display: flex; align-items: flex-end; padding-top: calc(var(--header-h) + 4rem); }
+  .page-hero--image { color: var(--cream); background: var(--ink); min-height: clamp(22rem, 52vh, 34rem); display: flex; align-items: flex-end; padding-top: calc(var(--header-h) + var(--topbar-h) + 4rem); }
   .page-hero--lg.page-hero--image { min-height: clamp(26rem, 72vh, 46rem); }
   .page-hero--image::after { display: none; }
   .page-hero--image .eyebrow { color: var(--gold-300); }

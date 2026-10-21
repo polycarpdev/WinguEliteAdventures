@@ -8,6 +8,7 @@ import {
   regions, inRegion, inCountry, liveCountries, comingCountries, coverFor, countryUrl, clip, type Region,
 } from '../../../lib/content';
 import { abs } from '../../../lib/schema';
+import { site } from '../../../config/site';
 
 export function getStaticPaths() {
   return regions.map((r) => ({ params: { region: r.slug }, props: { r } }));
@@ -72,13 +73,13 @@ const schema = [{
           <span class="eyebrow">{live.length ? 'Also in ' + r.name : 'Tailor-made'}</span>
           <h2 class="h2">{live.length ? 'More places, planned on request' : `Plan your ${r.name} journey`}</h2>
           <p class="lead">
-            We design private trips to each of these. Tell us where and when, and a specialist will send a tailored
-            itinerary within 24 hours.
+            We design private trips to each of these. Tap a place to message us on WhatsApp, and a specialist will send a
+            tailored itinerary within 24 hours.
           </p>
         </div>
         <ul class="places">
           {coming.map((c) => (
-            <li><a href={`/contact/?subject=${encodeURIComponent(`Trip to ${c.name}`)}`} class="place"><Icon name="pin" />{c.name}</a></li>
+            <li><a href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(`Hi Wingu Elite! I’d like to plan a trip to ${c.name}.`)}`} class="place" target="_blank" rel="noopener" data-astro-prefetch="false"><Icon name="pin" />{c.name}</a></li>
           ))}
         </ul>
       </div>

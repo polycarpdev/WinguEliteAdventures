@@ -3,97 +3,101 @@ import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
 import { site } from '../../config/site';
+
 const crumbs = [{ name: 'Contact', href: '/contact/' }];
 const schema = [{ '@type': 'ContactPage', name: 'Contact Wingu Elite Adventures', url: `${site.url}/contact/` }];
+const tel = site.phone.replace(/\s/g, '');
+const socials = Object.entries(site.social).filter(([, url]) => url) as [any, string][];
+const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${site.name}, ${site.address.locality}, ${site.address.country}`)}`;
 ---
-<Base title="Contact Us" description="Contact Wingu Elite Adventures in Nairobi, Kenya. Questions about a safari, a custom trip or a booking? Our team replies within 24 hours." crumbs={crumbs} schema={schema}>
-  <PageHero title="Let’s talk safari" eyebrow="Get in touch" lead="A question, an idea, a dream trip? Write to us and a real person will reply within a day." crumbs={crumbs} />
+<Base title="Contact Us" description={`Contact Wingu Elite Adventures in ${site.address.locality}, Kenya. Call or WhatsApp ${site.phone}, email ${site.email}. We reply within 24 hours.`} crumbs={crumbs} schema={schema}>
+  <PageHero title="Get in touch" eyebrow="We’re here to help" lead="Call, WhatsApp or email us. A real person replies, usually within the hour during office hours." crumbs={crumbs} />
+
   <section class="section">
     <div class="container contact">
-      <form class="contact__form" data-contact-form novalidate>
-        <div class="form-grid form-grid--2">
-          <div class="field">
-            <label for="name">Name <span class="req">*</span></label>
-            <input id="name" name="name" class="input" autocomplete="name" maxlength="200" required />
-            <p class="field-error" data-error-for="name"></p>
-          </div>
-          <div class="field">
-            <label for="email">Email <span class="req">*</span></label>
-            <input id="email" name="email" type="email" class="input" autocomplete="email" required />
-            <p class="field-error" data-error-for="email"></p>
-          </div>
-          <div class="field">
-            <label for="phone">Phone</label>
-            <input id="phone" name="phone" type="tel" class="input" autocomplete="tel" maxlength="20" />
-            <p class="field-error" data-error-for="phone"></p>
-          </div>
-          <div class="field">
-            <label for="subject">Subject <span class="req">*</span></label>
-            <input id="subject" name="subject" class="input" maxlength="200" required />
-            <p class="field-error" data-error-for="subject"></p>
-          </div>
-          <div class="field span-2">
-            <label for="message">Message <span class="req">*</span></label>
-            <textarea id="message" name="message" class="input" maxlength="5000" rows="6" required></textarea>
-            <p class="field-error" data-error-for="message"></p>
-          </div>
-        </div>
-        <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off" /></label></div>
-        <p class="form-alert" data-form-alert role="alert" tabindex="-1"></p>
-        <button type="submit" class="btn btn--lg">Send message <Icon name="arrow-right" /></button>
-      </form>
+      <a class="c-card c-card--lead" href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent('Hi Wingu Elite! I’d like help planning a trip.')}`} target="_blank" rel="noopener" data-astro-prefetch="false">
+        <span class="c-card__icon c-card__icon--wa"><Icon name="whatsapp" /></span>
+        <span class="c-card__label">Call or WhatsApp</span>
+        <strong class="c-card__value">{site.phone}</strong>
+        <span class="c-card__hint">Tap to chat on WhatsApp</span>
+      </a>
+      <a class="c-card" href={`tel:${tel}`}>
+        <span class="c-card__icon"><Icon name="phone" /></span>
+        <span class="c-card__label">Phone</span>
+        <strong class="c-card__value">{site.phone}</strong>
+        <span class="c-card__hint">Tap to call</span>
+      </a>
+      <a class="c-card" href={`mailto:${site.email}`}>
+        <span class="c-card__icon"><Icon name="mail" /></span>
+        <span class="c-card__label">Email</span>
+        <strong class="c-card__value">{site.email}</strong>
+        <span class="c-card__hint">Bookings: {site.bookingsEmail}</span>
+      </a>
+      <a class="c-card" href={mapUrl} target="_blank" rel="noopener" data-astro-prefetch="false">
+        <span class="c-card__icon"><Icon name="pin" /></span>
+        <span class="c-card__label">Office</span>
+        <strong class="c-card__value">{site.address.locality}, {site.address.country}</strong>
+        <span class="c-card__hint">East Africa · Open in Google Maps</span>
+      </a>
+      <div class="c-card c-card--hours">
+        <span class="c-card__icon"><Icon name="clock" /></span>
+        <span class="c-card__label">Opening hours (EAT)</span>
+        <dl>
+          {site.hours.map((h) => <div><dt>{h.days}</dt><dd>{h.time}</dd></div>)}
+        </dl>
+      </div>
+      <div class="c-card c-card--social">
+        <span class="c-card__icon"><Icon name="globe" /></span>
+        <span class="c-card__label">Follow us</span>
+        <ul>
+          <li><a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener" aria-label="WhatsApp"><Icon name="whatsapp" /></a></li>
+          {socials.map(([name, url]) => <li><a href={url} target="_blank" rel="noopener" aria-label={name}><Icon name={name} /></a></li>)}
+        </ul>
+      </div>
+    </div>
 
-      <aside class="contact__info">
-        <div class="info">
-          <Icon name="mail" />
-          <div><h2>Email</h2><a href={`mailto:${site.email}`}>{site.email}</a><a href={`mailto:${site.bookingsEmail}`}>{site.bookingsEmail}</a></div>
-        </div>
-        {(site.phone || site.whatsapp) && (
-          <div class="info">
-            <Icon name="phone" />
-            <div>
-              <h2>Phone</h2>
-              {site.phone && <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a>}
-              {site.whatsapp && <a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener">WhatsApp chat</a>}
-            </div>
-          </div>
-        )}
-        <div class="info">
-          <Icon name="pin" />
-          <div><h2>Office</h2><p>{site.address.locality}, {site.address.country}<br />East Africa</p></div>
-        </div>
-        <div class="info">
-          <Icon name="clock" />
-          <div><h2>Hours (EAT)</h2>{site.hours.map((h) => <p><span>{h.days}</span> {h.time}</p>)}</div>
-        </div>
-        <a href="/bookings/" class="btn btn--gold btn--block">Ready to book? Plan your safari</a>
-      </aside>
+    <div class="container ready" data-reveal>
+      <div>
+        <span class="eyebrow">Ready to travel?</span>
+        <h2 class="h2">Tell us your dates and we’ll do the rest</h2>
+        <p class="lead">Pick a package or a destination, choose your days and nights, and get a tailored quote within 24 hours.</p>
+      </div>
+      <a href="/bookings/" class="btn btn--lg">Book now <Icon name="arrow-right" /></a>
     </div>
   </section>
 </Base>
+
 <style>
-  .contact { display: grid; gap: 3rem; }
-  @media (min-width: 1100px) { .contact { grid-template-columns: 1fr 22rem; gap: 4rem; align-items: start; } }
-  .contact__form { display: grid; gap: 1.25rem; padding: clamp(1.5rem, 3vw, 2.5rem); border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow-sm); min-width: 0; }
-  .contact__form > .btn { justify-self: start; }
-  .contact__info { display: grid; gap: 1.25rem; padding: 2rem; border-radius: var(--radius-lg); background: var(--sand); }
-  .info { display: flex; gap: 1rem; }
-  .info > :global(svg) { width: 1.4rem; height: 1.4rem; color: var(--gold); flex: none; margin-top: 0.2rem; }
-  .info div { display: grid; gap: 0.15rem; font-size: 0.93rem; min-width: 0; }
-  .info h2 { font-family: var(--sans); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
-  .info a { color: var(--olive); text-decoration: none; word-break: break-all; }
-  .info a:hover { text-decoration: underline; }
-  .info span { display: inline-block; min-width: 8.5rem; color: var(--muted); }
+  .contact { display: grid; gap: 1.1rem; }
+  @media (min-width: 640px) { .contact { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .contact { grid-template-columns: repeat(3, 1fr); } }
+  .c-card {
+    display: grid; gap: 0.35rem; align-content: start; padding: 1.75rem; border-radius: var(--radius-lg);
+    background: var(--white); box-shadow: var(--shadow-sm); text-decoration: none; min-width: 0;
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  }
+  a.c-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .c-card__icon { display: grid; place-items: center; width: 3rem; height: 3rem; margin-bottom: 0.6rem; border-radius: 999px; background: var(--sand); color: var(--olive); }
+  .c-card__icon :global(svg) { width: 1.35rem; height: 1.35rem; }
+  .c-card__icon--wa { background: #25d366; color: #fff; }
+  .c-card__label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .c-card__value { font-family: var(--serif); font-weight: 500; font-size: 1.35rem; color: var(--ink); overflow-wrap: anywhere; }
+  .c-card__hint { font-size: 0.85rem; color: var(--olive); }
+  .c-card--lead { background: var(--olive-900); }
+  .c-card--lead .c-card__label { color: rgb(247 242 234 / 0.7); }
+  .c-card--lead .c-card__value { color: var(--cream); font-size: 1.6rem; }
+  .c-card--lead .c-card__hint { color: var(--gold-300); }
+  .c-card--hours dl { display: grid; gap: 0.35rem; margin: 0.2rem 0 0; font-size: 0.95rem; }
+  .c-card--hours dl div { display: flex; justify-content: space-between; gap: 1rem; }
+  .c-card--hours dt { color: var(--muted); }
+  .c-card--hours dd { margin: 0; font-weight: 600; }
+  .c-card--social ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.3rem; }
+  .c-card--social a { display: grid; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--olive); transition: all 0.2s; }
+  .c-card--social a:hover { background: var(--olive); border-color: var(--olive); color: var(--cream); }
+  .c-card--social a :global(svg) { width: 1.2rem; height: 1.2rem; }
+  .ready {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;
+    margin-top: 2.5rem; padding: clamp(1.75rem, 4vw, 2.75rem); border-radius: var(--radius-lg); background: var(--sand);
+  }
+  .ready > div { display: grid; gap: 0.6rem; max-width: 40rem; }
 </style>
-<script>
-  import { bindForm } from '../../lib/forms';
-  document.addEventListener('astro:page-load', () => {
-    const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
-    if (!form) return;
-    bindForm(form, '/api/contact/', '/contact/success/');
-    // Links like /contact/?subject=Trip%20to%20Uganda prefill the subject.
-    const subject = new URLSearchParams(location.search).get('subject');
-    const field = form.elements.namedItem('subject') as HTMLInputElement | null;
-    if (subject && field && !field.value) field.value = subject.slice(0, 200);
-  });
-</script>

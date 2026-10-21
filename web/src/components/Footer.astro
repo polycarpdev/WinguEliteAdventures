@@ -1,69 +1,99 @@
 ---
 import { site } from '../config/site';
-import { destinations, regions } from '../lib/content';
+import { regions, destinations } from '../lib/content';
 import CloudMark from './CloudMark.astro';
 import Icon from './Icon.astro';
 
 const year = new Date().getFullYear();
-const socials = Object.entries(site.social).filter(([, url]) => url) as [
-  'instagram' | 'facebook' | 'tiktok' | 'youtube' | 'tripadvisor',
-  string,
-][];
-const topParks = [...destinations].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 6);
+const socials = Object.entries(site.social).filter(([, url]) => url) as [any, string][];
+const tel = site.phone.replace(/\s/g, '');
+const popular = destinations.filter((d) => d.image && d.is_featured).slice(0, 5);
+const weekdays = site.hours[0];
 ---
 <footer class="site-footer">
-  <div class="container">
+  <!-- Savannah horizon: hills and acacias in the footer colour, rising into the section above -->
+  <svg class="site-footer__horizon" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 100V62c90-12 170-22 280-22 120 0 170 18 290 18s200-26 330-28 210 16 320 18 150-8 220-12v64z" />
+    <path d="M210 52l4-26-12-10 3-2 11 8 2-12h4l-2 14 10-7 3 3-12 9-3 23z" />
+    <ellipse cx="212" cy="16" rx="46" ry="7" /><ellipse cx="206" cy="10" rx="30" ry="5" />
+    <path d="M1186 58l3-26-9-8 2-2 9 6 2-10h3l-1 11 8-5 2 2-10 7-2 25z" />
+    <ellipse cx="1188" cy="23" rx="34" ry="6" /><ellipse cx="1182" cy="18" rx="22" ry="4" />
+    <path d="M1262 58l2-14-6-5 2-2 5 4 1-6h2l-1 7 5-4 2 2-6 5-1 13z" />
+    <ellipse cx="1263" cy="36" rx="19" ry="4" />
+  </svg>
+  <div class="site-footer__fx" aria-hidden="true"><span class="site-footer__glow"></span><span class="site-footer__watermark">Wingu</span></div>
+
+  <div class="container site-footer__body">
     <div class="site-footer__top">
-      <div class="site-footer__brand">
-        <img src="/brand/logo-320.webp" width="320" height="294" alt="Wingu Elite Adventures logo" loading="lazy" decoding="async" class="site-footer__logo" />
-        <p>Private, unhurried safaris across Kenya and East Africa, planned by people who call this land home.</p>
+      <!-- Brand & contact -->
+      <div class="f-brand">
+        <a href="/" class="f-brand__logo" aria-label="Wingu Elite Adventures, home">
+          <img src="/brand/logo-320.webp" width="320" height="294" alt="Wingu Elite Adventures" loading="lazy" decoding="async" />
+        </a>
+        <p class="f-brand__line">Private safaris and journeys across Kenya, East Africa and beyond, crafted by people who call this land home.</p>
+        <ul class="f-contact">
+          {site.phone && (
+            <li><span class="f-contact__icon"><Icon name="phone" /></span>
+              <span><small>Call or WhatsApp</small><a href={`tel:${tel}`}>{site.phone}</a></span></li>
+          )}
+          <li><span class="f-contact__icon"><Icon name="mail" /></span>
+            <span><small>Email</small><a href={`mailto:${site.email}`}>{site.email}</a></span></li>
+          <li><span class="f-contact__icon"><Icon name="pin" /></span>
+            <span><small>Office</small>{site.address.locality}, {site.address.country}</span></li>
+          <li><span class="f-contact__icon"><Icon name="clock" /></span>
+            <span><small>Open</small>{weekdays.days.replace(' – ', '–')}, {weekdays.time}</span></li>
+        </ul>
+      </div>
+
+      <!-- Links -->
+      <nav class="f-col" aria-label="Company">
+        <h2 class="f-col__title">Company</h2>
+        <ul>
+          <li><a href="/about/">About Us</a></li>
+          <li><a href="/team/">Our Team</a></li>
+          <li><a href="/testimonials/">Reviews</a></li>
+          <li><a href="/gallery/">Gallery</a></li>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="/faqs/">FAQ</a></li>
+          <li><a href="/contact/">Contact Us</a></li>
+        </ul>
+      </nav>
+      <nav class="f-col" aria-label="Travel">
+        <h2 class="f-col__title">Travel</h2>
+        <ul>
+          <li><a href="/destinations/">All destinations</a></li>
+          {regions.map((r) => <li><a href={`/destinations/${r.slug}/`}>{r.name}</a></li>)}
+          <li><a href="/packages/">Packages</a></li>
+          <li><a href="/bookings/">Book Now</a></li>
+        </ul>
+      </nav>
+      {popular.length > 0 && (
+        <nav class="f-col f-col--popular" aria-label="Popular destinations">
+          <h2 class="f-col__title">Popular</h2>
+          <ul>
+            {popular.map((d) => <li><a href={`/destinations/detail/${d.slug}/`}>{d.name.replace(/ (National (Park|Reserve)|Adventures)$/, '')}</a></li>)}
+          </ul>
+        </nav>
+      )}
+
+      <!-- Plan card -->
+      <aside class="f-plan">
+        <span class="f-plan__eyebrow">Plan your trip</span>
+        <p class="f-plan__title">Speak to a safari specialist</p>
+        {site.phone && <a href={`tel:${tel}`} class="f-plan__phone">{site.phone}</a>}
+        <div class="f-plan__actions">
+          {site.whatsapp && (
+            <a href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent('Hi Wingu Elite! I’d like help planning a trip.')}`}
+               class="f-plan__wa" target="_blank" rel="noopener" data-astro-prefetch="false"><Icon name="whatsapp" /> WhatsApp</a>
+          )}
+          <a href="/bookings/" class="f-plan__book">Book now <Icon name="arrow-right" /></a>
+        </div>
         {socials.length > 0 && (
-          <ul class="site-footer__social" aria-label="Social media">
-            {socials.map(([name, url]) => (
-              <li><a href={url} target="_blank" rel="noopener" aria-label={name}><Icon name={name} /></a></li>
-            ))}
+          <ul class="f-social" aria-label="Follow us">
+            {socials.map(([name, url]) => <li><a href={url} target="_blank" rel="noopener" aria-label={name}><Icon name={name} /></a></li>)}
           </ul>
         )}
-      </div>
-
-      <div class="site-footer__col">
-        <h2>Explore</h2>
-        <ul>
-          <li><a href="/packages/">Packages</a></li>
-          {regions.map((r) => <li><a href={`/destinations/${r.slug}/`}>{r.name}</a></li>)}
-          <li><a href="/gallery/">Gallery</a></li>
-          <li><a href="/blog/">Safari journal</a></li>
-        </ul>
-      </div>
-
-      <div class="site-footer__col">
-        <h2>Top parks</h2>
-        <ul>
-          {topParks.map((d) => <li><a href={`/destinations/detail/${d.slug}/`}>{d.name.replace(/ (National (Park|Reserve)|Adventures)$/,'')}</a></li>)}
-        </ul>
-      </div>
-
-      <div class="site-footer__col">
-        <h2>Company</h2>
-        <ul>
-          <li><a href="/about/">About us</a></li>
-          <li><a href="/team/">Our team</a></li>
-          <li><a href="/testimonials/">Reviews</a></li>
-          <li><a href="/faqs/">FAQs</a></li>
-          <li><a href="/contact/">Contact</a></li>
-        </ul>
-      </div>
-
-      <div class="site-footer__col">
-        <h2>Get in touch</h2>
-        <ul class="site-footer__contact">
-          <li><Icon name="mail" /><a href={`mailto:${site.email}`}>{site.email}</a></li>
-          {site.phone && <li><Icon name="phone" /><a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a></li>}
-          {site.whatsapp && <li><Icon name="whatsapp" /><a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener">WhatsApp us</a></li>}
-          <li><Icon name="pin" /><span>{site.address.locality}, {site.address.country}</span></li>
-        </ul>
-        <a href="/bookings/" class="btn btn--gold site-footer__cta">Book Now</a>
-      </div>
+      </aside>
     </div>
 
     <div class="site-footer__bottom">
@@ -80,30 +110,99 @@ const topParks = [...destinations].sort((a, b) => Number(b.is_featured) - Number
 </footer>
 
 <style>
-  .site-footer { background: var(--ink); color: rgb(247 242 234 / 0.72); padding-top: clamp(4rem, 8vw, 6rem); font-size: 0.93rem; }
+  .site-footer {
+    --f-bg: #1d1810;
+    position: relative; isolation: isolate;
+    background: var(--f-bg); color: rgb(247 242 234 / 0.7); font-size: 0.95rem;
+    padding-top: clamp(3.5rem, 7vw, 5.5rem);
+  }
   .site-footer a { text-decoration: none; transition: color 0.2s; }
-  .site-footer a:hover { color: var(--gold-300); }
-  .site-footer__top { display: grid; gap: 2.5rem; padding-bottom: 3.5rem; }
-  @media (min-width: 640px) { .site-footer__top { grid-template-columns: 1fr 1fr; } }
-  @media (min-width: 1100px) { .site-footer__top { grid-template-columns: 1.3fr 0.9fr 1fr 0.8fr 1.7fr; gap: 2.5rem; } }
-  .site-footer__brand { display: grid; gap: 1.25rem; align-content: start; max-width: 22rem; }
-  .site-footer__logo { width: 9.5rem; }
-  .site-footer h2 { font-family: var(--sans); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-300); margin-bottom: 1.1rem; }
-  .site-footer ul { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
-  .site-footer__contact li { display: flex; gap: 0.65rem; align-items: center; min-width: 0; }
-  .site-footer__contact a { font-size: 0.88rem; overflow-wrap: anywhere; }
-  .site-footer__contact :global(svg) { width: 1.05rem; height: 1.05rem; color: var(--gold-300); flex: none; }
-  .site-footer__cta { margin-top: 1.5rem; }
-  .site-footer__social { display: flex !important; gap: 0.5rem !important; }
-  .site-footer__social a { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 999px; border: 1px solid rgb(247 242 234 / 0.2); }
-  .site-footer__social a:hover { border-color: var(--gold-300); }
-  .site-footer__social :global(svg) { width: 1.1rem; height: 1.1rem; }
+
+  /* Hills + acacias sit above the footer's top edge, in the footer's own colour */
+  .site-footer__horizon {
+    position: absolute; left: 0; bottom: calc(100% - 1px); width: 100%; height: clamp(3rem, 7vw, 5.5rem);
+    fill: var(--f-bg); pointer-events: none;
+  }
+  .site-footer__fx { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .site-footer__glow {
+    position: absolute; inset: auto -10% -30% auto; width: 60rem; height: 40rem;
+    background: radial-gradient(closest-side, rgb(202 168 103 / 0.14), transparent); pointer-events: none;
+  }
+  .site-footer__watermark {
+    position: absolute; right: -1rem; bottom: 2.5rem; font-family: var(--script); font-weight: 700;
+    font-size: clamp(8rem, 18vw, 17rem); line-height: 1; color: rgb(247 242 234 / 0.035); pointer-events: none; user-select: none;
+  }
+
+  .site-footer__top { display: grid; grid-template-columns: 1fr 1fr; gap: 2.75rem 1.5rem; padding-bottom: 3.5rem; align-items: start; }
+  .f-brand, .f-plan { grid-column: 1 / -1; }
+  @media (max-width: 639.98px) { .f-col--popular { display: none; } }
+  @media (min-width: 640px) { .site-footer__top { grid-template-columns: repeat(3, 1fr); gap: 3rem 2.5rem; } }
+  @media (min-width: 1100px) {
+    .site-footer__top { grid-template-columns: 1.55fr 0.8fr 0.9fr 0.8fr 1.35fr; gap: 3rem; }
+    .f-brand, .f-plan { grid-column: auto; }
+  }
+
+  .f-brand { display: grid; gap: 1.3rem; align-content: start; max-width: 26rem; }
+  .f-brand__logo { width: 8.5rem; }
+  .f-brand__logo img { width: 100%; height: auto; filter: drop-shadow(0 8px 20px rgb(0 0 0 / 0.4)); }
+  .f-brand__line { font-size: 0.95rem; line-height: 1.6; }
+  .f-contact { list-style: none; padding: 0; display: grid; gap: 0.85rem; }
+  .f-contact li { display: flex; align-items: center; gap: 0.85rem; min-width: 0; }
+  .f-contact li > span:last-child { display: grid; min-width: 0; color: var(--cream); overflow-wrap: anywhere; }
+  .f-contact small { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(247 242 234 / 0.45); }
+  .f-contact a:hover { color: var(--gold-300); }
+  .f-contact__icon {
+    display: grid; place-items: center; flex: none; width: 2.5rem; height: 2.5rem; border-radius: 999px;
+    background: rgb(202 168 103 / 0.12); border: 1px solid rgb(202 168 103 / 0.25); color: var(--gold-300);
+  }
+  .f-contact__icon :global(svg) { width: 1.05rem; height: 1.05rem; }
+
+  .f-col__title {
+    font-family: var(--sans); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold-300); margin-bottom: 1.25rem; padding-bottom: 0.8rem; position: relative;
+  }
+  .f-col__title::after { content: ''; position: absolute; left: 0; bottom: 0; width: 1.75rem; height: 2px; border-radius: 2px; background: var(--gold-300); }
+  .f-col ul { list-style: none; padding: 0; display: grid; gap: 0.7rem; }
+  .f-col a { position: relative; display: inline-block; color: rgb(247 242 234 / 0.75); transition: color 0.25s, transform 0.25s var(--ease); }
+  .f-col a::before {
+    content: '→'; position: absolute; left: -1.1rem; opacity: 0; color: var(--gold-300);
+    transition: opacity 0.25s, transform 0.25s var(--ease); transform: translateX(-4px);
+  }
+  .f-col a:hover { color: var(--cream); transform: translateX(1.1rem); }
+  .f-col a:hover::before { opacity: 1; transform: none; }
+
+  .f-plan {
+    display: grid; gap: 0.7rem; align-content: start; padding: 1.75rem; border-radius: var(--radius-lg);
+    background: linear-gradient(160deg, rgb(94 88 13 / 0.55), rgb(42 39 6 / 0.65));
+    border: 1px solid rgb(202 168 103 / 0.22); box-shadow: 0 20px 50px -25px rgb(0 0 0 / 0.6);
+  }
+  .f-plan__eyebrow { font-family: var(--script); font-weight: 700; font-size: 1.5rem; color: var(--gold-300); line-height: 1; }
+  .f-plan__title { font-family: var(--serif); font-size: 1.35rem; color: var(--cream); line-height: 1.25; }
+  .f-plan__phone { font-family: var(--serif); font-size: 1.6rem; color: var(--gold-100); letter-spacing: 0.01em; }
+  .f-plan__phone:hover { color: var(--gold-300); }
+  .f-plan__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.3rem; }
+  .f-plan__wa, .f-plan__book {
+    display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.7rem 1.1rem; border-radius: 999px;
+    font-size: 0.88rem; font-weight: 700; transition: transform 0.2s, background 0.2s;
+  }
+  .f-plan__wa { background: #25d366; color: #fff; }
+  .f-plan__book { background: var(--gold-300); color: var(--ink); }
+  .f-plan__wa:hover, .f-plan__book:hover { transform: translateY(-2px); }
+  .f-plan__book:hover { background: var(--tan); color: var(--ink); }
+  .f-plan__wa:hover { color: #fff; }
+  .f-plan :global(svg) { width: 1rem; height: 1rem; }
+  .f-social { list-style: none; padding: 0; display: flex; gap: 0.45rem; margin-top: 0.6rem; padding-top: 1rem; border-top: 1px solid rgb(247 242 234 / 0.1); }
+  .f-social a {
+    display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 999px;
+    border: 1px solid rgb(247 242 234 / 0.22); color: var(--cream); transition: all 0.2s;
+  }
+  .f-social a:hover { background: var(--gold-300); border-color: var(--gold-300); color: var(--ink); }
+  .f-social :global(svg) { width: 1.05rem; height: 1.05rem; }
 
   .site-footer__bottom {
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
-    padding-block: 1.75rem calc(1.75rem + env(safe-area-inset-bottom));
-    border-top: 1px solid rgb(247 242 234 / 0.12);
-    font-size: 0.85rem;
+    padding-block: 1.6rem calc(1.6rem + env(safe-area-inset-bottom));
+    border-top: 1px solid rgb(247 242 234 / 0.1); font-size: 0.84rem; color: rgb(247 242 234 / 0.5);
   }
   .site-footer__legal { display: inline-flex; align-items: center; gap: 0.6rem; }
   .site-footer__mark { width: 1.7rem; --cloud-fill: transparent; }

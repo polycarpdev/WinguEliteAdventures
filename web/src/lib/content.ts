@@ -27,6 +27,8 @@ export interface ItineraryDay {
   day_number: number;
   title: string;
   description_html: string;
+  accommodation: string;
+  meals: string;
 }
 
 export interface Itinerary {
@@ -40,7 +42,9 @@ export interface Itinerary {
   difficulty: string;
   difficulty_label: string;
   max_group_size: number;
-  price_from: number;
+  price_from: number | null;
+  summary: string;
+  badge: string;
   overview_html: string;
   includes_html: string;
   excludes_html: string;
@@ -126,7 +130,9 @@ export interface Content {
 }
 
 export const content = raw as unknown as Content;
-export const { regions, destinations, itineraries, gallery, testimonials, team, faqs } = content;
+export const { regions, destinations, gallery, testimonials, team, faqs } = content;
+/** Packages with a photo first, so a not-yet-illustrated package never leads a list. */
+export const itineraries = [...content.itineraries].sort((a, b) => Number(!!b.image) - Number(!!a.image));
 export const heroSlides = content.hero ?? [];
 /** Short duration badge, e.g. "4D · 3N". */
 export const shortDuration = (days: number, nights: number) => `${days}D · ${nights}N`;
@@ -154,6 +160,9 @@ export const heroImage: Img | null =
 
 export const usd = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+
+/** "From $680" style price, or "On Request" when the team hasn't set one. */
+export const priceLabel = (n: number | null) => (n == null ? 'On Request' : usd(n));
 
 export const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });

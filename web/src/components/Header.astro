@@ -1,5 +1,5 @@
 ---
-import { nav } from '../config/site';
+import { nav, site } from '../config/site';
 import { regions } from '../lib/content';
 import Brand from './Brand.astro';
 import Icon from './Icon.astro';
@@ -7,8 +7,24 @@ import Icon from './Icon.astro';
 const { overlay = false } = Astro.props as { overlay?: boolean };
 const path = Astro.url.pathname;
 const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const socials = Object.entries(site.social).filter(([, url]) => url) as [any, string][];
 ---
 <header class="site-header" data-overlay={overlay ? '' : undefined} data-header>
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <p class="topbar__contact">
+        {site.phone && <a href={`tel:${site.phone.replace(/\s/g, '')}`}><Icon name="phone" />{site.phone}</a>}
+        <a href={`mailto:${site.email}`}><Icon name="mail" />{site.email}</a>
+      </p>
+      <p class="topbar__right">
+        <span class="topbar__hours"><Icon name="clock" />{site.hours[0].days.replace(' – ', '–')} {site.hours[0].time}</span>
+        <span class="topbar__social">
+          {site.whatsapp && <a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener" aria-label="WhatsApp"><Icon name="whatsapp" /></a>}
+          {socials.map(([name, url]) => <a href={url} target="_blank" rel="noopener" aria-label={name}><Icon name={name} /></a>)}
+        </span>
+      </p>
+    </div>
+  </div>
   <div class="container site-header__inner">
     <Brand />
     <nav class="site-nav" id="site-nav" aria-label="Main">
@@ -56,14 +72,29 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 <style>
   .site-header {
     position: fixed; inset: 0 0 auto; z-index: 50;
-    height: var(--header-h);
+    height: calc(var(--header-h) + var(--topbar-h));
     color: var(--ink);
-    transition: color 0.35s var(--ease);
+    transition: color 0.35s var(--ease), transform 0.35s var(--ease);
   }
+  .site-header[data-scrolled]:not([data-open]) { transform: translateY(calc(var(--topbar-h) * -1)); }
+
+  /* --- Utility bar (desktop): phone, email, hours, socials --- */
+  .topbar { display: none; height: var(--topbar-h); background: var(--olive-900); color: rgb(247 242 234 / 0.88); font-size: 0.8rem; }
+  @media (min-width: 1100px) { .topbar { display: block; } }
+  .topbar__inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+  .topbar p { display: flex; align-items: center; gap: 1.5rem; }
+  .topbar a { display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none; transition: color 0.2s; }
+  .topbar a:hover { color: var(--gold-300); }
+  .topbar :global(svg) { width: 0.95rem; height: 0.95rem; color: var(--gold-300); }
+  .topbar__hours { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .topbar__social { display: inline-flex; gap: 0.35rem; }
+  .topbar__social a { display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 999px; background: rgb(247 242 234 / 0.1); }
+  .topbar__social a:hover { background: var(--gold-300); }
+  .topbar__social a:hover :global(svg) { color: var(--ink); }
   /* Background + blur live on a pseudo-element: backdrop-filter on the header
      itself would make it the containing block for the fixed mobile menu. */
   .site-header::before {
-    content: ''; position: absolute; inset: 0; z-index: -1;
+    content: ''; position: absolute; inset: var(--topbar-h) 0 0; z-index: -1;
     background: rgb(247 242 234 / 0.92);
     backdrop-filter: saturate(1.4) blur(14px);
     -webkit-backdrop-filter: saturate(1.4) blur(14px);
@@ -75,11 +106,11 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 
   /* Logo hangs below the bar as a badge at the top of the page, shrinks on scroll. */
   .site-header :global(.brand__logo) { transform-origin: left top; transition: transform 0.45s var(--ease); }
-  .site-header:not([data-scrolled]):not([data-open]) :global(.brand__logo) { transform: scale(1.6); }
+  .site-header:not([data-scrolled]):not([data-open]) :global(.brand__logo) { transform: scale(1.22); }
   @media (max-width: 639.98px) {
-    .site-header:not([data-scrolled]):not([data-open]) :global(.brand__logo) { transform: scale(1.35); }
+    .site-header:not([data-scrolled]):not([data-open]) :global(.brand__logo) { transform: scale(1.1); }
   }
-  .site-header__inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+  .site-header__inner { height: var(--header-h); display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
 
   .site-nav__list { list-style: none; padding: 0; display: flex; gap: 0.1rem; }
   .site-nav__link {
@@ -130,7 +161,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   @media (max-width: 1099.98px) {
     .menu-toggle { display: grid; }
     .site-nav {
-      position: fixed; inset: var(--header-h) 0 0;
+      position: fixed; inset: calc(var(--header-h) + var(--topbar-h)) 0 0;
       display: flex; flex-direction: column; justify-content: space-between; gap: 2rem;
       padding: 2rem var(--gutter) calc(2rem + env(safe-area-inset-bottom));
       background: var(--cream); color: var(--ink);

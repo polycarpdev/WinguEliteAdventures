@@ -137,6 +137,16 @@ class CockpitTests(TestCase):
         self.client.post(f'/cockpit/content/destinations/{self.dest.pk}/delete/')
         self.assertFalse(Destination.objects.exists())
 
+    def test_hero_slides_capped_at_five(self):
+        from core.models import HeroSlide
+        for n in range(5):
+            HeroSlide.objects.create(headline=f'Slide {n}', image_desktop=jpeg(f'h{n}.jpg'))
+        r = self.client.post('/cockpit/content/hero/new/', {
+            'headline': 'Sixth', 'image_desktop': jpeg('h6.jpg'), 'button_label': 'Book Now', 'button_url': '/bookings/',
+            'order': 6, 'is_active': 'on'})
+        self.assertContains(r, 'at most 5 slides')
+        self.assertEqual(HeroSlide.objects.count(), 5)
+
     def test_country_in_use_cannot_be_deleted(self):
         r = self.client.post(f'/cockpit/content/countries/{self.kenya.pk}/delete/')
         self.assertContains(r, 'still in use')

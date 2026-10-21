@@ -1,30 +1,32 @@
 ---
 import Base from '../layouts/Base.astro';
-import Img from '../components/Img.astro';
 import HeroSlider from '../components/HeroSlider.astro';
 import Icon from '../components/Icon.astro';
-import DestinationCard from '../components/DestinationCard.astro';
+import DestinationMiniCard from '../components/DestinationMiniCard.astro';
 import ItineraryCard from '../components/ItineraryCard.astro';
 import PostCard from '../components/PostCard.astro';
 import TestimonialCard from '../components/TestimonialCard.astro';
 import CtaBand from '../components/CtaBand.astro';
 import { site } from '../config/site';
-import { destinations, itineraries, posts, testimonials, heroImage, heroSlides, usd, stripHtml, type HeroSlide } from '../lib/content';
+import { destinations, itineraries, posts, testimonials, heroImage, heroSlides, type HeroSlide } from '../lib/content';
 
-const featuredDest = [...destinations].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 6);
-const signature = [...itineraries].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 3);
+// Featured destinations with a photo first (a destination without one stays off the home page).
+const featuredDest = destinations.filter((d) => d.image).sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 6);
+// Home shows up to 6 featured packages (tick “Is featured” in the cockpit).
+const featuredPkgs = itineraries.filter((i) => i.is_featured);
+const signature = (featuredPkgs.length ? featuredPkgs : itineraries).slice(0, 6);
 const reviews = [...testimonials].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 3);
 const recent = posts.slice(0, 3);
 // Slides come from the cockpit; until some are added, show the default hero.
 const slides: HeroSlide[] = heroSlides.length ? heroSlides : heroImage ? [{
-  eyebrow: 'Karibu Kenya',
-  headline: 'Luxury Kenya safaris,',
-  highlight: 'crafted above the ordinary',
-  subtitle: 'Private, handcrafted journeys through the Masai Mara, Amboseli, Mount Kenya and beyond, led by guides who grew up on this land.',
+  eyebrow: 'Wingu Elite Adventures',
+  headline: 'Crafting memories',
+  highlight: 'of every odyssey',
+  subtitle: 'Private safaris and journeys across Kenya, East Africa and beyond, planned around you by people who call this land home.',
   desktop: heroImage,
   mobile: null,
   button: { label: 'Book Now', url: '/bookings/' },
-  second: { label: 'Explore packages', url: '/packages/' },
+  second: null,
 }] : [];
 const lead = slides[0];
 const preload = lead ? [
@@ -84,7 +86,7 @@ const pillars = [
           <a href="/destinations/" class="btn btn--outline">All destinations <Icon name="arrow-right" /></a>
         </div>
         <div class="grid grid--3">
-          {featuredDest.map((d) => <DestinationCard destination={d} />)}
+          {featuredDest.map((d) => <DestinationMiniCard destination={d} />)}
         </div>
       </div>
     </section>
@@ -102,25 +104,7 @@ const pillars = [
           </div>
           <a href="/packages/" class="btn btn--outline">View all packages <Icon name="arrow-right" /></a>
         </div>
-        {signature.length === 1 ? (
-          <article class="feature" data-reveal>
-            <div class="feature__media">
-              <Img image={signature[0].image} sizes="(min-width: 1100px) 55vw, 100vw" alt={signature[0].title} />
-              <span class="badge feature__badge">{signature[0].duration_label}</span>
-            </div>
-            <div class="feature__body stack">
-              <p class="card__meta"><span><Icon name="pin" />{signature[0].destination.name}</span><span><Icon name="clock" />{signature[0].duration_label}</span><span><Icon name="mountain" />{signature[0].difficulty_label}</span><span><Icon name="users" />Max {signature[0].max_group_size}</span></p>
-              <h3 class="h2"><a href={`/packages/${signature[0].slug}/`}>{signature[0].title}</a></h3>
-              <p class="muted clamp-3">{stripHtml(signature[0].overview_html)}</p>
-              <div class="feature__foot">
-                <p class="price"><small>From</small>{usd(signature[0].price_from)} <span class="muted" style="font-size:.85rem;font-family:var(--sans)">per person</span></p>
-                <span class="btn">View package <Icon name="arrow-right" /></span>
-              </div>
-            </div>
-          </article>
-        ) : (
-          <div class="grid grid--3">{signature.map((i) => <ItineraryCard itinerary={i} />)}</div>
-        )}
+        <div class="grid grid--3">{signature.map((i) => <ItineraryCard itinerary={i} />)}</div>
       </div>
     </section>
   )}
@@ -189,16 +173,7 @@ const pillars = [
     background: radial-gradient(closest-side, rgb(202 168 103 / 0.45), transparent); filter: blur(12px);
   }
 
-  .feature { position: relative; display: grid; border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow); }
   @media (min-width: 900px) { .feature { grid-template-columns: 1.15fr 1fr; } }
-  .feature__media { position: relative; min-height: 18rem; }
-  .feature__media :global(img), .feature__media :global(.img-fallback) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
-  .feature:hover .feature__media :global(img) { transform: scale(1.04); }
-  .feature__badge { position: absolute; top: 1.25rem; left: 1.25rem; }
-  .feature__body { padding: clamp(1.75rem, 4vw, 3.25rem); align-self: center; --stack: 1.1rem; }
-  .feature__body a { text-decoration: none; }
-  .feature__body a::after { content: ''; position: absolute; inset: 0; }
-  .feature__foot { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; padding-top: 1.25rem; border-top: 1px solid var(--line); }
 
   .pillar { display: grid; gap: 0.75rem; align-content: start; padding: 1.75rem; border-radius: var(--radius); border: 1px solid rgb(247 242 234 / 0.1); background: rgb(247 242 234 / 0.03); }
   .pillar p { color: rgb(247 242 234 / 0.72); font-size: 0.95rem; }

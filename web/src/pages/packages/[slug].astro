@@ -7,6 +7,7 @@ import Icon from '../../components/Icon.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import DurationPicker from '../../components/DurationPicker.astro';
 import { itineraries, testimonials, usd, clip, stripHtml, shortDuration, type Itinerary } from '../../lib/content';
+const ON_REQUEST = 'On Request';
 import { abs, ORG_ID } from '../../lib/schema';
 import { site } from '../../config/site';
 
@@ -17,7 +18,8 @@ const { i } = Astro.props as { i: Itinerary };
 const reviews = testimonials.filter((t) => t.trip?.slug === i.slug).slice(0, 3);
 const related = itineraries.filter((x) => x.slug !== i.slug).slice(0, 3);
 const crumbs = [{ name: 'Packages', href: '/packages/' }, { name: i.title, href: `/packages/${i.slug}/` }];
-const description = clip(`${i.duration_label} private ${i.destination.name} package from ${usd(i.price_from)} per person. ${stripHtml(i.overview_html)}`);
+const priced = i.price_from != null;
+const description = clip(`${i.duration_label} private ${i.destination.name} package${priced ? ` from ${usd(i.price_from!)} per person` : ''}. ${i.summary || stripHtml(i.overview_html)}`);
 
 const schema = [{
   '@type': 'TouristTrip',
@@ -38,8 +40,7 @@ const schema = [{
   },
   offers: {
     '@type': 'Offer',
-    price: i.price_from.toFixed(2),
-    priceCurrency: site.currency,
+    ...(priced && { price: i.price_from!.toFixed(2), priceCurrency: site.currency }),
     availability: 'https://schema.org/InStock',
     url: abs(`/bookings/?package=${i.slug}`),
     seller: { '@id': ORG_ID },
@@ -83,6 +84,12 @@ const facts = [
                   <details class="timeline__card" open={idx === 0}>
                     <summary><h3 class="h3">{day.title}</h3><Icon name="chevron" /></summary>
                     <div class="prose prose--compact" set:html={day.description_html} />
+                    {(day.accommodation || day.meals) && (
+                      <p class="timeline__stay">
+                        {day.accommodation && <span><Icon name="bed" /><strong>Stay:</strong> {day.accommodation}</span>}
+                        {day.meals && <span><Icon name="check" /><strong>Meals:</strong> {day.meals}</span>}
+                      </p>
+                    )}
                   </details>
                 </li>
               ))}
@@ -109,9 +116,11 @@ const facts = [
       </div>
 
       <aside class="trip__aside">
-        <form class="book-card" data-book-card data-slug={i.slug} data-price={i.price_from} data-days={i.duration_days} data-nights={i.duration_nights} action="/bookings/">
+        <form class="book-card" data-book-card data-slug={i.slug} data-price={i.price_from ?? ''} data-days={i.duration_days} data-nights={i.duration_nights} action="/bookings/">
           <div class="book-card__top">
-            <p class="price book-card__price"><small>From</small>{usd(i.price_from)}<span> per person</span></p>
+            {priced
+              ? <p class="price book-card__price"><small>From</small>{usd(i.price_from!)}<span> per person</span></p>
+              : <p class="price book-card__price book-card__price--request"><small>Price</small>{ON_REQUEST}<span> · tailored quote</span></p>}
             <span class="book-card__base">{shortDuration(i.duration_days, i.duration_nights)}</span>
           </div>
           <div class="book-card__field">
@@ -131,7 +140,9 @@ const facts = [
             </label>
           </div>
           <p class="book-card__estimate" data-estimate aria-live="polite">
-            Estimated <strong>{usd(i.price_from * 2)}</strong> for 2 adults, {i.duration_label.toLowerCase()}
+            {priced
+              ? <>Estimated <strong>{usd(i.price_from! * 2)}</strong> for 2 adults, {i.duration_label.toLowerCase()}</>
+              : <>We’ll send a tailored quote for 2 adults, {i.duration_label.toLowerCase()}, within 24 hours.</>}
           </p>
           <a href={`/bookings/?package=${i.slug}`} class="btn btn--lg btn--block" data-book-link>Book this package <Icon name="arrow-right" /></a>
           <ul class="book-card__points">
@@ -166,7 +177,7 @@ const facts = [
   )}
 
   <div class="mobile-book">
-    <p class="price"><small>{shortDuration(i.duration_days, i.duration_nights)} · from</small>{usd(i.price_from)}</p>
+    <p class="price"><small>{shortDuration(i.duration_days, i.duration_nights)}{priced && ' · from'}</small>{priced ? usd(i.price_from!) : ON_REQUEST}</p>
     <a href={`/bookings/?package=${i.slug}`} class="btn" data-book-link>Book now</a>
   </div>
 
@@ -196,7 +207,8 @@ const facts = [
       const custom = days !== base.days || nights !== base.nights;
       // Scale the base price by days for a rough guide; the real quote is tailored.
       const est = Math.round((price * a * days) / base.days / 10) * 10;
-      estimate.innerHTML = `Estimated <strong>${usd(est)}</strong> for ${plural(a, 'adult')}, ${plural(days, 'day')} / ${plural(nights, 'night')}` +
+      const who = `${plural(a, 'adult')}, ${plural(days, 'day')} / ${plural(nights, 'night')}`;
+      estimate.innerHTML = (price ? `Estimated <strong>${usd(est)}</strong> for ${who}` : `We’ll send a tailored quote for ${who} within 24 hours.`) +
         (custom ? `<em>Custom length: we’ll tailor the itinerary and confirm the price.</em>` : '');
       const q = new URLSearchParams({ package: card.dataset.slug!, days: String(days), nights: String(nights), adults: String(a) });
       if (date.value) q.set('date', date.value);
@@ -236,7 +248,11 @@ const facts = [
   .timeline__card summary::-webkit-details-marker { display: none; }
   .timeline__card summary :global(svg) { width: 1.25rem; height: 1.25rem; color: var(--olive); flex: none; transition: transform 0.3s var(--ease); }
   .timeline__card[open] summary :global(svg) { transform: rotate(180deg); }
-  .timeline__card .prose { padding: 0 1.5rem 1.5rem; }
+  .timeline__card .prose { padding: 0 1.5rem 1.2rem; }
+  .timeline__stay { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin: 0 1.5rem 1.4rem; padding-top: 0.9rem; border-top: 1px dashed var(--line-strong); font-size: 0.88rem; color: var(--ink-soft); }
+  .timeline__stay span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .timeline__stay :global(svg) { width: 1rem; height: 1rem; color: var(--gold); }
+  .book-card__price--request { font-size: 1.7rem !important; }
   @media (max-width: 639.98px) {
     .timeline::before { left: 0.75rem; }
     .timeline__day { grid-template-columns: 1fr; gap: 0.5rem; padding-left: 2rem; }

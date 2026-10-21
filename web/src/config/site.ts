@@ -40,16 +40,13 @@ export const site = {
   developer: { name: 'polycarp dev', url: 'https://linktr.ee/polycarpdev' },
 };
 
-// Main menu. `regions: true` expands into the Destinations dropdown
+// Main menu (Gallery, Blog, Our Team and Reviews live in the footer). `regions: true` expands into the Destinations dropdown
 // (East Africa, Africa, International…), built from the regions in the cockpit.
 export const nav: { label: string; href: string; regions?: boolean }[] = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about/' },
   { label: 'Destinations', href: '/destinations/', regions: true },
-  { label: 'Gallery', href: '/gallery/' },
-  { label: 'Blog', href: '/blog/' },
-  { label: 'Our Team', href: '/team/' },
-  { label: 'Reviews', href: '/testimonials/' },
-  { label: 'FAQ', href: '/faqs/' },
+  { label: 'Packages', href: '/packages/' },
   { label: 'Contact', href: '/contact/' },
+  { label: 'FAQ', href: '/faqs/' },
 ];

@@ -128,7 +128,7 @@ class _StyledInlineFormSet(StyledFormSetMixin, forms.BaseInlineFormSet):
 
 DayFormSet = inlineformset_factory(
     Itinerary, ItineraryDay, formset=_StyledInlineFormSet,
-    fields=['day_number', 'title', 'description'], extra=1, can_delete=True,
+    fields=['day_number', 'title', 'accommodation', 'meals', 'description'], extra=1, can_delete=True,
 )
 
 PhotoFormSet = inlineformset_factory(

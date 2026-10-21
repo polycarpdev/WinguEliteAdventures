@@ -66,6 +66,7 @@
 
   --gutter: 1.25rem;
   --header-h: 5rem;
+  --topbar-h: 0rem;
   --max: 80rem;
 }
 
@@ -85,7 +86,7 @@ html {
 }
 @media (min-width: 1100px) {
   html { font-size: min(calc(100vw / 90), 22px); }
-  :root { --gutter: 3rem; --header-h: 5.75rem; }
+  :root { --gutter: 3rem; --header-h: 5.25rem; --topbar-h: 2.4rem; }
 }
 
 /* --- Reset --------------------------------------------------------------- */

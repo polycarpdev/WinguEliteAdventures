@@ -8,6 +8,10 @@ import { abs } from '../../lib/schema';
 
 const destOptions = [...new Map(itineraries.map((i) => [i.destination.slug, i.destination.name])).entries()];
 const diffOptions = [...new Map(itineraries.map((i) => [i.difficulty, i.difficulty_label])).entries()];
+const lengthOptions = [['1-3', '1 – 3 days'], ['4-6', '4 – 6 days'], ['7-30', '7+ days']].filter(([r]) => {
+  const [lo, hi] = r.split('-').map(Number);
+  return itineraries.some((i) => i.duration_days >= lo && i.duration_days <= hi);
+});
 const crumbs = [{ name: 'Packages', href: '/packages/' }];
 const schema = [{
   '@type': 'ItemList',
@@ -24,12 +28,18 @@ const schema = [{
   <PageHero title="Our packages" eyebrow="Days & nights, your way" lead="Every package is private and sold by days and nights. Start with one of ours, then stretch or shorten it to fit." crumbs={crumbs} />
   <section class="section">
     <div class="container">
-      {(destOptions.length > 1 || diffOptions.length > 1) && (
+      {(destOptions.length > 1 || diffOptions.length > 1 || lengthOptions.length > 1) && (
         <div class="filters" data-filters>
           {destOptions.length > 1 && (
             <div class="filters__group" role="group" aria-label="Filter by destination">
               <button type="button" class="chip" data-filter="destination" data-value="" aria-pressed="true">All destinations</button>
               {destOptions.map(([slug, name]) => <button type="button" class="chip" data-filter="destination" data-value={slug} aria-pressed="false">{name}</button>)}
+            </div>
+          )}
+          {lengthOptions.length > 1 && (
+            <div class="filters__group" role="group" aria-label="Filter by trip length">
+              <button type="button" class="chip" data-filter="length" data-value="" aria-pressed="true">Any length</button>
+              {lengthOptions.map(([v, label]) => <button type="button" class="chip" data-filter="length" data-value={v} aria-pressed="false">{label}</button>)}
             </div>
           )}
           {diffOptions.length > 1 && (
@@ -64,7 +74,15 @@ const schema = [{
     const cards = [...document.querySelectorAll<HTMLElement>('[data-results] > [data-destination]')];
     if (!root || !cards.length) return;
     const params = new URLSearchParams(location.search);
-    const state: Record<string, string> = { destination: params.get('destination') ?? '', difficulty: params.get('difficulty') ?? '' };
+    const state: Record<string, string> = {
+      destination: params.get('destination') ?? '', difficulty: params.get('difficulty') ?? '', length: params.get('length') ?? '',
+    };
+    const inLength = (c: HTMLElement) => {
+      if (!state.length) return true;
+      const [lo, hi] = state.length.split('-').map(Number);
+      const d = Number(c.dataset.days);
+      return d >= lo && d <= hi;
+    };
 
     const apply = () => {
       root.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((b) =>
@@ -72,7 +90,8 @@ const schema = [{
       );
       let shown = 0;
       cards.forEach((c) => {
-        const ok = (!state.destination || c.dataset.destination === state.destination) && (!state.difficulty || c.dataset.difficulty === state.difficulty);
+        const ok = (!state.destination || c.dataset.destination === state.destination)
+          && (!state.difficulty || c.dataset.difficulty === state.difficulty) && inLength(c);
         c.hidden = !ok;
         if (ok) { shown++; c.classList.add('is-in'); }
       });
@@ -87,7 +106,7 @@ const schema = [{
       state[b.dataset.filter!] = b.dataset.value ?? '';
       apply();
     });
-    document.querySelector('[data-reset]')?.addEventListener('click', () => { state.destination = state.difficulty = ''; apply(); });
-    if (state.destination || state.difficulty) apply();
+    document.querySelector('[data-reset]')?.addEventListener('click', () => { state.destination = state.difficulty = state.length = ''; apply(); });
+    if (state.destination || state.difficulty || state.length) apply();
   });
 </script>

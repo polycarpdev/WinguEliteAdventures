@@ -1,0 +1,109 @@
+---
+// Hero search: Where (region / country / park) + How long -> the best matching page.
+// Pure links, no server: everything needed is baked in at build time.
+import { regions, liveCountries, inCountry, itineraries, countryUrl } from '../lib/content';
+import Icon from './Icon.astro';
+
+const withPackages = new Set(itineraries.map((i) => i.destination.slug));
+const LENGTHS = [
+  { value: '', label: 'Any length' },
+  { value: '1-3', label: '1 – 3 days' },
+  { value: '4-6', label: '4 – 6 days' },
+  { value: '7-30', label: '7 days or more' },
+];
+---
+<form class="finder" action="/packages/" data-finder role="search" aria-label="Find a trip">
+  <label class="finder__field">
+    <Icon name="globe" />
+    <span class="finder__text">
+      <span class="finder__label">Where</span>
+      <select name="where" data-where>
+        <option value="" data-url="/packages/">Anywhere</option>
+        {regions.map((r) => (
+          <optgroup label={r.name}>
+            <option value={`r:${r.slug}`} data-url={`/destinations/${r.slug}/`}>All of {r.name}</option>
+            {liveCountries(r).flatMap((c) => [
+              <option value={`c:${c.slug}`} data-url={countryUrl(r.slug, c.slug)}>{c.name}</option>,
+              ...inCountry(c.slug).map((d) => (
+                <option value={`d:${d.slug}`} data-url={`/destinations/detail/${d.slug}/`} data-packages={withPackages.has(d.slug) ? '1' : undefined}>
+                  &nbsp;&nbsp;– {d.name}
+                </option>
+              )),
+            ])}
+          </optgroup>
+        ))}
+      </select>
+    </span>
+    <Icon name="chevron" class="finder__chev" />
+  </label>
+  <label class="finder__field">
+    <Icon name="clock" />
+    <span class="finder__text">
+      <span class="finder__label">How long</span>
+      <select name="length" data-length>
+        {LENGTHS.map((l) => <option value={l.value}>{l.label}</option>)}
+      </select>
+    </span>
+    <Icon name="chevron" class="finder__chev" />
+  </label>
+  <button type="submit" class="finder__go"><Icon name="search" /> Find my trip</button>
+</form>
+
+<style>
+  .finder {
+    display: grid; width: min(100%, 52rem); margin-inline: auto; padding: 0.45rem; gap: 0.45rem;
+    border-radius: 1rem; background: rgb(255 255 255 / 0.96); box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.55);
+    color: var(--ink); text-align: left;
+  }
+  @media (min-width: 760px) { .finder { grid-template-columns: 1.35fr 1fr auto; } }
+  .finder__field {
+    position: relative; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 2.4rem 0.55rem 1rem;
+    border-radius: 0.7rem; cursor: pointer; transition: background 0.2s;
+  }
+  .finder__field:hover, .finder__field:focus-within { background: var(--cream); }
+  .finder__field > :global(svg:first-child) { width: 1.3rem; height: 1.3rem; color: var(--gold); flex: none; }
+  .finder__text { display: grid; min-width: 0; flex: 1; }
+  .finder__label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .finder select {
+    appearance: none; border: 0; background: transparent; padding: 0.1rem 0; font-size: 1rem; font-weight: 600;
+    color: var(--ink); cursor: pointer; width: 100%; text-overflow: ellipsis;
+  }
+  .finder select:focus { outline: none; }
+  .finder__field:focus-within { box-shadow: inset 0 0 0 2px var(--gold-300); }
+  .finder__chev { position: absolute; right: 0.9rem; width: 1rem; height: 1rem; color: var(--muted); pointer-events: none; }
+  .finder__go {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; min-height: 3.4rem; padding: 0 1.6rem;
+    border-radius: 0.7rem; background: var(--gold-300); color: var(--ink); font-weight: 800; font-size: 0.98rem; white-space: nowrap;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .finder__go:hover { background: var(--tan); }
+  .finder__go:active { transform: scale(0.98); }
+  .finder__go :global(svg) { width: 1.1rem; height: 1.1rem; }
+  @media (min-width: 760px) {
+    .finder__field + .finder__field { border-left: 1px solid var(--line); border-radius: 0; }
+    .finder__field + .finder__field:hover, .finder__field + .finder__field:focus-within { border-radius: 0.7rem; }
+  }
+</style>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const form = document.querySelector<HTMLFormElement>('[data-finder]');
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = '1';
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const opt = form.querySelector<HTMLSelectElement>('[data-where]')!.selectedOptions[0];
+      const length = form.querySelector<HTMLSelectElement>('[data-length]')!.value;
+      const [kind, slug] = (opt?.value || ':').split(':');
+      let url = opt?.dataset.url || '/packages/';
+      // A park with ready-made packages -> its packages; length-only -> all packages.
+      if ((kind === 'd' && opt.dataset.packages) || !kind) {
+        const q = new URLSearchParams();
+        if (kind === 'd') q.set('destination', slug);
+        if (length) q.set('length', length);
+        url = `/packages/${q.toString() ? `?${q}` : ''}`;
+      }
+      location.assign(url);
+    });
+  });
+</script>

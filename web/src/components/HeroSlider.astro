@@ -5,6 +5,7 @@
 import type { HeroSlide } from '../lib/content';
 import { site } from '../config/site';
 import Icon from './Icon.astro';
+import TripFinder from './TripFinder.astro';
 
 interface Props { slides: HeroSlide[] }
 const { slides } = Astro.props;
@@ -53,6 +54,8 @@ const many = slides.length > 1;
       ))}
     </div>
 
+    <TripFinder />
+
     {many && (
       <div class="hero__nav">
         <button type="button" class="hero__arrow" data-prev aria-label="Previous slide"><Icon name="arrow-left" /></button>
@@ -90,24 +93,27 @@ const many = slides.length > 1;
   .hero__slides::after {
     content: ''; position: absolute; inset: 0; pointer-events: none;
     background:
-      linear-gradient(180deg, rgb(39 29 15 / 0.55) 0%, rgb(39 29 15 / 0.08) 28%, rgb(39 29 15 / 0.3) 58%, rgb(39 29 15 / 0.92) 100%),
-      linear-gradient(90deg, rgb(39 29 15 / 0.6), transparent 62%);
+      linear-gradient(180deg, rgb(39 29 15 / 0.6) 0%, rgb(39 29 15 / 0.25) 30%, rgb(39 29 15 / 0.35) 65%, rgb(39 29 15 / 0.9) 100%),
+      radial-gradient(ellipse 60% 55% at 50% 50%, rgb(39 29 15 / 0.35), transparent 75%);
   }
 
-  .hero__inner { align-self: end; display: grid; gap: 2rem; padding-top: calc(var(--header-h) + 4rem); padding-bottom: clamp(2rem, 4vw, 3.25rem); }
-  .hero__copies { display: grid; }
-  .hero__copy { grid-area: 1 / 1; display: grid; justify-items: start; align-content: end; gap: 1.2rem; visibility: hidden; }
+  .hero__inner {
+    align-self: center; display: grid; justify-items: center; gap: clamp(1.75rem, 3vw, 2.5rem); text-align: center;
+    padding-top: calc(var(--header-h) + var(--topbar-h) + 3rem); padding-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .hero__copies { display: grid; width: 100%; }
+  .hero__copy { grid-area: 1 / 1; display: grid; justify-items: center; align-content: center; gap: 1rem; visibility: hidden; }
   .hero__copy.is-active { visibility: visible; }
   .hero__copy > * { opacity: 0; transform: translateY(1.4rem); transition: opacity 0.7s var(--ease), transform 0.9s var(--ease); }
   .hero__copy.is-active > * { opacity: 1; transform: none; }
   .hero__copy.is-active > :nth-child(2) { transition-delay: 0.08s; }
   .hero__copy.is-active > :nth-child(3) { transition-delay: 0.16s; }
   .hero__copy.is-active > :nth-child(4) { transition-delay: 0.24s; }
-  .hero__eyebrow { color: var(--gold-300); font-size: 2rem; margin: 0; }
-  .hero__title { max-width: 19ch; font-family: var(--serif); font-weight: 400; }
+  .hero__eyebrow { color: var(--gold-300); font-size: clamp(2rem, 3.4vw, 3rem); margin: 0; text-shadow: 0 2px 18px rgb(0 0 0 / 0.35); }
+  .hero__title { max-width: 18ch; font-family: var(--serif); font-weight: 400; text-shadow: 0 2px 30px rgb(0 0 0 / 0.3); }
   .hero__title :global(em) { font-style: italic; color: var(--gold-100); }
-  .hero__lead { max-width: 36rem; font-size: clamp(1.05rem, 1.4vw, 1.25rem); color: rgb(247 242 234 / 0.88); }
-  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.4rem; }
+  .hero__lead { max-width: 38rem; margin-inline: auto; font-size: clamp(1.05rem, 1.4vw, 1.25rem); color: rgb(247 242 234 / 0.88); }
+  .hero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.85rem; margin-top: 0.2rem; }
 
   .hero__nav { display: flex; align-items: center; gap: 1rem; }
   .hero__dots { display: flex; gap: 0.5rem; }

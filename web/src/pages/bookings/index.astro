@@ -40,7 +40,7 @@ const accommodation = [
                 <option value="">Custom trip / not sure yet</option>
                 {itineraries.map((i) => (
                   <option value={i.slug} data-destination={i.destination.slug} data-days={i.duration_days} data-nights={i.duration_nights}>
-                    {i.title} · {shortDuration(i.duration_days, i.duration_nights)} · from {usd(i.price_from)}
+                    {i.title} · {shortDuration(i.duration_days, i.duration_nights)}{i.price_from != null ? ` · from ${usd(i.price_from)}` : ''}
                   </option>
                 ))}
               </select>
