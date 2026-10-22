@@ -56,6 +56,16 @@ const many = slides.length > 1;
 
     <TripFinder />
 
+  </div>
+
+  {many && (
+    <>
+      <button type="button" class="hero__edge hero__edge--prev" data-prev aria-label="Previous slide"><Icon name="arrow-left" /></button>
+      <button type="button" class="hero__edge hero__edge--next" data-next aria-label="Next slide"><Icon name="arrow-right" /></button>
+    </>
+  )}
+
+  <div class="hero__stats">
     {many && (
       <div class="hero__nav">
         <button type="button" class="hero__arrow" data-prev aria-label="Previous slide"><Icon name="arrow-left" /></button>
@@ -65,12 +75,10 @@ const many = slides.length > 1;
                     aria-label={`Slide ${i + 1}: ${s.headline}`} aria-selected={i === 0 ? 'true' : 'false'}><span></span></button>
           ))}
         </div>
+        <span class="hero__count" aria-hidden="true"><strong data-count>01</strong> / {String(slides.length).padStart(2, '0')}</span>
         <button type="button" class="hero__arrow" data-next aria-label="Next slide"><Icon name="arrow-right" /></button>
       </div>
     )}
-  </div>
-
-  <div class="hero__stats">
     <div class="container">
       <ul>{site.stats.map((st) => <li><strong>{st.value}</strong><span>{st.label}</span></li>)}</ul>
     </div>
@@ -115,25 +123,51 @@ const many = slides.length > 1;
   .hero__lead { max-width: 38rem; margin-inline: auto; font-size: clamp(1.05rem, 1.4vw, 1.25rem); color: rgb(247 242 234 / 0.88); }
   .hero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.85rem; margin-top: 0.2rem; }
 
-  .hero__nav { display: flex; align-items: center; gap: 1rem; }
-  .hero__dots { display: flex; gap: 0.5rem; }
-  .hero__dot { position: relative; width: 2.2rem; height: 1.6rem; padding: 0; transition: width 0.4s var(--ease); }
-  .hero__dot.is-active { width: 4rem; }
-  .hero__dot span { position: absolute; left: 0; right: 0; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 3px; background: rgb(247 242 234 / 0.38); overflow: hidden; }
+  /* Bottom strip: dots + counter (+ small arrows on phones), just above the stats bar */
+  .hero__nav {
+    position: absolute; left: 50%; bottom: calc(100% + 1.1rem); transform: translateX(-50%); z-index: 2;
+    display: flex; align-items: center; gap: 0.9rem; padding: 0.45rem 0.9rem; border-radius: 999px;
+    background: rgb(39 29 15 / 0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgb(247 242 234 / 0.15);
+  }
+  .hero__dots { display: flex; gap: 0.45rem; }
+  .hero__dot { position: relative; width: 1.6rem; height: 1.4rem; padding: 0; transition: width 0.4s var(--ease); }
+  .hero__dot.is-active { width: 3.4rem; }
+  .hero__dot span { position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; border-radius: 4px; background: rgb(247 242 234 / 0.4); overflow: hidden; }
+  .hero__dot:hover span { background: rgb(247 242 234 / 0.7); }
   .hero__dot span::after { content: ''; position: absolute; inset: 0; background: var(--gold-300); transform: scaleX(0); transform-origin: left; }
   .hero__dot.is-active span::after { animation: dot-progress var(--slide-ms) linear forwards; }
   .hero[data-paused] .hero__dot.is-active span::after { animation-play-state: paused; }
   .hero[data-static] .hero__dot.is-active span::after { animation: none; transform: scaleX(1); }
   @keyframes dot-progress { to { transform: scaleX(1); } }
+  .hero__count { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; color: rgb(247 242 234 / 0.6); font-variant-numeric: tabular-nums; }
+  .hero__count strong { color: var(--cream); }
   .hero__arrow {
-    display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 999px;
-    border: 1px solid rgb(247 242 234 / 0.35); color: var(--cream); transition: background 0.2s, border-color 0.2s;
+    display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 999px;
+    color: var(--cream); background: rgb(247 242 234 / 0.12); transition: background 0.2s;
   }
-  .hero__arrow:hover { background: rgb(247 242 234 / 0.12); border-color: var(--cream); }
-  .hero__arrow :global(svg) { width: 1.1rem; height: 1.1rem; }
-  @media (max-width: 639.98px) { .hero__arrow { display: none; } }
+  .hero__arrow:hover { background: var(--gold-300); color: var(--ink); }
+  .hero__arrow :global(svg) { width: 1rem; height: 1rem; }
 
-  .hero__stats { border-top: 1px solid rgb(247 242 234 / 0.18); background: rgb(39 29 15 / 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  /* Big edge arrows on larger screens */
+  .hero__edge {
+    position: absolute; top: 50%; z-index: 2; display: none; place-items: center; width: 3.6rem; height: 3.6rem;
+    border-radius: 999px; color: var(--cream); background: rgb(247 242 234 / 0.12);
+    border: 1px solid rgb(247 242 234 / 0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transform: translateY(-50%); transition: background 0.25s, color 0.25s, transform 0.25s var(--ease), border-color 0.25s;
+  }
+  .hero__edge--prev { left: clamp(1rem, 2.5vw, 2.5rem); }
+  .hero__edge--next { right: clamp(1rem, 2.5vw, 2.5rem); }
+  .hero__edge:hover { background: var(--gold-300); border-color: var(--gold-300); color: var(--ink); }
+  .hero__edge--prev:hover { transform: translateY(-50%) translateX(-3px); }
+  .hero__edge--next:hover { transform: translateY(-50%) translateX(3px); }
+  .hero__edge :global(svg) { width: 1.35rem; height: 1.35rem; }
+  @media (min-width: 900px) {
+    .hero__edge { display: grid; }
+    .hero__nav .hero__arrow { display: none; }
+  }
+
+  .hero__stats { position: relative; border-top: 1px solid rgb(247 242 234 / 0.18); background: rgb(39 29 15 / 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
   .hero__stats ul { list-style: none; padding: 1.25rem 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
   @media (min-width: 900px) { .hero__stats ul { grid-template-columns: repeat(4, 1fr); } }
   .hero__stats li { display: grid; gap: 0.1rem; }
@@ -185,6 +219,8 @@ const many = slides.length > 1;
         d.classList.remove('is-active');
         d.setAttribute('aria-selected', String(n === index));
       });
+      const count = hero.querySelector('[data-count]');
+      if (count) count.textContent = String(index + 1).padStart(2, '0');
       void dots[index]?.offsetWidth; // restart the progress animation
       dots[index]?.classList.add('is-active');
       schedule();
@@ -201,8 +237,8 @@ const many = slides.length > 1;
       if (p) clearTimeout(timer); else schedule();
     };
 
-    hero.querySelector('[data-next]')?.addEventListener('click', () => show(index + 1));
-    hero.querySelector('[data-prev]')?.addEventListener('click', () => show(index - 1));
+    hero.querySelectorAll('[data-next]').forEach((b) => b.addEventListener('click', () => show(index + 1)));
+    hero.querySelectorAll('[data-prev]').forEach((b) => b.addEventListener('click', () => show(index - 1)));
     dots.forEach((d) => d.addEventListener('click', () => show(Number(d.dataset.dot))));
     hero.addEventListener('mouseenter', () => setPaused(true));
     hero.addEventListener('mouseleave', () => setPaused(false));

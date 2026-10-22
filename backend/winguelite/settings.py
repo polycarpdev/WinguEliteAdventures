@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import environ
@@ -138,6 +139,10 @@ REBUILD_FLAG = VAR_DIR / 'rebuild.flag'
 CONTENT_EXPORT_PATH = Path(env('CONTENT_EXPORT_PATH', default=str(REPO_DIR / 'web' / 'src' / 'data' / 'content.json')))
 # Built Astro site; Django returns its 404.html for unknown URLs.
 STATIC_SITE_DIR = Path(env('STATIC_SITE_DIR', default=str(REPO_DIR / 'web' / 'dist')))
+# Local dev: export content right after admin changes (no cron on a laptop).
+AUTO_EXPORT = env.bool('AUTO_EXPORT', default=DEBUG) and 'test' not in sys.argv[1:2]
+# Production: rebuild the public site as soon as content is saved in the cockpit.
+PUBLISH_ON_SAVE = env.bool('PUBLISH_ON_SAVE', default=not DEBUG) and 'test' not in sys.argv[1:2]
 # Responsive WebP renditions generated with Pillow for every content image.
 IMAGE_WIDTHS = [480, 960, 1600, 2400]
 IMAGE_QUALITY = 78
