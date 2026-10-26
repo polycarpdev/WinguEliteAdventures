@@ -29,7 +29,7 @@ def filtered_bookings(request):
 
 @staff_required
 def booking_list(request):
-    qs = filtered_bookings(request).select_related('destination', 'itinerary')
+    qs = filtered_bookings(request).select_related('destination', 'itinerary', 'trip_country')
     page = Paginator(qs, 25).get_page(request.GET.get('page'))
     return render(request, 'cockpit/bookings/list.html', {
         'page': page, 'tabs': _status_tabs(Booking, request.GET.get('status', '')), 'q': request.GET.get('q', ''),
@@ -51,7 +51,7 @@ def _update(request, obj, url_name):
 
 @staff_required
 def booking_detail(request, pk):
-    b = get_object_or_404(Booking.objects.select_related('destination', 'itinerary'), pk=pk)
+    b = get_object_or_404(Booking.objects.select_related('destination', 'itinerary', 'trip_country'), pk=pk)
     if request.method == 'POST':
         return _update(request, b, 'cockpit:booking_detail')
     others = Booking.objects.filter(email__iexact=b.email).exclude(pk=b.pk)[:5]

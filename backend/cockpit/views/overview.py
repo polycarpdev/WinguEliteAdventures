@@ -93,9 +93,9 @@ def bookings_csv(request):
     w = csv.writer(response)
     w.writerow(['Received', 'Status', 'Name', 'Email', 'Phone', 'Country', 'Destination', 'Package',
                 'Start', 'End', 'Days', 'Nights', 'Adults', 'Children', 'Accommodation', 'Source', 'Requests', 'Notes'])
-    for b in filtered_bookings(request).select_related('destination', 'itinerary'):
+    for b in filtered_bookings(request).select_related('destination', 'itinerary', 'trip_country'):
         w.writerow([timezone.localtime(b.created_at).strftime('%Y-%m-%d %H:%M'), b.get_status_display(), b.full_name,
-                    b.email, b.phone, b.country, b.destination or '', b.itinerary or '', b.start_date, b.end_date,
+                    b.email, b.phone, b.country, b.place, b.itinerary or '', b.start_date, b.end_date,
                     b.duration_days or '', b.duration_nights or '', b.adults, b.children, b.get_accommodation_preference_display(), b.how_did_you_hear,
                     b.special_requests, b.admin_notes])
     return response

@@ -54,6 +54,13 @@ class FormApiTests(TestCase):
         b = Booking.objects.get()
         self.assertEqual((b.duration_days, b.duration_nights, (b.end_date - b.start_date).days), (5, 4, 4))
 
+    def test_tailor_made_country_booking(self):
+        sa = Country.objects.get(slug='south-africa')
+        r = self.post('/api/bookings/', self.booking_payload(destination='country:south-africa'))
+        self.assertEqual(r.status_code, 200, r.content)
+        b = Booking.objects.get()
+        self.assertEqual((b.destination, b.trip_country, b.place), (None, sa, 'South Africa (tailor-made)'))
+
     def test_nights_must_match_days(self):
         r = self.post('/api/bookings/', self.booking_payload(days=5, nights=2))
         self.assertIn('nights', r.json()['errors'])

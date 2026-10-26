@@ -15,7 +15,7 @@ from django.views.decorators.http import require_POST
 
 from bookings.models import Booking
 from contact.models import ContactMessage
-from destinations.models import Destination
+from destinations.models import Country, Destination
 from itineraries.models import Itinerary
 
 log = logging.getLogger(__name__)
@@ -157,8 +157,14 @@ def _booking(data):
         nights = (end - start).days
         days = nights + 1
 
-    destination = Destination.objects.filter(slug=data.get('destination') or '').first()
-    if not destination:
+    # "destination" is a park slug, or "country:<slug>" for a tailor-made trip there.
+    choice = str(data.get('destination') or '')
+    destination = trip_country = None
+    if choice.startswith('country:'):
+        trip_country = Country.objects.filter(slug=choice.split(':', 1)[1]).first()
+    else:
+        destination = Destination.objects.filter(slug=choice).first()
+    if not destination and not trip_country:
         errors['destination'] = 'Choose a destination.'
     itinerary = None
     if data.get('itinerary'):
@@ -171,15 +177,15 @@ def _booking(data):
 
     b = Booking.objects.create(
         full_name=full_name, email=email, phone=phone, country=country,
-        destination=destination, itinerary=itinerary, start_date=start, end_date=end,
+        destination=destination, trip_country=trip_country, itinerary=itinerary, start_date=start, end_date=end,
         duration_days=days, duration_nights=nights,
         adults=adults, children=children, accommodation_preference=accommodation,
         special_requests=special, how_did_you_hear=heard,
     )
     _notify(
-        f'New booking request: {b.full_name} ({b.destination})',
+        f'New booking request: {b.full_name} ({b.place})',
         f'Name: {b.full_name}\nEmail: {b.email}\nPhone: {b.phone}\nCountry: {b.country}\n'
-        f'Destination: {b.destination}\nPackage: {b.itinerary or "-"}\n'
+        f'Destination: {b.place}\nPackage: {b.itinerary or "-"}\n'
         f'Dates: {b.start_date} to {b.end_date} ({b.duration_days} days / {b.duration_nights} nights)\nTravellers: {b.adults} adults, {b.children} children\n'
         f'Accommodation: {b.get_accommodation_preference_display()}\n\n{b.special_requests}\n\n'
         f'Open in cockpit: {settings.SITE_URL}/cockpit/bookings/{b.pk}/',
@@ -188,7 +194,7 @@ def _booking(data):
         ack_subject='We received your safari request - Wingu Elite Adventures',
         ack_body=(
             f'Hi {b.full_name},\n\nThank you for choosing Wingu Elite Adventures. We have received your '
-            f'request for {b.destination} ({b.duration_days} days / {b.duration_nights} nights from {b.start_date}) and a safari specialist will '
+            f'request for {b.place} ({b.duration_days} days / {b.duration_nights} nights from {b.start_date}) and a safari specialist will '
             f'get back to you within 24 hours with a tailored quote.\n\nKaribu!\nWingu Elite Adventures\n'
             f'{settings.SITE_URL}'
         ),

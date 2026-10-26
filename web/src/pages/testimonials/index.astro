@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
-import TestimonialCard from '../../components/TestimonialCard.astro';
+import ReviewWide from '../../components/ReviewWide.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import { testimonials } from '../../lib/content';
 const crumbs = [{ name: 'Guest reviews', href: '/testimonials/' }];
@@ -12,15 +12,13 @@ const avg = testimonials.length ? testimonials.reduce((s, t) => s + t.rating, 0)
   <section class="section">
     <div class="container">
       {testimonials.length > 0
-        ? <div class="reviews">{testimonials.map((t) => <TestimonialCard t={t} />)}</div>
+        ? <div class="reviews">{testimonials.map((t) => <div data-reveal><ReviewWide t={t} full /></div>)}</div>
         : <p class="lead">Be the first to share your Wingu Elite adventure!</p>}
     </div>
   </section>
   <CtaBand />
 </Base>
 <style>
-  .reviews { columns: 1; column-gap: 1.5rem; }
-  @media (min-width: 640px) { .reviews { columns: 2; } }
-  @media (min-width: 1100px) { .reviews { columns: 3; } }
-  .reviews > :global(*) { break-inside: avoid; margin-bottom: 1.5rem; }
+  .reviews { display: grid; gap: 1.5rem; align-items: start; }
+  @media (min-width: 1000px) { .reviews { grid-template-columns: 1fr 1fr; gap: 1.75rem; } }
 </style>

@@ -27,7 +27,7 @@
   <section class="panel">
     <div class="panel__head"><h2>Upcoming trips</h2><a href="{% url 'cockpit:booking_list' %}?status=confirmed">Confirmed →</a></div>
     {% if upcoming %}<ul class="mini-list">{% for b in upcoming %}
-      <li><a href="{% url 'cockpit:booking_detail' b.pk %}"><span><strong>{{ b.full_name }}</strong><span class="sub">{{ b.destination|default_if_none:'Custom safari' }} · {{ b.adults|add:b.children }} travellers</span></span><span class="pill pill--ok">{{ b.start_date|date:"j M" }}</span></a></li>
+      <li><a href="{% url 'cockpit:booking_detail' b.pk %}"><span><strong>{{ b.full_name }}</strong><span class="sub">{{ b.place }} · {{ b.adults|add:b.children }} travellers</span></span><span class="pill pill--ok">{{ b.start_date|date:"j M" }}</span></a></li>
     {% endfor %}</ul>{% else %}<p class="empty-note">No confirmed upcoming trips yet.</p>{% endif %}
   </section>
 </div>
@@ -39,7 +39,7 @@
     <div class="table-wrap"><table class="table"><tbody>
       {% for b in recent_bookings %}
       <tr class="{% if b.status == 'new' %}is-new{% endif %}">
-        <td><a class="row-link" href="{% url 'cockpit:booking_detail' b.pk %}">{{ b.full_name }}</a><span class="sub">{% if b.itinerary %}{{ b.itinerary }}{% elif b.destination %}{{ b.destination }}{% else %}Custom safari{% endif %}</span></td>
+        <td><a class="row-link" href="{% url 'cockpit:booking_detail' b.pk %}">{{ b.full_name }}</a><span class="sub">{% if b.itinerary %}{{ b.itinerary }}{% else %}{{ b.place }}{% endif %}</span></td>
         <td><span class="pill pill--{{ b.status|status_class }}">{{ b.get_status_display }}</span></td>
         <td class="num"><span class="sub">{{ b.created_at|ago }}</span></td>
       </tr>

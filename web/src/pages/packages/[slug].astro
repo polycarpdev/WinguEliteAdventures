@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import ItineraryCard from '../../components/ItineraryCard.astro';
-import TestimonialCard from '../../components/TestimonialCard.astro';
+import ReviewWide from '../../components/ReviewWide.astro';
 import Icon from '../../components/Icon.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import DurationPicker from '../../components/DurationPicker.astro';
@@ -162,7 +162,7 @@ const facts = [
     <section class="section section--sand">
       <div class="container">
         <div class="section-head"><span class="eyebrow">Guest stories</span><h2 class="h2">Travellers on this package</h2></div>
-        <div class="grid grid--3">{reviews.map((t) => <TestimonialCard t={t} />)}</div>
+        <div class="pkg-reviews">{reviews.map((t) => <ReviewWide t={t} />)}</div>
       </div>
     </section>
   )}
@@ -222,6 +222,8 @@ const facts = [
 </script>
 
 <style>
+  .pkg-reviews { display: grid; gap: 1.5rem; }
+  @media (min-width: 1000px) { .pkg-reviews { grid-template-columns: 1fr 1fr; gap: 1.75rem; } }
   .facts-bar { background: var(--white); border-bottom: 1px solid var(--line); }
   .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; padding-block: 1.5rem; }
   @media (min-width: 900px) { .facts { grid-template-columns: repeat(4, 1fr); } }

@@ -1,15 +1,15 @@
 ---
-// Endless review slider: 3 cards on large screens, 2 on tablets, 1 on phones.
+// Endless review slider: 2 wide cards on large screens, 1 on phones and tablets.
 // Moves one card every 5 seconds; pauses on hover, when the tab is hidden, or
 // for visitors who prefer reduced motion.
 import type { Testimonial } from '../lib/content';
-import TestimonialCard from './TestimonialCard.astro';
+import ReviewWide from './ReviewWide.astro';
 
 interface Props { items: Testimonial[] }
 const { items } = Astro.props;
-// Repeat short lists so the track is always wider than 3 cards, then add one
+// Repeat short lists so the track is always wider than 2 cards, then add one
 // full copy at the end so the loop can jump back invisibly.
-const base = items.length >= 4 ? items : Array.from({ length: Math.ceil(4 / items.length) }, () => items).flat();
+const base = items.length >= 3 ? items : Array.from({ length: Math.ceil(3 / items.length) }, () => items).flat();
 const track = [...base, ...base];
 ---
 <div class="reviews-carousel" data-carousel data-count={base.length} aria-roledescription="carousel" aria-label="Guest reviews">
@@ -17,7 +17,7 @@ const track = [...base, ...base];
     <ul class="reviews-carousel__track" data-track>
       {track.map((t, i) => (
         <li class="reviews-carousel__slide" aria-hidden={i >= items.length ? 'true' : undefined}>
-          <TestimonialCard t={t} />
+          <ReviewWide t={t} />
         </li>
       ))}
     </ul>
@@ -26,8 +26,7 @@ const track = [...base, ...base];
 
 <style>
   .reviews-carousel { --per: 1; --gap: 1.25rem; }
-  @media (min-width: 700px) { .reviews-carousel { --per: 2; } }
-  @media (min-width: 1100px) { .reviews-carousel { --per: 3; --gap: 1.75rem; } }
+  @media (min-width: 1000px) { .reviews-carousel { --per: 2; --gap: 1.75rem; } }
   .reviews-carousel__viewport { overflow: hidden; margin: -1rem; padding: 1rem; } /* room for card shadows */
   .reviews-carousel__track {
     list-style: none; padding: 0; margin: 0; display: flex; gap: var(--gap);

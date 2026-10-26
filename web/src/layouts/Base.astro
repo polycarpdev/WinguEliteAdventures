@@ -34,7 +34,15 @@ const { overlayHeader = false, preloadImages = [], ...seo } = Astro.props;
       // ClientRouter replaces <html> attributes on navigation; keep the flag.
       document.addEventListener('astro:after-swap', () => document.documentElement.classList.add('js'));
     </script>
-    <ClientRouter fallback="swap" />
+    {import.meta.env.PROD ? (
+      <ClientRouter fallback="swap" />
+    ) : (
+      /* Dev: no client-side router (it keeps stale component styles while you edit),
+         so links do full reloads. Scripts listen for astro:page-load, so fire it. */
+      <script is:inline>
+        document.addEventListener('DOMContentLoaded', () => document.dispatchEvent(new Event('astro:page-load')));
+      </script>
+    )}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

@@ -31,6 +31,11 @@ const accommodation = [
                     {inCountry(c.slug).map((d) => <option value={d.slug}>{d.name}</option>)}
                   </optgroup>
                 ))}
+                {regions.filter((r) => r.countries.length).map((r) => (
+                  <optgroup label={`${r.name}: tailor-made trip`}>
+                    {r.countries.map((c) => <option value={`country:${c.slug}`}>{c.name} (anywhere, tailor-made)</option>)}
+                  </optgroup>
+                ))}
               </select>
               <p class="field-error" data-error-for="destination"></p>
             </div>
@@ -218,6 +223,8 @@ const accommodation = [
       setDuration(Number(o.dataset.days), Number(o.dataset.nights));
     } else if (has(dest, params.get('destination'))) {
       dest.value = params.get('destination')!;
+    } else if (has(dest, `country:${params.get('country')}`)) {
+      dest.value = `country:${params.get('country')}`;
     }
     if (params.get('days')) setDuration(Number(params.get('days')), params.get('nights') ? Number(params.get('nights')) : undefined);
     const today = new Date().toISOString().slice(0, 10);

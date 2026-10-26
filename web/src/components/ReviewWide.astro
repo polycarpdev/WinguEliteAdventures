@@ -1,0 +1,70 @@
+---
+// Wide, rectangular review card for the home page slider:
+// guest (photo, name, stars, trip) on the left, the quote on the right.
+import type { Testimonial } from '../lib/content';
+import Img from './Img.astro';
+import Icon from './Icon.astro';
+import Stars from './Stars.astro';
+
+interface Props { t: Testimonial; full?: boolean }
+const { t, full = false } = Astro.props;
+const initials = t.client_name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+const long = !full && t.review.length > 260; // full reviews on the Reviews page
+---
+<figure class="rw">
+  <figcaption class="rw__who">
+    {t.photo
+      ? <Img image={t.photo} sizes="5rem" class="rw__avatar" alt="" />
+      : <span class="rw__avatar rw__initials">{initials}</span>}
+    <span class="rw__meta">
+      <strong class="rw__name">{t.client_name}</strong>
+      <Stars rating={t.rating} />
+      {t.trip && <a class="rw__trip" href={`/packages/${t.trip.slug}/`}>{t.trip.title}</a>}
+    </span>
+  </figcaption>
+  <span class="rw__rule" aria-hidden="true"></span>
+  <blockquote class="rw__quote">
+    <Icon name="quote" class="rw__mark" />
+    <p class:list={['rw__text', { 'rw__text--clamp': long }]}>{t.review}</p>
+    {long && <a href="/testimonials/" class="rw__more">Read full review <Icon name="arrow-right" /></a>}
+  </blockquote>
+</figure>
+
+<style>
+  .rw {
+    position: relative; margin: 0; display: grid; gap: 1.25rem; height: 100%;
+    padding: clamp(1.4rem, 2.4vw, 2rem); border-radius: var(--radius-lg);
+    background: var(--white); box-shadow: var(--shadow-sm); overflow: hidden;
+  }
+  .rw::after { /* soft gold glow in the corner */
+    content: ''; position: absolute; right: -4rem; bottom: -4rem; width: 12rem; height: 12rem; border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(202 168 103 / 0.18), transparent); pointer-events: none;
+  }
+  @media (min-width: 640px) { .rw { grid-template-columns: 11rem 1px 1fr; gap: 1.75rem; align-items: center; } }
+
+  .rw__who { display: flex; align-items: center; gap: 0.9rem; }
+  @media (min-width: 640px) { .rw__who { flex-direction: column; text-align: center; gap: 0.7rem; } }
+  .rw__avatar {
+    width: 4.5rem; height: 4.5rem; border-radius: 999px; object-fit: cover; flex: none; min-height: 0;
+    box-shadow: 0 0 0 3px var(--white), 0 0 0 5px var(--gold-300);
+  }
+  @media (min-width: 640px) { .rw__avatar { width: 5.25rem; height: 5.25rem; } }
+  .rw__initials { display: grid; place-items: center; background: var(--olive); color: var(--cream); font-weight: 800; font-size: 1.2rem; }
+  .rw__meta { display: grid; gap: 0.3rem; justify-items: start; }
+  @media (min-width: 640px) { .rw__meta { justify-items: center; } }
+  .rw__name { font-family: var(--serif); font-weight: 500; font-size: 1.15rem; color: var(--ink); }
+  .rw__trip { font-size: 0.76rem; line-height: 1.35; color: var(--olive); text-decoration: none; }
+  .rw__trip:hover { text-decoration: underline; }
+
+  .rw__rule { display: none; }
+  @media (min-width: 640px) {
+    .rw__rule { display: block; align-self: stretch; width: 1px; background: linear-gradient(transparent, var(--gold-300), transparent); }
+  }
+
+  .rw__quote { position: relative; display: grid; gap: 0.6rem; margin: 0; }
+  .rw__mark { width: 2rem; height: 2rem; color: var(--gold-300); opacity: 0.55; }
+  .rw__text { font-family: var(--serif); font-size: clamp(1.02rem, 1.25vw, 1.15rem); line-height: 1.6; color: var(--ink-soft); }
+  .rw__text--clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden; }
+  .rw__more { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; font-weight: 700; color: var(--olive); text-decoration: none; }
+  .rw__more :global(svg) { width: 0.95rem; height: 0.95rem; }
+</style>

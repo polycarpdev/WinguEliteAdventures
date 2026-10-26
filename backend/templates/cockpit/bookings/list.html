@@ -17,7 +17,7 @@
     {% for b in page %}
       <tr class="{% if b.status == 'new' %}is-new{% endif %}">
         <td><a class="row-link" href="{% url 'cockpit:booking_detail' b.pk %}">{{ b.full_name }}</a><span class="sub">{{ b.country }} · {{ b.email }}</span></td>
-        <td>{{ b.itinerary|default:"Custom trip" }}<span class="sub">{{ b.destination|default_if_none:"" }}</span></td>
+        <td>{{ b.itinerary|default:"Custom trip" }}<span class="sub">{{ b.place }}</span></td>
         <td>{{ b.start_date|date:"j M Y" }}<span class="sub">{% if b.duration_days %}{{ b.duration_days }}D / {{ b.duration_nights }}N{% else %}to {{ b.end_date|date:"j M" }}{% endif %}</span></td>
         <td>{{ b.adults }} adult{{ b.adults|pluralize }}{% if b.children %}, {{ b.children }} child{{ b.children|pluralize:"ren" }}{% endif %}</td>
         <td><span class="pill pill--{{ b.status|status_class }}">{{ b.get_status_display }}</span></td>

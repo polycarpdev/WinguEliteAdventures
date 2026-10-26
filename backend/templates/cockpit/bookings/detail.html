@@ -15,7 +15,7 @@
     <section class="panel">
       <div class="panel__head"><h2>Trip</h2>{% if b.itinerary %}<a href="/packages/{{ b.itinerary.slug }}/" target="_blank" rel="noopener">View package →</a>{% endif %}</div>
       <dl class="dl">
-        <div><dt>Destination</dt><dd>{{ b.destination|default:"—" }}</dd></div>
+        <div><dt>Destination</dt><dd>{{ b.place }}</dd></div>
         <div><dt>Package</dt><dd>{{ b.itinerary|default:"Custom safari" }}</dd></div>
         <div><dt>Arrival</dt><dd>{{ b.start_date|date:"D j M Y" }}</dd></div>
         <div><dt>Departure</dt><dd>{{ b.end_date|date:"D j M Y" }}</dd></div>
@@ -37,7 +37,7 @@
         <div><dt>Phone</dt><dd><a href="tel:{{ b.phone }}">{{ b.phone }}</a></dd></div>
         <div><dt>Country</dt><dd>{{ b.country }}</dd></div>
       </dl>
-      {% if others %}<p class="help" style="margin-top:1rem">Also requested: {% for o in others %}<a href="{% url 'cockpit:booking_detail' o.pk %}">#{{ o.pk }} {{ o.destination|default_if_none:'Custom safari' }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+      {% if others %}<p class="help" style="margin-top:1rem">Also requested: {% for o in others %}<a href="{% url 'cockpit:booking_detail' o.pk %}">#{{ o.pk }} {{ o.place }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
     </section>
   </div>
 

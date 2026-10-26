@@ -73,13 +73,24 @@ const schema = [{
           <span class="eyebrow">{live.length ? 'Also in ' + r.name : 'Tailor-made'}</span>
           <h2 class="h2">{live.length ? 'More places, planned on request' : `Plan your ${r.name} journey`}</h2>
           <p class="lead">
-            We design private trips to each of these. Tap a place to message us on WhatsApp, and a specialist will send a
-            tailored itinerary within 24 hours.
+            We design private trips to each of these. Book with your dates and a specialist will send a tailored
+            itinerary and quote within 24 hours, or send us a quick question first.
           </p>
         </div>
         <ul class="places">
           {coming.map((c) => (
-            <li><a href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(`Hi Wingu Elite! I’d like to plan a trip to ${c.name}.`)}`} class="place" target="_blank" rel="noopener" data-astro-prefetch="false"><Icon name="pin" />{c.name}</a></li>
+            <li class="place">
+              <span class="place__name"><Icon name="pin" />{c.name}</span>
+              <span class="place__actions">
+                <a href={`/bookings/?country=${c.slug}`} class="place__book">Book <Icon name="arrow-right" /></a>
+                {site.whatsapp && (
+                  <a href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(`Hi Wingu Elite! I’d like to ask about a trip to ${c.name}.`)}`}
+                     class="place__ask" target="_blank" rel="noopener" data-astro-prefetch="false" aria-label={`Inquire about ${c.name} on WhatsApp`}>
+                    <Icon name="whatsapp" /> Inquire
+                  </a>
+                )}
+              </span>
+            </li>
           ))}
         </ul>
       </div>
@@ -103,14 +114,24 @@ const schema = [{
   .intro { font-family: var(--serif); font-size: clamp(1.25rem, 2vw, 1.6rem); line-height: 1.5; text-align: center; color: var(--ink-soft); }
   .on-request { display: grid; gap: 2rem; padding: clamp(1.75rem, 4vw, 3rem); border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow-sm); }
   @media (min-width: 900px) { .on-request { grid-template-columns: 1fr 1fr; align-items: center; gap: 4rem; } }
-  .places { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .places { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+  @media (min-width: 640px) { .places { grid-template-columns: repeat(2, 1fr); } }
   .place {
-    display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.7rem 1.15rem; border-radius: 999px;
-    border: 1px solid var(--line-strong); font-weight: 600; text-decoration: none; transition: all 0.2s var(--ease);
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+    padding: 0.65rem 0.7rem 0.65rem 1rem; border-radius: var(--radius); border: 1px solid var(--line-strong); background: var(--cream);
   }
-  .place :global(svg) { width: 1rem; height: 1rem; color: var(--gold); }
-  .place:hover { border-color: var(--olive); background: var(--olive); color: var(--cream); }
-  .place:hover :global(svg) { color: var(--gold-300); }
+  .place__name { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; }
+  .place__name :global(svg) { width: 1rem; height: 1rem; color: var(--gold); }
+  .place__actions { display: inline-flex; gap: 0.35rem; }
+  .place__book, .place__ask {
+    display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.8rem; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 700; text-decoration: none; transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .place__book { background: var(--olive); color: var(--cream); }
+  .place__book:hover { background: var(--olive-900); }
+  .place__ask { border: 1px solid var(--line-strong); color: var(--ink-soft); }
+  .place__ask:hover { border-color: #25d366; color: #128c4a; }
+  .place__book :global(svg), .place__ask :global(svg) { width: 0.9rem; height: 0.9rem; }
   .other-regions-wrap { padding-bottom: clamp(3rem, 6vw, 5rem); }
   .other-regions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 2rem; justify-content: center; color: var(--muted); }
 </style>
