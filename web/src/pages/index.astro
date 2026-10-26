@@ -5,7 +5,7 @@ import Icon from '../components/Icon.astro';
 import DestinationMiniCard from '../components/DestinationMiniCard.astro';
 import ItineraryCard from '../components/ItineraryCard.astro';
 import PostCard from '../components/PostCard.astro';
-import TestimonialCard from '../components/TestimonialCard.astro';
+import ReviewCarousel from '../components/ReviewCarousel.astro';
 import CtaBand from '../components/CtaBand.astro';
 import { site } from '../config/site';
 import { destinations, itineraries, posts, testimonials, heroImage, heroSlides, type HeroSlide } from '../lib/content';
@@ -15,7 +15,7 @@ const featuredDest = destinations.filter((d) => d.image).sort((a, b) => Number(b
 // Home shows up to 6 featured packages (tick “Is featured” in the cockpit).
 const featuredPkgs = itineraries.filter((i) => i.is_featured);
 const signature = (featuredPkgs.length ? featuredPkgs : itineraries).slice(0, 6);
-const reviews = [...testimonials].sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 3);
+const reviews = [...testimonials].sort((a, b) => Number(b.is_featured) - Number(a.is_featured));
 const recent = posts.slice(0, 3);
 // Slides come from the cockpit; until some are added, show the default hero.
 const slides: HeroSlide[] = heroSlides.length ? heroSlides : heroImage ? [{
@@ -139,7 +139,7 @@ const pillars = [
           </div>
           <a href="/testimonials/" class="btn btn--outline">All reviews <Icon name="arrow-right" /></a>
         </div>
-        <div class="grid grid--3">{reviews.map((t) => <TestimonialCard t={t} />)}</div>
+        <ReviewCarousel items={reviews} />
       </div>
     </section>
   )}
