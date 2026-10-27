@@ -97,10 +97,12 @@ const weekdays = site.hours[0];
         <CloudMark class="site-footer__mark" />
         &copy; {year} {site.name}. All rights reserved.
       </p>
-      <p class="credit">
-        Built by
-        <a href={site.developer.url} target="_blank" rel="noopener author">{site.developer.name}</a>
-      </p>
+      {site.developer.showInFooter && (
+        <p class="credit">
+          Built by
+          <a href={site.developer.url} target="_blank" rel="noopener author">{site.developer.handle}</a>
+        </p>
+      )}
     </div>
   </div>
 </footer>

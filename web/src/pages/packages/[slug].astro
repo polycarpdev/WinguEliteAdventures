@@ -54,7 +54,7 @@ const facts = [
   { icon: 'users', label: 'Group size', value: `Private · up to ${i.max_group_size}` },
 ] as const;
 ---
-<Base title={`${i.title} | ${i.duration_label}`} description={description} image={i.image?.src} imageAlt={i.title} crumbs={crumbs} schema={schema} overlayHeader>
+<Base title={i.title} description={description} image={i.image?.src} imageAlt={i.title} crumbs={crumbs} schema={schema} overlayHeader>
   <PageHero title={i.title} eyebrow={`${i.duration_label} · private package`} image={i.image} crumbs={crumbs} size="lg" />
 
   <div class="facts-bar">

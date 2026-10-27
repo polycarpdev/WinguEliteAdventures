@@ -36,8 +36,26 @@ export const site = {
     { value: '24h', label: 'Quote turnaround' },
   ],
 
-  // Developer credit (footer, humans.txt, meta, JSON-LD).
-  developer: { name: '@PolycarpDev', url: 'https://linktr.ee/polycarpdev' },
+  // Developer credit. Meta tags, humans.txt and structured data always carry it;
+  // set showInFooter to false to remove the visible footer credit.
+  developer: {
+    name: 'Polycarp Etyang Mubweka',
+    handle: '@PolycarpDev',
+    url: 'https://linktr.ee/polycarpdev', // portfolio
+    email: 'polycarpdev@gmail.com',
+    phone: '+254 708 487 510',
+    // Public profiles (Google links them to you). Leave empty to omit.
+    profiles: {
+      github: 'https://github.com/polycarpdev',
+      linkedin: 'https://www.linkedin.com/in/polycarpdev/',
+      x: '',
+      instagram: '',
+    } as Record<string, string>,
+    showInFooter: true,
+  },
+
+  // Search engine verification codes (paste the content="…" value they give you).
+  verification: { google: '', bing: '' },
 };
 
 // Main menu (Gallery, Blog, Our Team and Reviews live in the footer). `regions: true` expands into the Destinations dropdown

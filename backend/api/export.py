@@ -16,9 +16,13 @@ from .images import image_data
 _IMG_TAG = re.compile(r'<img(?![^>]*\sloading=)', re.IGNORECASE)
 
 
+_H1 = re.compile(r'<(/?)h1(\b[^>]*)>', re.IGNORECASE)
+
+
 def rich(html):
-    """Lazy-load images embedded in CKEditor content."""
-    return _IMG_TAG.sub('<img loading="lazy" decoding="async"', html or '')
+    """CKEditor content: lazy-load images, and demote <h1> to <h2> (the page owns its single H1)."""
+    html = _H1.sub(r'<\1h2\2>', html or '')
+    return _IMG_TAG.sub('<img loading="lazy" decoding="async"', html)
 
 
 def iso(dt):

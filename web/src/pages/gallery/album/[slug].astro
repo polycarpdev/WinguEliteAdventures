@@ -20,7 +20,7 @@ const schema = [{
   image: photos.map((p) => ({ '@type': 'ImageObject', contentUrl: abs(p.image!.src), caption: p.caption || a.name })),
 }];
 ---
-<Base title={`${a.name} | Photo Gallery`} description={clip(a.description || `${a.name}: safari photos by Wingu Elite Adventures.`)} image={a.cover?.src} crumbs={crumbs} schema={schema}>
+<Base title={`${a.name} | Photo Gallery`} description={clip(`${a.name}${a.description ? `: ${a.description}.` : '.'} Real photos from Wingu Elite Adventures safaris in Kenya: wildlife, landscapes and moments from our guests’ journeys.`)} image={a.cover?.src} crumbs={crumbs} schema={schema}>
   <PageHero title={a.name} eyebrow="Gallery" lead={a.description || undefined} crumbs={crumbs} />
   <section class="section">
     <div class="container masonry">

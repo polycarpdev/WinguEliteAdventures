@@ -1,9 +1,0 @@
-/* TEAM */
-Developer: polycarp dev
-Contact: https://linktr.ee/polycarpdev
-From: Nairobi, Kenya
-
-/* SITE */
-Client: Wingu Elite Adventures
-Standards: HTML5, CSS3, schema.org
-Components: Astro, Django

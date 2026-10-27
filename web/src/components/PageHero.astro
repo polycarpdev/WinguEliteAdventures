@@ -16,7 +16,7 @@ const { title, eyebrow, lead, image, crumbs, size = 'md' } = Astro.props;
 <section class:list={['page-hero', `page-hero--${size}`, { 'page-hero--image': image }]}>
   {image && (
     <div class="page-hero__bg">
-      <Img image={image} sizes="100vw" eager alt="" />
+      <Img image={image} sizes="100vw" eager alt={image.alt || title} />
     </div>
   )}
   <div class="container page-hero__inner">

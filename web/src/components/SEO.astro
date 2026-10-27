@@ -1,6 +1,7 @@
 ---
 import { site } from '../config/site';
 import { organization, website, breadcrumbs, abs } from '../lib/schema';
+import { clip } from '../lib/content';
 
 export interface Props {
   title: string;
@@ -17,7 +18,12 @@ export interface Props {
 const { title, description, image, imageAlt, type = 'website', noindex = false, crumbs, schema = [], article } = Astro.props;
 
 const isHome = Astro.url.pathname === '/';
-const fullTitle = isHome ? `${site.name} | ${site.tagline}` : `${title} | ${site.name}`;
+// Google shows ~60 characters: use the full brand when it fits, a short one
+// when it nearly fits, and the page title alone when it's already long.
+const brandTitle = (t: string) =>
+  t.length + site.name.length + 3 <= 62 ? `${t} | ${site.name}` : t.length + 14 <= 64 ? `${t} | Wingu Elite` : t;
+const fullTitle = isHome ? `${site.name} | ${site.tagline}` : brandTitle(title);
+const metaDescription = clip(description, 158);
 const canonical = new URL(Astro.url.pathname, site.url).href;
 const ogImage = abs(image || '/og-default.jpg');
 
@@ -30,15 +36,18 @@ const graph = [
 const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
 ---
 <title>{fullTitle}</title>
-<meta name="description" content={description} />
+<meta name="description" content={metaDescription} />
 <link rel="canonical" href={canonical} />
 {noindex
   ? <meta name="robots" content="noindex, follow" />
   : <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
 
 <meta name="author" content={article?.author ?? site.name} />
-<meta name="creator" content={`${site.developer.name} (${site.developer.url})`} />
-<meta name="designer" content={site.developer.name} />
+<meta name="creator" content={`${site.developer.name} (${site.developer.handle}), ${site.developer.url}`} />
+<meta name="designer" content={`${site.developer.name}, ${site.developer.email}, ${site.developer.phone}`} />
+<meta name="web_author" content={`${site.developer.name} <${site.developer.email}>, ${site.developer.url}`} />
+{site.verification.google && <meta name="google-site-verification" content={site.verification.google} />}
+{site.verification.bing && <meta name="msvalidate.01" content={site.verification.bing} />}
 <link rel="author" href="/humans.txt" />
 <meta name="geo.region" content="KE" />
 <meta name="geo.placename" content="Nairobi" />
@@ -47,7 +56,7 @@ const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@graph': grap
 <meta property="og:locale" content={site.locale} />
 <meta property="og:type" content={type} />
 <meta property="og:title" content={isHome ? fullTitle : title} />
-<meta property="og:description" content={description} />
+<meta property="og:description" content={metaDescription} />
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogImage} />
 {imageAlt && <meta property="og:image:alt" content={imageAlt} />}
@@ -61,7 +70,7 @@ const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@graph': grap
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={isHome ? fullTitle : title} />
-<meta name="twitter:description" content={description} />
+<meta name="twitter:description" content={metaDescription} />
 <meta name="twitter:image" content={ogImage} />
 
 <script is:inline type="application/ld+json" set:html={jsonLd} />
