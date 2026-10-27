@@ -19,6 +19,8 @@ const avg = testimonials.length ? testimonials.reduce((s, t) => s + t.rating, 0)
   <CtaBand />
 </Base>
 <style>
-  .reviews { display: grid; gap: 1.5rem; align-items: start; }
-  @media (min-width: 1000px) { .reviews { grid-template-columns: 1fr 1fr; gap: 1.75rem; } }
+  /* Masonry: each card sits right under the one above it, whatever its height. */
+  .reviews { columns: 1; column-gap: 1.75rem; }
+  @media (min-width: 1000px) { .reviews { columns: 2; } }
+  .reviews > :global(*) { break-inside: avoid; margin-bottom: 1.75rem; }
 </style>

@@ -222,8 +222,9 @@ const facts = [
 </script>
 
 <style>
-  .pkg-reviews { display: grid; gap: 1.5rem; }
-  @media (min-width: 1000px) { .pkg-reviews { grid-template-columns: 1fr 1fr; gap: 1.75rem; } }
+  .pkg-reviews { columns: 1; column-gap: 1.75rem; }
+  @media (min-width: 1000px) { .pkg-reviews { columns: 2; } }
+  .pkg-reviews > :global(*) { break-inside: avoid; margin-bottom: 1.75rem; }
   .facts-bar { background: var(--white); border-bottom: 1px solid var(--line); }
   .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; padding-block: 1.5rem; }
   @media (min-width: 900px) { .facts { grid-template-columns: repeat(4, 1fr); } }
