@@ -1,9 +1,6 @@
 from django.db import models
 
-
 class PageView(models.Model):
-    """One page view on the public site. Cookie-less: visitors are counted with a
-    salted daily hash of IP + user agent, which can't be reversed or linked across days."""
 
     DEVICE_CHOICES = [('mobile', 'Mobile'), ('tablet', 'Tablet'), ('desktop', 'Desktop')]
 

@@ -1,6 +1,4 @@
 ---
-// Floating WhatsApp chat button (bottom-right), like a live-chat bubble.
-// The message mentions the page the visitor is on, so staff have context.
 import { site } from '../config/site';
 import Icon from './Icon.astro';
 
@@ -40,14 +38,12 @@ const base = `https://wa.me/${site.whatsapp}`;
   }
   @keyframes wa-in { from { opacity: 0; transform: translateY(1rem) scale(0.8); } }
   @keyframes wa-pulse { 0% { box-shadow: 0 6px 20px -4px rgb(0 0 0 / 0.35), 0 0 0 0 rgb(37 211 102 / 0.55); } 100% { box-shadow: 0 6px 20px -4px rgb(0 0 0 / 0.35), 0 0 0 16px rgb(37 211 102 / 0); } }
-  /* Sit above the sticky "Book now" bar on package pages (phones/tablets). */
   @media (max-width: 1099.98px) {
     :global(body:has(.mobile-book)) .wa-float { bottom: calc(5.4rem + env(safe-area-inset-bottom)); }
   }
 </style>
 
 <script>
-  // Keep the pre-filled message relevant to the page being viewed.
   document.addEventListener('astro:page-load', () => {
     const a = document.querySelector<HTMLAnchorElement>('[data-wa-float]');
     if (!a) return;

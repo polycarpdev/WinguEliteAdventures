@@ -1,6 +1,4 @@
 ---
-// Wide, rectangular review card for the home page slider:
-// guest (photo, name, stars, trip) on the left, the quote on the right.
 import type { Testimonial } from '../lib/content';
 import Img from './Img.astro';
 import Icon from './Icon.astro';
@@ -9,7 +7,7 @@ import Stars from './Stars.astro';
 interface Props { t: Testimonial; full?: boolean }
 const { t, full = false } = Astro.props;
 const initials = t.client_name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
-const long = !full && t.review.length > 260; // full reviews on the Reviews page
+const long = !full && t.review.length > 260;
 ---
 <figure class="rw">
   <figcaption class="rw__who">
@@ -36,7 +34,7 @@ const long = !full && t.review.length > 260; // full reviews on the Reviews page
     padding: clamp(1.4rem, 2.4vw, 2rem); border-radius: var(--radius-lg);
     background: var(--white); box-shadow: var(--shadow-sm); overflow: hidden;
   }
-  .rw::after { /* soft gold glow in the corner */
+  .rw::after {
     content: ''; position: absolute; right: -4rem; bottom: -4rem; width: 12rem; height: 12rem; border-radius: 50%;
     background: radial-gradient(closest-side, rgb(202 168 103 / 0.18), transparent); pointer-events: none;
   }

@@ -1,4 +1,3 @@
-// schema.org JSON-LD builders. Google uses these for rich results.
 import { site } from '../config/site';
 
 const abs = (path: string) => new URL(path, site.url).href;

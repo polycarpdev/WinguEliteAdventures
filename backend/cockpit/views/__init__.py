@@ -2,7 +2,6 @@ from functools import wraps
 
 from django.contrib.auth.views import redirect_to_login
 
-
 def staff_required(view):
     @wraps(view)
     def wrapper(request, *args, **kwargs):

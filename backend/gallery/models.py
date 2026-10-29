@@ -19,7 +19,6 @@ class GalleryAlbum(models.Model):
     def __str__(self):
         return self.name
 
-
 class GalleryImage(models.Model):
     album = models.ForeignKey(GalleryAlbum, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='gallery/images/')

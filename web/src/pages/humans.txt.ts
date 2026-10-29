@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import { site } from '../config/site';
 
-// humanstxt.org: credits the people behind the site (independent of the footer).
 export const GET: APIRoute = () =>
   new Response(
     [

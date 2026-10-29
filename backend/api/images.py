@@ -1,8 +1,3 @@
-"""Responsive WebP renditions built with Pillow (no native Node deps on the host).
-
-Renditions live in MEDIA_ROOT/_r/ mirroring the original path and are only
-regenerated when the original is newer than the rendition.
-"""
 import logging
 from pathlib import Path
 
@@ -13,14 +8,11 @@ log = logging.getLogger(__name__)
 
 RENDITION_DIR = '_r'
 
-
 def _rendition_rel(name, width):
     p = Path(name)
     return (Path(RENDITION_DIR) / p.parent / f'{p.stem}.w{width}.webp').as_posix()
 
-
 def image_data(field_file, alt=''):
-    """Return {src, srcset, width, height, alt} for an ImageField value, or None."""
     if not field_file or not field_file.name:
         return None
     media_root = Path(settings.MEDIA_ROOT)

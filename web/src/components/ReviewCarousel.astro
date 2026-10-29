@@ -1,14 +1,9 @@
 ---
-// Endless review slider: 2 wide cards on large screens, 1 on phones and tablets.
-// Moves one card every 5 seconds; pauses on hover, when the tab is hidden, or
-// for visitors who prefer reduced motion.
 import type { Testimonial } from '../lib/content';
 import ReviewWide from './ReviewWide.astro';
 
 interface Props { items: Testimonial[] }
 const { items } = Astro.props;
-// Repeat short lists so the track is always wider than 2 cards, then add one
-// full copy at the end so the loop can jump back invisibly.
 const base = items.length >= 3 ? items : Array.from({ length: Math.ceil(3 / items.length) }, () => items).flat();
 const track = [...base, ...base];
 ---
@@ -27,7 +22,7 @@ const track = [...base, ...base];
 <style>
   .reviews-carousel { --per: 1; --gap: 1.25rem; }
   @media (min-width: 1000px) { .reviews-carousel { --per: 2; --gap: 1.75rem; } }
-  .reviews-carousel__viewport { overflow: hidden; margin: -1rem; padding: 1rem; } /* room for card shadows */
+  .reviews-carousel__viewport { overflow: hidden; margin: -1rem; padding: 1rem; }
   .reviews-carousel__track {
     list-style: none; padding: 0; margin: 0; display: flex; gap: var(--gap);
     transition: transform 0.9s var(--ease); will-change: transform;
@@ -66,7 +61,6 @@ const track = [...base, ...base];
         index += 1;
         move(true);
       };
-      // After sliding onto the copy, jump back to the matching original card.
       track.addEventListener('transitionend', () => {
         if (index >= count) {
           index -= count;

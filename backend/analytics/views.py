@@ -14,14 +14,12 @@ from .models import PageView
 BOTS = re.compile(r'bot|crawl|spider|slurp|preview|headless|lighthouse|monitor|curl|wget|python|scrapy|facebookexternalhit|whatsapp', re.I)
 SITE_HOSTS = {'wingueliteadventures.co.ke', 'www.wingueliteadventures.co.ke', 'localhost', '127.0.0.1'}
 
-
 def _device(ua):
     if re.search(r'iPad|Tablet|Nexus (7|9|10)|SM-T', ua):
         return 'tablet'
     if re.search(r'Mobi|Android|iPhone', ua):
         return 'mobile'
     return 'desktop'
-
 
 def _browser(ua):
     for name, pattern in (('Edge', r'Edg/'), ('Opera', r'OPR/'), ('Samsung', r'SamsungBrowser'),
@@ -30,16 +28,13 @@ def _browser(ua):
             return name
     return 'Other'
 
-
 def _ip(request):
     fwd = request.META.get('HTTP_X_FORWARDED_FOR')
     return fwd.split(',')[0].strip() if fwd else request.META.get('REMOTE_ADDR', '')
 
-
 @csrf_exempt
 @require_POST
 def hit(request):
-    """Beacon from the static site: {p: path, r: document.referrer, tz, l}. Always 204."""
     ua = request.META.get('HTTP_USER_AGENT', '')
     if not ua or BOTS.search(ua) or (request.user.is_authenticated and request.user.is_staff):
         return HttpResponse(status=204)

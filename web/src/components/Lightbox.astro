@@ -1,5 +1,4 @@
 ---
-// Accessible <dialog> lightbox for any [data-lightbox] link group. ~1KB of JS.
 import Icon from './Icon.astro';
 ---
 <dialog class="lightbox" data-lightbox-dialog aria-label="Photo viewer">
@@ -48,7 +47,6 @@ import Icon from './Icon.astro';
       img.sizes = '100vw';
       img.alt = a.dataset.alt ?? '';
       cap.textContent = a.dataset.caption ?? '';
-      // warm the next image
       const next = links[(index + 1) % links.length];
       if (next) new Image().src = next.href;
     };

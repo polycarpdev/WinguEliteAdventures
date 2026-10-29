@@ -1,25 +1,14 @@
-"""Create the core Kenya packages (safe to run more than once).
-
-    python manage.py seed_packages
-
-Packages are created only if their slug doesn't exist yet; existing packages
-are never overwritten except to fill an empty summary/badge. Prices are left
-blank ("On Request") for the team to set in the cockpit.
-"""
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from destinations.models import Country, Destination
 from itineraries.models import Itinerary, ItineraryDay
 
-
 def ul(*items):
     return '<ul>' + ''.join(f'<li>{i}</li>' for i in items) + '</ul>'
 
-
 def p(*paragraphs):
     return ''.join(f'<p>{x}</p>' for x in paragraphs)
-
 
 INCLUDES = (
     'Accommodation on full board as listed (or similar)',
@@ -184,7 +173,6 @@ PACKAGES = [
     },
 ]
 
-
 class Command(BaseCommand):
     help = 'Create the core Kenya packages (Nakuru, Hell’s Gate, Bogoria, Amboseli, Tsavo, Masai Mara) if missing.'
 
@@ -199,7 +187,6 @@ class Command(BaseCommand):
         if made:
             self.stdout.write(self.style.WARNING('Created Tsavo East destination: upload its photo in the cockpit.'))
 
-        # The existing Mt Kenya package joins the home page line-up.
         mk = Itinerary.objects.filter(destination__slug='mount-kenya-national-park').first()
         if mk:
             mk.is_featured = True

@@ -1,6 +1,4 @@
 ---
-// Hero search: Where (region / country / park) + How long -> the best matching page.
-// Pure links, no server: everything needed is baked in at build time.
 import { regions, liveCountries, inCountry, itineraries, countryUrl } from '../lib/content';
 import Icon from './Icon.astro';
 
@@ -96,7 +94,6 @@ const LENGTHS = [
       const length = form.querySelector<HTMLSelectElement>('[data-length]')!.value;
       const [kind, slug] = (opt?.value || ':').split(':');
       let url = opt?.dataset.url || '/packages/';
-      // A park with ready-made packages -> its packages; length-only -> all packages.
       if ((kind === 'd' && opt.dataset.packages) || !kind) {
         const q = new URLSearchParams();
         if (kind === 'd') q.set('destination', slug);

@@ -78,7 +78,6 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [any, st
   }
   .site-header[data-scrolled]:not([data-open]) { transform: translateY(calc(var(--topbar-h) * -1)); }
 
-  /* --- Utility bar (desktop): phone, email, hours, socials --- */
   .topbar { display: none; height: var(--topbar-h); background: var(--olive-900); color: rgb(247 242 234 / 0.88); font-size: 0.8rem; }
   @media (min-width: 1100px) { .topbar { display: block; } }
   .topbar__inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
@@ -91,8 +90,6 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [any, st
   .topbar__social a { display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 999px; background: rgb(247 242 234 / 0.1); }
   .topbar__social a:hover { background: var(--gold-300); }
   .topbar__social a:hover :global(svg) { color: var(--ink); }
-  /* Background + blur live on a pseudo-element: backdrop-filter on the header
-     itself would make it the containing block for the fixed mobile menu. */
   .site-header::before {
     content: ''; position: absolute; inset: var(--topbar-h) 0 0; z-index: -1;
     background: rgb(247 242 234 / 0.92);
@@ -104,7 +101,6 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [any, st
   .site-header[data-overlay]:not([data-scrolled]):not([data-open]) { color: var(--cream); }
   .site-header[data-overlay]:not([data-scrolled]):not([data-open])::before { opacity: 0; }
 
-  /* Logo hangs below the bar as a badge at the top of the page, shrinks on scroll. */
   .site-header :global(.brand__logo) { transform-origin: left top; transition: transform 0.45s var(--ease); }
   .site-header:not([data-scrolled]):not([data-open]) :global(.brand__logo) { transform: scale(1.22); }
   @media (max-width: 639.98px) {
@@ -131,7 +127,6 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [any, st
   [data-open] .menu-toggle__open { display: none; }
   [data-open] .menu-toggle__close { display: block; }
 
-  /* --- Destinations sub-menu --- */
   .has-sub { position: relative; display: flex; align-items: center; }
   .sub-toggle { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; margin-left: -0.45rem; color: inherit; opacity: 0.75; }
   .sub-toggle :global(svg) { width: 0.95rem; height: 0.95rem; transition: transform 0.25s var(--ease); }
@@ -153,7 +148,7 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [any, st
       opacity: 0; visibility: hidden; transform: translateY(-0.4rem);
       transition: opacity 0.2s var(--ease), transform 0.2s var(--ease), visibility 0.2s;
     }
-    .sub::before { content: ''; position: absolute; left: 0; right: 0; top: -0.8rem; height: 0.8rem; } /* hover bridge */
+    .sub::before { content: ''; position: absolute; left: 0; right: 0; top: -0.8rem; height: 0.8rem; }
     .has-sub:hover .sub, .has-sub:focus-within .sub, .has-sub[data-sub-open] .sub { opacity: 1; visibility: visible; transform: none; }
     .has-sub:hover .sub-toggle :global(svg), .has-sub[data-sub-open] .sub-toggle :global(svg) { transform: rotate(180deg); }
   }
@@ -205,7 +200,6 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [any, st
     toggle.addEventListener('click', () => setOpen(!header.hasAttribute('data-open')));
     header.querySelectorAll('.site-nav a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
 
-    // Destinations sub-menu: tap the chevron to expand (mobile) or open (keyboard/touch on desktop).
     header.querySelectorAll<HTMLElement>('[data-sub]').forEach((li) => {
       const btn = li.querySelector<HTMLButtonElement>('[data-sub-toggle]')!;
       btn.addEventListener('click', () => {

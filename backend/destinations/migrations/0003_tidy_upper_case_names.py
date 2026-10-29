@@ -1,6 +1,4 @@
-"""Names typed in ALL CAPS (e.g. LAKE BOGORIA NATIONAL RESERVE) become Title Case."""
 from django.db import migrations
-
 
 def tidy(apps, schema_editor):
     Destination = apps.get_model('destinations', 'Destination')
@@ -9,7 +7,6 @@ def tidy(apps, schema_editor):
         if letters and all(c.isupper() for c in letters):
             d.name = d.name.title()
             d.save(update_fields=['name'])
-
 
 class Migration(migrations.Migration):
     dependencies = [('destinations', '0002_regions_countries')]

@@ -1,5 +1,3 @@
-"""Regions > countries > destinations. Existing destinations move under Kenya
-(East Africa); any marked 'international' go to an 'Other' place there."""
 import django.db.models.deletion
 from django.db import migrations, models
 
@@ -17,7 +15,6 @@ REGIONS = [
      'overwater villas in the Maldives, Bali’s temples and rice terraces, Malaysia’s islands and more.',
      ['Dubai', 'Maldives', 'Bali', 'Malaysia', 'Singapore', 'Thailand', 'Seychelles', 'Mauritius']),
 ]
-
 
 def forwards(apps, schema_editor):
     Region = apps.get_model('destinations', 'Region')
@@ -40,7 +37,6 @@ def forwards(apps, schema_editor):
         else:
             d.country = countries['Kenya']
         d.save(update_fields=['country'])
-
 
 class Migration(migrations.Migration):
     dependencies = [('destinations', '0001_initial')]

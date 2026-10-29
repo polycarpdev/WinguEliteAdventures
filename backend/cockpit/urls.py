@@ -21,7 +21,6 @@ urlpatterns = [
     path('bookings/<int:pk>/', enquiries.booking_detail, name='booking_detail'),
     path('messages/', enquiries.message_list, name='message_list'),
     path('messages/<int:pk>/', enquiries.message_detail, name='message_detail'),
-    # old URLs from the first cockpit
     path('contacts/', enquiries.message_list, name='contact_list'),
     path('contacts/<int:pk>/', enquiries.message_detail, name='contact_detail'),
 

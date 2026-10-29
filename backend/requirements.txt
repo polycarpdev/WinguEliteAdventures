@@ -1,4 +1,3 @@
-# Pure-Python or prebuilt wheels only (shared hosting: nothing compiles on the server).
 Django==5.2.7
 django-environ==0.12.0
 django-ckeditor-5==0.2.18

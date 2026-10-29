@@ -1,7 +1,4 @@
 ---
-// Home page hero slider, managed in the cockpit (Hero slides).
-// Desktop images 2560x1280, phone images 1080x2340. Only the first slide's
-// image loads with the page; the rest load just before they're shown.
 import type { HeroSlide } from '../lib/content';
 import { site } from '../config/site';
 import Icon from './Icon.astro';
@@ -123,7 +120,6 @@ const many = slides.length > 1;
   .hero__lead { font-size: clamp(1rem, 1.2vw, 1.12rem) !important; max-width: 36rem; margin-inline: auto; font-size: clamp(1.05rem, 1.4vw, 1.25rem); color: rgb(247 242 234 / 0.88); }
   .hero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.85rem; margin-top: 0.2rem; }
 
-  /* Dots: one per slide, the current one in gold (+ small arrows on phones) */
   .hero__nav { display: flex; align-items: center; justify-content: center; gap: 0.9rem; }
   .hero__dots { display: flex; align-items: center; gap: 0.55rem; }
   .hero__dot {
@@ -140,7 +136,6 @@ const many = slides.length > 1;
   .hero__arrow:hover { background: var(--gold-300); color: var(--ink); }
   .hero__arrow :global(svg) { width: 1rem; height: 1rem; }
 
-  /* Big edge arrows on larger screens */
   .hero__edge {
     position: absolute; top: 50%; z-index: 2; display: none; place-items: center; width: 3.6rem; height: 3.6rem;
     border-radius: 999px; color: var(--cream); background: rgb(247 242 234 / 0.12);
@@ -189,7 +184,6 @@ const many = slides.length > 1;
     let paused = false;
     if (reduce) hero.setAttribute('data-static', '');
 
-    // Promote data-src/data-srcset to real attributes so the browser fetches it.
     const load = (i: number) => {
       slides[i]?.querySelectorAll<HTMLElement>('[data-srcset], [data-src]').forEach((el) => {
         if (el.dataset.srcset) { el.setAttribute('srcset', el.dataset.srcset); delete el.dataset.srcset; }
@@ -200,7 +194,7 @@ const many = slides.length > 1;
     const show = (i: number) => {
       index = (i + slides.length) % slides.length;
       load(index);
-      load(index + 1 === slides.length ? 0 : index + 1); // warm the next one
+      load(index + 1 === slides.length ? 0 : index + 1);
       [slides, copies].forEach((list) => list.forEach((el, n) => {
         el.classList.toggle('is-active', n === index);
         if (n === index) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', 'true');
@@ -210,7 +204,7 @@ const many = slides.length > 1;
         d.classList.remove('is-active');
         d.setAttribute('aria-selected', String(n === index));
       });
-      void dots[index]?.offsetWidth; // restart the progress animation
+      void dots[index]?.offsetWidth;
       dots[index]?.classList.add('is-active');
       schedule();
     };
@@ -249,7 +243,6 @@ const many = slides.length > 1;
     onVisibility = () => setPaused(document.hidden);
     document.addEventListener('visibilitychange', onVisibility);
 
-    // Fetch slide 2 once the first image has painted, then start the timer.
     const first = slides[0].querySelector('img');
     const start = () => { load(1); schedule(); };
     if (first && !first.complete) first.addEventListener('load', start, { once: true }); else start();

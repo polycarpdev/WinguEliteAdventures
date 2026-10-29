@@ -11,7 +11,7 @@ const popular = destinations.filter((d) => d.image && d.is_featured).slice(0, 5)
 const weekdays = site.hours[0];
 ---
 <footer class="site-footer">
-  <!-- Savannah horizon: hills and acacias in the footer colour, rising into the section above -->
+
   <svg class="site-footer__horizon" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">
     <path d="M0 100V62c90-12 170-22 280-22 120 0 170 18 290 18s200-26 330-28 210 16 320 18 150-8 220-12v64z" />
     <path d="M210 52l4-26-12-10 3-2 11 8 2-12h4l-2 14 10-7 3 3-12 9-3 23z" />
@@ -25,7 +25,7 @@ const weekdays = site.hours[0];
 
   <div class="container site-footer__body">
     <div class="site-footer__top">
-      <!-- Brand & contact -->
+
       <div class="f-brand">
         <div class="f-brand__head">
           <a href="/" class="f-brand__logo" aria-label="Wingu Elite Adventures, home">
@@ -41,7 +41,6 @@ const weekdays = site.hours[0];
         </ul>
       </div>
 
-      <!-- Links -->
       <nav class="f-col" aria-label="Company">
         <h2 class="f-col__title">Company</h2>
         <ul>
@@ -72,7 +71,6 @@ const weekdays = site.hours[0];
         </nav>
       )}
 
-      <!-- Plan card -->
       <aside class="f-plan">
         <span class="f-plan__eyebrow">Plan your trip</span>
         <p class="f-plan__title">Speak to a safari specialist</p>
@@ -116,7 +114,6 @@ const weekdays = site.hours[0];
   }
   .site-footer a { text-decoration: none; transition: color 0.2s; }
 
-  /* Hills + acacias sit above the footer's top edge, in the footer's own colour */
   .site-footer__horizon {
     position: absolute; left: 0; bottom: calc(100% - 1px); width: 100%; height: clamp(3rem, 7vw, 5.5rem);
     fill: var(--f-bg); pointer-events: none;

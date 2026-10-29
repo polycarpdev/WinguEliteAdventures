@@ -10,13 +10,10 @@ from django.utils.text import slugify
 from gallery.models import GalleryAlbum, GalleryImage
 from itineraries.models import Itinerary, ItineraryDay
 
-
 MAX_LOGIN_FAILURES = 5
 LOCKOUT_SECONDS = 15 * 60
 
-
 class StaffAuthenticationForm(AuthenticationForm):
-    """Staff-only login with lockout after repeated failures (per IP and per username)."""
 
     def _keys(self):
         meta = self.request.META if self.request else {}
@@ -42,14 +39,11 @@ class StaffAuthenticationForm(AuthenticationForm):
         if not user.is_staff:
             raise forms.ValidationError('This account doesn’t have cockpit access.', code='no_staff')
 
-
 class ImagePreviewInput(forms.ClearableFileInput):
     template_name = 'cockpit/widgets/image.html'
 
-
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
-
 
 class MultipleImageField(forms.ImageField):
     def __init__(self, *args, **kwargs):
@@ -62,13 +56,10 @@ class MultipleImageField(forms.ImageField):
             return [single(d, initial) for d in data if d]
         return [single(data, initial)] if data else []
 
-
 def style_widget(widget):
-    """Give plain inputs/selects/textareas the design system's .input class."""
     if 'ckeditor' in widget.__class__.__module__ or getattr(widget, 'input_type', '') in ('checkbox', 'file', 'radio'):
         return
     widget.attrs['class'] = (widget.attrs.get('class', '') + ' input').strip()
-
 
 class StyledFormSetMixin:
     def add_fields(self, form, index):
@@ -76,16 +67,14 @@ class StyledFormSetMixin:
         for f in form.fields.values():
             style_widget(f.widget)
 
-
 class CockpitFormMixin:
-    """Slugs auto-generate (and stay unique) when left blank; nicer widgets."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, f in self.fields.items():
             model_field = self._meta.model._meta.get_field(name)
             if model_field.is_relation and model_field.null:
-                f.required = False  # nullable relations (e.g. blog category) are optional
+                f.required = False
             if isinstance(f, forms.ImageField):
                 f.widget = ImagePreviewInput(attrs={'accept': 'image/*'})
             elif isinstance(f.widget, forms.DateTimeInput):
@@ -117,14 +106,11 @@ class CockpitFormMixin:
             data['published_date'] = timezone.now()
         return data
 
-
 def form_for(ctype):
     return modelform_factory(ctype.model, form=type('Form', (CockpitFormMixin, forms.ModelForm), {}), fields=ctype.fields)
 
-
 class _StyledInlineFormSet(StyledFormSetMixin, forms.BaseInlineFormSet):
     pass
-
 
 DayFormSet = inlineformset_factory(
     Itinerary, ItineraryDay, formset=_StyledInlineFormSet,
@@ -136,10 +122,8 @@ PhotoFormSet = inlineformset_factory(
     widgets={'caption': forms.TextInput(attrs={'placeholder': 'Caption (optional)'})},
 )
 
-
 class PhotoUploadForm(forms.Form):
     photos = MultipleImageField(required=False, label='Add photos')
-
 
 class BookingUpdateForm(forms.Form):
     status = forms.ChoiceField()
@@ -149,9 +133,7 @@ class BookingUpdateForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['status'].choices = choices
 
-
 class StaffUserForm(forms.ModelForm):
-    """Create/edit a cockpit login. Everyone here is staff; superusers can manage users."""
     password = forms.CharField(
         required=False, widget=forms.PasswordInput(attrs={'autocomplete': 'new-password', 'class': 'input'}),
         help_text='Required for new users. Leave blank to keep the current password.')
@@ -187,7 +169,6 @@ class StaffUserForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
 
 class OwnPasswordForm(SetPasswordForm):
     def __init__(self, *args, **kwargs):

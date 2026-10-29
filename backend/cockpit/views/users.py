@@ -7,11 +7,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from ..forms import OwnPasswordForm, StaffUserForm
 from . import staff_required
 
-
 def _superuser(request):
     if not request.user.is_superuser:
         raise PermissionDenied
-
 
 @staff_required
 def user_list(request):
@@ -19,7 +17,6 @@ def user_list(request):
     return render(request, 'cockpit/users/list.html', {
         'users': User.objects.filter(is_staff=True).order_by('-is_active', 'username'),
     })
-
 
 @staff_required
 def user_edit(request, pk=None):
@@ -33,7 +30,6 @@ def user_edit(request, pk=None):
         messages.success(request, f'User “{user.username}” saved.')
         return redirect('cockpit:users')
     return render(request, 'cockpit/users/form.html', {'form': form, 'obj': obj})
-
 
 @staff_required
 def account(request):

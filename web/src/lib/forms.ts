@@ -1,4 +1,3 @@
-// Shared client-side submit for the booking and contact forms (posts JSON to Django).
 import { navigate } from 'astro:transitions/client';
 
 export function bindForm(form: HTMLFormElement, endpoint: string, successUrl: string) {

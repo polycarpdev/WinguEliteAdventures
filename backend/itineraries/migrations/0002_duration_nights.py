@@ -1,12 +1,10 @@
 from django.db import migrations, models
 
-
 def fill_nights(apps, schema_editor):
     Itinerary = apps.get_model('itineraries', 'Itinerary')
     for i in Itinerary.objects.all():
         i.duration_nights = max(i.duration_days - 1, 0)
         i.save(update_fields=['duration_nights'])
-
 
 class Migration(migrations.Migration):
     dependencies = [('itineraries', '0001_initial')]

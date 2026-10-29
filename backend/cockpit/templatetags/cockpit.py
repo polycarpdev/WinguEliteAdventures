@@ -43,7 +43,6 @@ ICONS = {
     'image': '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>',
 }
 
-
 @register.simple_tag
 def icon(name, cls=''):
     return mark_safe(
@@ -51,10 +50,8 @@ def icon(name, cls=''):
         f'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{ICONS.get(name, "")}</svg>'
     )
 
-
 @register.simple_tag
 def bar_chart(series, height=180, color='var(--olive)', unit=''):
-    """Server-rendered SVG bar chart with hover tooltips. series: [{label, value}]"""
     n = len(series) or 1
     peak = max((p['value'] for p in series), default=0) or 1
     w = 100 / n
@@ -80,10 +77,8 @@ def bar_chart(series, height=180, color='var(--olive)', unit=''):
         f'<div class="chart__labels">{"".join(labels)}</div></figure>'
     )
 
-
 @register.filter
 def thumb(fieldfile):
-    """URL of the smallest WebP rendition if it exists, else the original."""
     if not isinstance(fieldfile, FieldFile) or not fieldfile.name:
         return ''
     from pathlib import Path
@@ -94,14 +89,12 @@ def thumb(fieldfile):
         return settings.MEDIA_URL + rel
     return fieldfile.url
 
-
 @register.filter
 def money(value):
     try:
         return f'${float(value):,.0f}'
     except (TypeError, ValueError):
         return '—'
-
 
 @register.filter
 def ago(value):
@@ -111,7 +104,6 @@ def ago(value):
         value = datetime.fromtimestamp(value, tz=dt_tz.utc)
     return timesince(value, timezone.now()).split(',')[0] + ' ago'
 
-
 @register.simple_tag
 def delta(value):
     if value is None:
@@ -120,11 +112,9 @@ def delta(value):
     arrow = '↑' if value > 0 else '↓' if value < 0 else '→'
     return format_html('<span class="delta delta--{}">{} {}%</span>', cls, arrow, abs(value))
 
-
 @register.filter
 def is_bool(value):
     return isinstance(value, bool)
-
 
 @register.filter
 def status_class(value):

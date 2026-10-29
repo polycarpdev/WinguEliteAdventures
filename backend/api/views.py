@@ -1,4 +1,3 @@
-"""JSON endpoints for the two public forms. The site itself is static."""
 import json
 import logging
 import time
@@ -20,23 +19,19 @@ from itineraries.models import Itinerary
 
 log = logging.getLogger(__name__)
 
-RATE_LIMIT = 5          # submissions
-RATE_WINDOW = 10 * 60   # per 10 minutes per IP
-MIN_FILL_SECONDS = 3    # humans don't fill a form in under 3s
-
+RATE_LIMIT = 5
+RATE_WINDOW = 10 * 60
+MIN_FILL_SECONDS = 3
 
 class FormError(Exception):
     def __init__(self, errors, status=400):
         self.errors, self.status = errors, status
 
-
 def _client_ip(request):
     fwd = request.META.get('HTTP_X_FORWARDED_FOR')
     return fwd.split(',')[0].strip() if fwd else request.META.get('REMOTE_ADDR', '')
 
-
 def _guard(request):
-    """Origin check, rate limit and bot traps. Returns parsed JSON body."""
     origin = request.headers.get('Origin')
     if origin and origin.rstrip('/') not in settings.CORS_ALLOWED_ORIGINS:
         raise FormError({'__all__': 'Origin not allowed.'}, 403)
@@ -54,13 +49,11 @@ def _guard(request):
     if not isinstance(data, dict):
         raise FormError({'__all__': 'Invalid request.'})
 
-    # Honeypot field and fill-time trap: pretend success to bots.
     started = data.get('_t')
     too_fast = isinstance(started, (int, float)) and (time.time() * 1000 - started) < MIN_FILL_SECONDS * 1000
     if data.get('website') or too_fast:
         raise FormError(None, 200)
     return data
-
 
 def _text(data, errors, name, label, max_len, required=True):
     value = str(data.get(name) or '').strip()
@@ -70,7 +63,6 @@ def _text(data, errors, name, label, max_len, required=True):
         errors[name] = f'{label} must be at most {max_len} characters.'
     return value
 
-
 def _email(data, errors):
     value = _text(data, errors, 'email', 'Email', 254)
     if value and 'email' not in errors:
@@ -79,7 +71,6 @@ def _email(data, errors):
         except ValidationError:
             errors['email'] = 'Enter a valid email address.'
     return value
-
 
 def _int(data, errors, name, label, lo, hi, default):
     raw = data.get(name, default)
@@ -92,7 +83,6 @@ def _int(data, errors, name, label, lo, hi, default):
         errors[name] = f'{label} must be between {lo} and {hi}.'
     return value
 
-
 def _date(data, errors, name, label):
     try:
         return date.fromisoformat(str(data.get(name) or ''))
@@ -100,16 +90,14 @@ def _date(data, errors, name, label):
         errors[name] = f'{label} is required.'
         return None
 
-
 def _notify(subject, body, reply_to, ack_to=None, ack_subject=None, ack_body=None):
     try:
         EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.ADMIN_EMAIL],
                      reply_to=[reply_to]).send()
         if ack_to:
             EmailMessage(ack_subject, ack_body, settings.DEFAULT_FROM_EMAIL, [ack_to]).send()
-    except Exception:  # never lose a saved enquiry because SMTP hiccuped
+    except Exception:
         log.exception('Failed to send notification email: %s', subject)
-
 
 def _respond(handler):
     @csrf_exempt
@@ -123,7 +111,6 @@ def _respond(handler):
                 return JsonResponse({'ok': True})
             return JsonResponse({'ok': False, 'errors': exc.errors}, status=exc.status)
     return view
-
 
 def _booking(data):
     errors = {}
@@ -157,7 +144,6 @@ def _booking(data):
         nights = (end - start).days
         days = nights + 1
 
-    # "destination" is a park slug, or "country:<slug>" for a tailor-made trip there.
     choice = str(data.get('destination') or '')
     destination = trip_country = None
     if choice.startswith('country:'):
@@ -201,7 +187,6 @@ def _booking(data):
     )
     return {'id': b.pk}
 
-
 def _contact(data):
     errors = {}
     name = _text(data, errors, 'name', 'Name', 200)
@@ -221,17 +206,13 @@ def _contact(data):
     )
     return {'id': m.pk}
 
-
 booking = _respond(_booking)
 contact = _respond(_contact)
-
 
 def health(request):
     return JsonResponse({'ok': True})
 
-
 def not_found(request, exception=None):
-    """Serve the static site's designed 404 page for any URL Django doesn't own."""
     try:
         html = (settings.STATIC_SITE_DIR / '404.html').read_text(encoding='utf-8')
     except OSError:

@@ -2,8 +2,6 @@ import type { APIRoute } from 'astro';
 import type { Img } from '../lib/content';
 import { destinations, itineraries, posts, categories, gallery, content, regions, liveCountries, countryUrl, coverFor, inRegion, inCountry } from '../lib/content';
 
-// Sitemap with image entries (Google Images matters for a travel site).
-// Lists every indexable page; noindex pages (success pages, 404) stay out.
 const SITE = 'https://wingueliteadventures.co.ke';
 
 type Pic = { img: Img | null; caption?: string };

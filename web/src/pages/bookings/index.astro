@@ -197,7 +197,6 @@ const accommodation = [
     const picker = form.querySelector<HTMLElement & { setDuration?: (d: number, n?: number) => void }>('[data-duration]')!;
     const summary = form.querySelector<HTMLElement>('[data-trip-summary]')!;
     const has = (sel: HTMLSelectElement, v: string | null) => !!v && [...sel.options].some((o) => o.value === v);
-    // If the picker hasn't initialised yet, seed the values it reads on start-up.
     const setDuration = (d: number, n?: number) => {
       if (picker.setDuration) return picker.setDuration(d, n);
       picker.dataset.days = String(d);
@@ -213,7 +212,6 @@ const accommodation = [
       summary.textContent = `Departs ${fmt(out)}`;
     };
 
-    // Prefill from links: ?package= (or ?itinerary=), ?destination=, ?date=, ?days=, ?nights=, ?adults=
     const params = new URLSearchParams(location.search);
     const pkg = params.get('package') ?? params.get('itinerary');
     if (has(trip, pkg)) {
@@ -235,7 +233,6 @@ const accommodation = [
       if (v) (form.elements.namedItem(k) as HTMLInputElement).value = v;
     }
 
-    // Choosing a package sets its destination and its days / nights.
     trip.addEventListener('change', () => {
       const o = trip.selectedOptions[0];
       if (o?.dataset.destination) dest.value = o.dataset.destination;

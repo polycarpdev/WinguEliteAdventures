@@ -1,5 +1,3 @@
-// Business details in one place. Empty values are hidden on the site,
-// so placeholders never reach visitors.
 export const site = {
   name: 'Wingu Elite Adventures',
   shortName: 'Wingu Elite',
@@ -13,7 +11,7 @@ export const site = {
   email: 'info@wingueliteadventures.co.ke',
   bookingsEmail: 'bookings@wingueliteadventures.co.ke',
   phone: '+254 708 507 364',
-  whatsapp: '254708507364', // digits only
+  whatsapp: '254708507364',
   address: { locality: 'Nairobi', country: 'Kenya', countryCode: 'KE' },
   hours: [
     { days: 'Monday – Friday', time: '8:00 AM – 6:00 PM' },
@@ -28,7 +26,6 @@ export const site = {
     tripadvisor: '',
   } as Record<string, string>,
 
-  // Shown in the hero trust strip; confirm before launch.
   stats: [
     { value: '10+', label: 'Years guiding' },
     { value: '100%', label: 'Private tours' },
@@ -36,15 +33,12 @@ export const site = {
     { value: '24h', label: 'Quote turnaround' },
   ],
 
-  // Developer credit. Meta tags, humans.txt and structured data always carry it;
-  // set showInFooter to false to remove the visible footer credit.
   developer: {
     name: 'Polycarp Etyang Mubweka',
     handle: '@PolycarpDev',
-    url: 'https://linktr.ee/polycarpdev', // portfolio
+    url: 'https://linktr.ee/polycarpdev',
     email: 'polycarpdev@gmail.com',
     phone: '+254 708 487 510',
-    // Public profiles (Google links them to you). Leave empty to omit.
     profiles: {
       github: 'https://github.com/polycarpdev',
       linkedin: 'https://www.linkedin.com/in/polycarpdev/',
@@ -54,12 +48,9 @@ export const site = {
     showInFooter: true,
   },
 
-  // Search engine verification codes (paste the content="…" value they give you).
   verification: { google: '', bing: '' },
 };
 
-// Main menu (Gallery, Blog, Our Team and Reviews live in the footer). `regions: true` expands into the Destinations dropdown
-// (East Africa, Africa, International…), built from the regions in the cockpit.
 export const nav: { label: string; href: string; regions?: boolean }[] = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about/' },

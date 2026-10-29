@@ -8,7 +8,6 @@ from django.core.management.base import BaseCommand
 
 from api.export import build_content
 
-
 class Command(BaseCommand):
     help = 'Export public content (and WebP renditions) to JSON for the static site build.'
 
@@ -19,7 +18,6 @@ class Command(BaseCommand):
         out = Path(opts['out'])
         out.parent.mkdir(parents=True, exist_ok=True)
         data = build_content()
-        # Atomic write so a concurrent build never reads half a file.
         fd, tmp = tempfile.mkstemp(dir=out.parent, suffix='.tmp')
         with os.fdopen(fd, 'w', encoding='utf-8') as fh:
             json.dump(data, fh, ensure_ascii=False, separators=(',', ':'))

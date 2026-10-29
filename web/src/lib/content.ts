@@ -1,4 +1,3 @@
-// Typed access to the content exported by Django (`manage.py export_content`).
 import raw from '../data/content.json';
 
 export interface Img {
@@ -131,28 +130,22 @@ export interface Content {
 
 export const content = raw as unknown as Content;
 export const { regions, destinations, gallery, testimonials, team, faqs } = content;
-/** Packages with a photo first, so a not-yet-illustrated package never leads a list. */
 export const itineraries = [...content.itineraries].sort((a, b) => Number(!!b.image) - Number(!!a.image));
 export const heroSlides = content.hero ?? [];
-/** Short duration badge, e.g. "4D · 3N". */
 export const shortDuration = (days: number, nights: number) => `${days}D · ${nights}N`;
 export const posts = content.blog.posts;
 export const categories = content.blog.categories.filter((c) => posts.some((p) => p.category?.slug === c.slug));
 
-// --- Regions > countries > destinations ------------------------------------
 export const inCountry = (countrySlug: string) => destinations.filter((d) => d.country.slug === countrySlug);
 export const inRegion = (regionSlug: string) => destinations.filter((d) => d.region.slug === regionSlug);
-/** Countries with at least one destination get their own page. */
 export const liveCountries = (r: Region) => r.countries.filter((c) => inCountry(c.slug).length > 0);
 export const comingCountries = (r: Region) => r.countries.filter((c) => inCountry(c.slug).length === 0);
 export const regionOf = (slug: string) => regions.find((r) => r.slug === slug);
 export const countryUrl = (regionSlug: string, countrySlug: string) => `/destinations/${regionSlug}/${countrySlug}/`;
-/** Cover image for a region or country: its own, else the best of its destinations. */
 export const coverFor = (img: Img | null, list: Destination[]) =>
   img ?? [...list].filter((d) => d.image).sort((a, b) => (b.image!.width - a.image!.width))[0]?.image ?? null;
 export const itinerariesFor = (destSlug: string) => itineraries.filter((i) => i.destination.slug === destSlug);
 
-/** Hero photo: the company's own gallery shots first, then featured destinations. */
 export const heroImage: Img | null =
   gallery.flatMap((a) => [a.cover, ...a.images.map((i) => i.image)]).find((i) => i && i.width >= 1600) ??
   destinations.find((d) => d.image && d.image.width >= 1300)?.image ??
@@ -161,7 +154,6 @@ export const heroImage: Img | null =
 export const usd = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 
-/** "From $680" style price, or "On Request" when the team hasn't set one. */
 export const priceLabel = (n: number | null) => (n == null ? 'On Request' : usd(n));
 
 export const formatDate = (iso: string) =>
@@ -177,7 +169,6 @@ export const stripHtml = (html: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-/** Trim to a meta-description-friendly length on a word boundary. */
 export const clip = (text: string, max = 158) => {
   const t = stripHtml(text);
   if (t.length <= max) return t;
@@ -189,7 +180,6 @@ export const readingMinutes = (html: string) => Math.max(1, Math.round(stripHtml
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** Plain-text field (e.g. FAQ answer) to safe HTML paragraphs. */
 export const paragraphs = (text: string) =>
   escapeHtml(text)
     .split(/\n{2,}/)

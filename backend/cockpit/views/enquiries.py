@@ -10,13 +10,11 @@ from contact.models import ContactMessage
 from ..forms import BookingUpdateForm
 from . import staff_required
 
-
 def _status_tabs(model, current):
     counts = dict(model.objects.values_list('status').annotate(n=Count('id')))
     tabs = [{'value': '', 'label': 'All', 'count': sum(counts.values()), 'active': not current}]
     tabs += [{'value': v, 'label': l, 'count': counts.get(v, 0), 'active': current == v} for v, l in model.STATUS_CHOICES]
     return tabs
-
 
 def filtered_bookings(request):
     qs = Booking.objects.all()
@@ -26,7 +24,6 @@ def filtered_bookings(request):
         qs = qs.filter(Q(full_name__icontains=q) | Q(email__icontains=q) | Q(country__icontains=q) | Q(phone__icontains=q))
     return qs
 
-
 @staff_required
 def booking_list(request):
     qs = filtered_bookings(request).select_related('destination', 'itinerary', 'trip_country')
@@ -34,7 +31,6 @@ def booking_list(request):
     return render(request, 'cockpit/bookings/list.html', {
         'page': page, 'tabs': _status_tabs(Booking, request.GET.get('status', '')), 'q': request.GET.get('q', ''),
     })
-
 
 def _update(request, obj, url_name):
     form = BookingUpdateForm(request.POST, choices=obj.STATUS_CHOICES)
@@ -47,7 +43,6 @@ def _update(request, obj, url_name):
         obj.save()
         messages.success(request, 'Saved.' if before == obj.status else f'Status changed to “{obj.get_status_display()}”.')
     return redirect(url_name, pk=obj.pk)
-
 
 @staff_required
 def booking_detail(request, pk):
@@ -62,7 +57,6 @@ def booking_detail(request, pk):
         'whatsapp': ''.join(c for c in b.phone if c.isdigit()),
     })
 
-
 @staff_required
 def message_list(request):
     qs = ContactMessage.objects.all()
@@ -74,7 +68,6 @@ def message_list(request):
     return render(request, 'cockpit/messages/list.html', {
         'page': page, 'tabs': _status_tabs(ContactMessage, request.GET.get('status', '')), 'q': request.GET.get('q', ''),
     })
-
 
 @staff_required
 def message_detail(request, pk):

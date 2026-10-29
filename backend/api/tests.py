@@ -15,7 +15,6 @@ from destinations.models import Country, Destination
 ORIGIN = 'http://localhost:4321'
 _TMP = Path(tempfile.mkdtemp())
 
-
 @override_settings(ALLOWED_HOSTS=['testserver'], CORS_ALLOWED_ORIGINS=[ORIGIN],
                    VAR_DIR=_TMP, REBUILD_FLAG=_TMP / 'rebuild.flag',
                    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
@@ -44,7 +43,7 @@ class FormApiTests(TestCase):
         r = self.post('/api/bookings/', self.booking_payload())
         self.assertEqual(r.status_code, 200, r.content)
         self.assertEqual(Booking.objects.count(), 1)
-        self.assertEqual(len(mail.outbox), 2)  # admin notification + guest acknowledgement
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_booking_by_days_and_nights(self):
         payload = self.booking_payload(days=5, nights=4)
@@ -109,7 +108,6 @@ class FormApiTests(TestCase):
 
     def test_get_not_allowed(self):
         self.assertEqual(self.client.get('/api/contact/').status_code, 405)
-
 
 @override_settings(ALLOWED_HOSTS=['testserver'], DEBUG=False)
 class NotFoundTests(TestCase):

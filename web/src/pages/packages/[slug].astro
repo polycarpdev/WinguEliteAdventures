@@ -185,8 +185,6 @@ const facts = [
 </Base>
 
 <script>
-  // Package booking card: days/nights + date + adults -> live estimate and a
-  // prefilled link to the booking form.
   document.addEventListener('astro:page-load', () => {
     const card = document.querySelector<HTMLFormElement>('[data-book-card]');
     if (!card) return;
@@ -205,7 +203,6 @@ const facts = [
     const update = () => {
       const days = Number(picker.dataset.days), nights = Number(picker.dataset.nights), a = Number(adults.value);
       const custom = days !== base.days || nights !== base.nights;
-      // Scale the base price by days for a rough guide; the real quote is tailored.
       const est = Math.round((price * a * days) / base.days / 10) * 10;
       const who = `${plural(a, 'adult')}, ${plural(days, 'day')} / ${plural(nights, 'night')}`;
       estimate.innerHTML = (price ? `Estimated <strong>${usd(est)}</strong> for ${who}` : `We’ll send a tailored quote for ${who} within 24 hours.`) +

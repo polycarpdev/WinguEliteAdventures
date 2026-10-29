@@ -1,5 +1,3 @@
-"""Registry of editable content types. One entry drives the list, form and delete
-screens, so adding a model to the cockpit is a few lines here."""
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -10,7 +8,6 @@ from gallery.models import GalleryAlbum
 from itineraries.models import Itinerary
 from testimonials.models import Testimonial
 
-
 @dataclass
 class ContentType:
     key: str
@@ -19,22 +16,20 @@ class ContentType:
     plural: str
     icon: str
     fields: list
-    columns: list                       # [(attr or callable, header)]
+    columns: list
     search: list = field(default_factory=list)
-    filters: dict = field(default_factory=dict)   # {param: (lookup, [(value, label)])}
+    filters: dict = field(default_factory=dict)
     image: str | None = None
     public_url: Callable | None = None
-    inline: str | None = None           # 'days' | 'photos'
+    inline: str | None = None
     help: str = ''
 
     @property
     def title_attr(self):
         return self.columns[0][0]
 
-
 def _bool_choices(yes, no):
     return [('1', yes), ('0', no)]
-
 
 TYPES = [
     ContentType(

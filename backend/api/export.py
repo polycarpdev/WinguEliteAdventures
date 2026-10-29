@@ -1,4 +1,3 @@
-"""Serialise all public content into one JSON document for the Astro build."""
 import re
 
 from django.conf import settings
@@ -15,19 +14,14 @@ from .images import image_data
 
 _IMG_TAG = re.compile(r'<img(?![^>]*\sloading=)', re.IGNORECASE)
 
-
 _H1 = re.compile(r'<(/?)h1(\b[^>]*)>', re.IGNORECASE)
 
-
 def rich(html):
-    """CKEditor content: lazy-load images, and demote <h1> to <h2> (the page owns its single H1)."""
     html = _H1.sub(r'<\1h2\2>', html or '')
     return _IMG_TAG.sub('<img loading="lazy" decoding="async"', html)
 
-
 def iso(dt):
     return dt.isoformat() if dt else None
-
 
 def destination(d, full=True):
     data = {
@@ -44,7 +38,6 @@ def destination(d, full=True):
     if full:
         data['description_html'] = rich(d.description)
     return data
-
 
 def itinerary(i):
     return {
@@ -78,7 +71,6 @@ def itinerary(i):
         ],
     }
 
-
 def post(p):
     return {
         'id': p.id,
@@ -93,7 +85,6 @@ def post(p):
         'updated_at': iso(p.updated_at),
     }
 
-
 def testimonial(t):
     return {
         'id': t.id,
@@ -106,7 +97,6 @@ def testimonial(t):
         'is_featured': t.is_featured,
     }
 
-
 def hero_slide(s):
     return {
         'eyebrow': s.eyebrow, 'headline': s.headline, 'highlight': s.highlight, 'subtitle': s.subtitle,
@@ -115,7 +105,6 @@ def hero_slide(s):
         'button': {'label': s.button_label, 'url': s.button_url},
         'second': {'label': s.second_label, 'url': s.second_url} if s.second_label and s.second_url else None,
     }
-
 
 def build_content():
     posts = BlogPost.objects.filter(is_published=True).select_related('author', 'category')

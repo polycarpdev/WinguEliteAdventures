@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Pull the latest code and deploy everything. Run on the server:
-#   ~/winguelite/deploy/deploy.sh
 source "$(dirname "$0")/lib.sh"
 
 deploy() {
@@ -23,11 +21,9 @@ deploy() {
 
   build_site
 
-  # Apache serves media and Django's static files straight from disk.
   ln -sfn "$BACKEND/media" "$DOCROOT/media"
   ln -sfn "$BACKEND/staticfiles" "$DOCROOT/static"
 
-  # Restart the Django (Passenger) app.
   mkdir -p "$BACKEND/tmp" && touch "$BACKEND/tmp/restart.txt"
   log "Deploy complete: $(git rev-parse --short HEAD)"
 }

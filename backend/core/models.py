@@ -13,7 +13,6 @@ class TeamMember(models.Model):
     def __str__(self):
         return f"{self.name} - {self.role}"
 
-
 class FAQ(models.Model):
     CATEGORY_CHOICES = [
         ('booking', 'Booking'),
@@ -38,9 +37,7 @@ class FAQ(models.Model):
 
 MAX_HERO_SLIDES = 5
 
-
 class HeroSlide(models.Model):
-    """A slide in the home page hero. Desktop image 2560x1280, phone image 1080x2340."""
     eyebrow = models.CharField(max_length=60, blank=True, help_text='Small script line above the headline, e.g. "Karibu Kenya".')
     headline = models.CharField(max_length=90, help_text='Main line, e.g. "Luxury Kenya safaris,".')
     highlight = models.CharField(max_length=90, blank=True, help_text='Second line in gold italics, e.g. "crafted above the ordinary".')

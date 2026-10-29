@@ -10,14 +10,11 @@ import CtaBand from '../components/CtaBand.astro';
 import { site } from '../config/site';
 import { destinations, itineraries, posts, testimonials, heroImage, heroSlides, type HeroSlide } from '../lib/content';
 
-// Featured destinations with a photo first (a destination without one stays off the home page).
 const featuredDest = destinations.filter((d) => d.image).sort((a, b) => Number(b.is_featured) - Number(a.is_featured)).slice(0, 6);
-// Home shows up to 6 featured packages (tick “Is featured” in the cockpit).
 const featuredPkgs = itineraries.filter((i) => i.is_featured);
 const signature = (featuredPkgs.length ? featuredPkgs : itineraries).slice(0, 6);
 const reviews = [...testimonials].sort((a, b) => Number(b.is_featured) - Number(a.is_featured));
 const recent = posts.slice(0, 3);
-// Slides come from the cockpit; until some are added, show the default hero.
 const slides: HeroSlide[] = heroSlides.length ? heroSlides : heroImage ? [{
   eyebrow: 'Wingu Elite Adventures',
   headline: 'Crafting memories',
@@ -49,10 +46,9 @@ const pillars = [
   overlayHeader
   preloadImages={preload}
 >
-  <!-- Hero (slides managed in the cockpit) -->
+
   <HeroSlider slides={slides} />
 
-  <!-- Intro -->
   <section class="section intro">
     <div class="container intro__grid">
       <div class="intro__art" data-reveal>
@@ -74,7 +70,6 @@ const pillars = [
     </div>
   </section>
 
-  <!-- Destinations -->
   {featuredDest.length > 0 && (
     <section class="section section--sand">
       <div class="container">
@@ -92,7 +87,6 @@ const pillars = [
     </section>
   )}
 
-  <!-- Signature safaris -->
   {signature.length > 0 && (
     <section class="section">
       <div class="container">
@@ -109,7 +103,6 @@ const pillars = [
     </section>
   )}
 
-  <!-- Pillars -->
   <section class="section section--ink pillars">
     <div class="container">
       <div class="section-head section-head--center">
@@ -128,7 +121,6 @@ const pillars = [
     </div>
   </section>
 
-  <!-- Reviews -->
   {reviews.length > 0 && (
     <section class="section section--sand">
       <div class="container">
@@ -144,7 +136,6 @@ const pillars = [
     </section>
   )}
 
-  <!-- Journal -->
   {recent.length > 0 && (
     <section class="section">
       <div class="container">
@@ -164,7 +155,6 @@ const pillars = [
 </Base>
 
 <style>
-
   .intro__grid { display: grid; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
   @media (min-width: 900px) { .intro__grid { grid-template-columns: 0.9fr 1.1fr; } }
   .intro__art { position: relative; justify-self: center; max-width: 30rem; }

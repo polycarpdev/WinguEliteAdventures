@@ -5,7 +5,7 @@ import environ
 
 env = environ.Env(DEBUG=(bool, False))
 
-BASE_DIR = Path(__file__).resolve().parent.parent  # backend/
+BASE_DIR = Path(__file__).resolve().parent.parent
 REPO_DIR = BASE_DIR.parent
 
 environ.Env.read_env(BASE_DIR / '.env')
@@ -14,16 +14,14 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
-# Public site URL, used for absolute links in exported content and emails.
 SITE_URL = env('SITE_URL', default='https://wingueliteadventures.co.ke').rstrip('/')
 
-# Origins allowed to POST to the form API (the static site's own origin).
 CORS_ALLOWED_ORIGINS = env.list(
     'CORS_ALLOWED_ORIGINS',
     default=[SITE_URL, 'http://localhost:4321', 'http://127.0.0.1:4321'],
 )
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[SITE_URL])
-if DEBUG:  # Astro dev server proxies /admin and /cockpit to Django
+if DEBUG:
     CSRF_TRUSTED_ORIGINS += ['http://localhost:4321', 'http://127.0.0.1:4321']
 
 INSTALLED_APPS = [
@@ -76,19 +74,15 @@ TEMPLATES = [
     },
 ]
 
-# Lets widget templates (cockpit/widgets/*) live in the project templates folder.
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 WSGI_APPLICATION = 'winguelite.wsgi.application'
 
-# Postgres in production: DATABASE_URL=postgres://user:pass@localhost:5432/dbname
 DATABASES = {
     'default': env.db('DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
 }
 DATABASES['default']['CONN_MAX_AGE'] = env.int('DB_CONN_MAX_AGE', default=60)
 if DATABASES['default']['ENGINE'].endswith('sqlite3'):
-    # Production-grade SQLite: WAL lets reads run during writes, IMMEDIATE
-    # transactions + busy timeout make concurrent writers queue instead of failing.
     DATABASES['default']['OPTIONS'] = {
         'transaction_mode': 'IMMEDIATE',
         'timeout': 20,
@@ -102,8 +96,6 @@ if DATABASES['default']['ENGINE'].endswith('sqlite3'):
         ),
     }
 
-# Database-backed cache so login lockouts and form rate limits are shared by all
-# Passenger worker processes (run `manage.py createcachetable` once; deploy.sh does).
 CACHES = {
     'default': {'BACKEND': 'django.core.cache.backends.db.DatabaseCache', 'LOCATION': 'django_cache'},
 }
@@ -124,7 +116,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# The public site's stylesheet is shared with the cockpit (served as /static/site/global.css).
 STATICFILES_DIRS = [BASE_DIR / 'static', ('site', REPO_DIR / 'web' / 'src' / 'styles')]
 
 MEDIA_URL = '/media/'
@@ -132,22 +123,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# --- Static site build -------------------------------------------------------
-# Content changes in the admin touch this flag; deploy/rebuild.sh (cron) picks it up.
 VAR_DIR = BASE_DIR / 'var'
 REBUILD_FLAG = VAR_DIR / 'rebuild.flag'
 CONTENT_EXPORT_PATH = Path(env('CONTENT_EXPORT_PATH', default=str(REPO_DIR / 'web' / 'src' / 'data' / 'content.json')))
-# Built Astro site; Django returns its 404.html for unknown URLs.
 STATIC_SITE_DIR = Path(env('STATIC_SITE_DIR', default=str(REPO_DIR / 'web' / 'dist')))
-# Local dev: export content right after admin changes (no cron on a laptop).
 AUTO_EXPORT = env.bool('AUTO_EXPORT', default=DEBUG) and 'test' not in sys.argv[1:2]
-# Production: rebuild the public site as soon as content is saved in the cockpit.
 PUBLISH_ON_SAVE = env.bool('PUBLISH_ON_SAVE', default=not DEBUG) and 'test' not in sys.argv[1:2]
-# Responsive WebP renditions generated with Pillow for every content image.
 IMAGE_WIDTHS = [480, 960, 1600, 2400]
 IMAGE_QUALITY = 78
 
-# --- Security (production) -----------------------------------------------------
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True

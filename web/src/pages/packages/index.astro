@@ -68,7 +68,6 @@ const schema = [{
 </style>
 
 <script>
-  // Client-side filtering over the pre-rendered cards (no extra requests).
   document.addEventListener('astro:page-load', () => {
     const root = document.querySelector<HTMLElement>('[data-filters]');
     const cards = [...document.querySelectorAll<HTMLElement>('[data-results] > [data-destination]')];

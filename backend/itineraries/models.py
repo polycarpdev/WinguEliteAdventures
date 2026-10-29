@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
-from django_ckeditor_5.fields import CKEditor5Field  # ← Correct
+from django_ckeditor_5.fields import CKEditor5Field
 from destinations.models import Destination
-
 
 class Itinerary(models.Model):
     DIFFICULTY_CHOICES = [('easy', 'Easy'), ('moderate', 'Moderate'), ('challenging', 'Challenging')]
@@ -20,7 +19,6 @@ class Itinerary(models.Model):
     badge = models.CharField(max_length=30, blank=True, default='',
                              help_text='Optional label on the card photo, e.g. “Most requested”, “Combined”, “Beach”.')
     
-    # FIXED: Use CKEditor5Field
     overview = CKEditor5Field('Overview', config_name='default')
     featured_image = models.ImageField(upload_to='itineraries/')
     includes = CKEditor5Field('Includes', config_name='default', blank=True)
@@ -49,7 +47,6 @@ class Itinerary(models.Model):
         d, n = self.duration_days, self.duration_nights
         return f"{d} day{'s' if d != 1 else ''} / {n} night{'s' if n != 1 else ''}"
 
-
 class ItineraryDay(models.Model):
     itinerary = models.ForeignKey(Itinerary, on_delete=models.CASCADE, related_name='days')
     day_number = models.PositiveIntegerField()
@@ -57,7 +54,6 @@ class ItineraryDay(models.Model):
     accommodation = models.CharField(max_length=150, blank=True, default='', help_text='e.g. Masai Mara Sopa Lodge (or similar)')
     meals = models.CharField(max_length=60, blank=True, default='', help_text='e.g. Full board, Breakfast & dinner')
 
-    # FIXED: Use CKEditor5Field
     description = CKEditor5Field('Description', config_name='default')
     
     class Meta:

@@ -18,13 +18,11 @@ class Booking(models.Model):
         ('luxury', 'Luxury'),
     ]
     
-    # Personal Information
     full_name = models.CharField(max_length=200)
     email = models.EmailField()
     phone = models.CharField(max_length=20)
     country = models.CharField(max_length=100)
     
-    # Trip Details
     destination = models.ForeignKey(Destination, on_delete=models.SET_NULL, null=True)
     trip_country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings',
                                      help_text='Requested country when no specific park was chosen (tailor-made trip).')
@@ -37,11 +35,9 @@ class Booking(models.Model):
     children = models.PositiveIntegerField(default=0)
     accommodation_preference = models.CharField(max_length=20, choices=ACCOMMODATION_CHOICES)
     
-    # Additional Info
     special_requests = models.TextField(blank=True)
     how_did_you_hear = models.CharField(max_length=200, blank=True)
     
-    # Admin fields
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     admin_notes = models.TextField(blank=True)
     replied_at = models.DateTimeField(null=True, blank=True)
@@ -57,7 +53,6 @@ class Booking(models.Model):
 
     @property
     def place(self):
-        """What the guest asked for: a park, or a country for a tailor-made trip."""
         if self.destination:
             return str(self.destination)
         if self.trip_country:

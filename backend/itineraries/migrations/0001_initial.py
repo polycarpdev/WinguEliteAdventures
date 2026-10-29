@@ -1,7 +1,6 @@
 from django.db import migrations, models
 import django_ckeditor_5.fields
 
-
 class Migration(migrations.Migration):
 
     initial = True
@@ -26,7 +25,7 @@ class Migration(migrations.Migration):
                 ('includes', django_ckeditor_5.fields.CKEditor5Field('Includes', blank=True, config_name='default')),
                 ('excludes', django_ckeditor_5.fields.CKEditor5Field('Excludes', blank=True, config_name='default')),
                 ('is_featured', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),  # ← FIXED
+                ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('destination', models.ForeignKey(on_delete=models.CASCADE, related_name='itineraries', to='destinations.destination')),
             ],

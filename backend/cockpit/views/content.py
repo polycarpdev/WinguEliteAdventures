@@ -12,22 +12,18 @@ from ..content import BY_KEY, TYPES
 from ..forms import DayFormSet, PhotoFormSet, PhotoUploadForm, form_for
 from . import staff_required
 
-
 def _ctype(key):
     try:
         return BY_KEY[key]
     except KeyError:
         raise Http404
 
-
 def _cell(obj, attr):
     value = attr(obj) if callable(attr) else getattr(obj, attr)
     return value() if callable(value) else value
 
-
 def _related(ct):
     return [f.name for f in ct.model._meta.get_fields() if f.many_to_one and f.name in ct.fields]
-
 
 @staff_required
 def content_list(request, key):
@@ -56,7 +52,6 @@ def content_list(request, key):
         'ct': ct, 'types': TYPES, 'page': page, 'rows': rows, 'q': q, 'active': active, 'filters': filters,
         'headers': [h for _, h in ct.columns],
     })
-
 
 @staff_required
 def content_edit(request, key, pk=None):
@@ -93,10 +88,8 @@ def content_edit(request, key, pk=None):
     return render(request, 'cockpit/content/form.html', {
         'ct': ct, 'types': TYPES, 'obj': obj, 'form': form, 'inline': inline, 'upload': upload,
         'url': ct.public_url(obj) if obj and ct.public_url else None,
-        # Media objects de-duplicate when added, so the editor script loads once.
         'media': form.media + inline.media if inline is not None else form.media,
     })
-
 
 @staff_required
 def content_delete(request, key, pk):

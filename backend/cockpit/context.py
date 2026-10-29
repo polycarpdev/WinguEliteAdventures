@@ -5,9 +5,7 @@ from contact.models import ContactMessage
 
 from .content import TYPES
 
-
 def cockpit(request):
-    """Sidebar badges and site publish status, only for cockpit pages."""
     if not request.path.startswith('/cockpit/') or not request.user.is_authenticated:
         return {}
     last_build = settings.VAR_DIR / 'last_build'

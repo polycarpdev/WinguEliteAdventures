@@ -1,13 +1,9 @@
 # BEGIN WINGU (managed by deploy/deploy.sh from deploy/htaccess; edit that file)
-# The static Astro site is served straight from this folder. Requests for files
-# that don't exist (/cockpit, /api, /ckeditor5, unknown URLs) fall through to
-# Django via cPanel's Passenger block below. Works on LiteSpeed and Apache.
 
 Options -Indexes
 DirectoryIndex index.html
 ErrorDocument 404 /404.html
 
-# Never serve source, data or secrets, even if one lands here by mistake.
 <FilesMatch "(\.(sqlite3|py|pyc|env|ini|log|sh|json|bak|sql|gz|zip)|^requirements\.txt)$">
   Order allow,deny
   Deny from all
@@ -20,22 +16,18 @@ ErrorDocument 404 /404.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # HTTPS and bare domain
   RewriteCond %{HTTPS} !=on [OR]
   RewriteCond %{HTTP_HOST} ^www\. [NC]
   RewriteCond %{REQUEST_URI} !^/\.well-known/
   RewriteRule ^ https://wingueliteadventures.co.ke%{REQUEST_URI} [L,R=301,NE]
 
-  # Old destination listing URLs (before regions) keep their search ranking
   RewriteRule ^destinations/kenya/?$ /destinations/east-africa/kenya/ [L,R=301]
   RewriteRule ^itineraries(/.*)?$ /packages$1 [L,R=301]
 
-  # Add the trailing slash the site uses: /about -> /about/
   RewriteCond %{REQUEST_URI} !^/(cockpit|api|ckeditor5|static|media)/
   RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}/index.html -f
   RewriteRule ^(.*[^/])$ /$1/ [L,R=301]
 
-  # Pretty URLs: /about/ -> /about/index.html, served as a static file
   RewriteCond %{REQUEST_URI} !^/(cockpit|api|ckeditor5)/
   RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}index.html -f
   RewriteRule ^(.*/)?$ /$1index.html [L]
@@ -47,8 +39,6 @@ ErrorDocument 404 /404.html
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-  # HTML revalidates every time so content edits show up immediately;
-  # /_astro and /fonts carry their own long-cache .htaccess files.
   <FilesMatch "\.html$">
     Header set Cache-Control "public, max-age=0, must-revalidate"
   </FilesMatch>

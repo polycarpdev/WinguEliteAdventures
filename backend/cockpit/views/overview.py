@@ -12,7 +12,6 @@ from contact.models import ContactMessage
 from .. import stats
 from . import staff_required
 
-
 @staff_required
 def dashboard(request):
     t = stats.traffic(30)
@@ -34,7 +33,6 @@ def dashboard(request):
                                    .select_related('destination').order_by('start_date')[:5],
     })
 
-
 @staff_required
 def analytics(request):
     key, days = stats.range_days(request)
@@ -54,12 +52,10 @@ def analytics(request):
         'languages': stats.top(qs, 'language', 6),
     })
 
-
 def _travellers(qs):
     t = qs.aggregate(a=Sum('adults'), c=Sum('children'))
     a, c = t['a'] or 0, t['c'] or 0
     return {'adults': a, 'children': c, 'total': a + c}
-
 
 @staff_required
 def reports(request):
@@ -83,7 +79,6 @@ def reports(request):
         'accommodation': stats.share(qs, 'accommodation_preference', Booking.ACCOMMODATION_CHOICES),
         'messages_count': ContactMessage.objects.filter(created_at__gte=stats.since(days)).count(),
     })
-
 
 @staff_required
 def bookings_csv(request):

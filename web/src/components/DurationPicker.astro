@@ -1,10 +1,8 @@
 ---
-// Days / nights selector. Nights are kept equal to days or one less (how trips
-// are sold). Emits a bubbling `duration-change` event with { days, nights }.
 interface Props {
   days?: number;
   nights?: number;
-  name?: boolean;        // render form inputs named "days" / "nights"
+  name?: boolean;
   compact?: boolean;
   dark?: boolean;
 }
@@ -88,7 +86,6 @@ const uid = `dur-${Math.random().toString(36).slice(2, 8)}`;
       root.dispatchEvent(new CustomEvent('duration-change', { bubbles: true, detail: { days, nights } }));
     };
 
-    // External setters, e.g. when a package is chosen in the booking form.
     (root as any).setDuration = (d: number, n?: number) => {
       days = Math.min(Math.max(1, d), MAX_DAYS);
       nights = n === undefined ? Math.max(days - 1, 0) : Math.min(Math.max(n, days - 1, 0), days);
@@ -100,7 +97,7 @@ const uid = `dur-${Math.random().toString(36).slice(2, 8)}`;
       if (!b || b.disabled) return;
       const delta = Number(b.dataset.delta);
       if (b.dataset.step === 'days') {
-        const gap = days - nights; // keep the same days/nights shape
+        const gap = days - nights;
         days = Math.min(Math.max(1, days + delta), MAX_DAYS);
         nights = Math.max(days - gap, 0);
       } else {

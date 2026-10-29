@@ -1,10 +1,7 @@
-/* Cockpit: app layout on top of the public site's design system (site/global.css). */
-
 body.ck { background: var(--sand); min-height: 100vh; }
 .ck [hidden] { display: none !important; }
 .i { width: 1.15rem; height: 1.15rem; flex: none; }
 
-/* --- Shell --------------------------------------------------------------- */
 .ck-shell { display: grid; min-height: 100vh; }
 @media (min-width: 1100px) { .ck-shell { grid-template-columns: 16rem 1fr; } }
 
@@ -61,7 +58,6 @@ body.ck { background: var(--sand); min-height: 100vh; }
 .ck-back { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; font-weight: 600; color: var(--muted); text-decoration: none; margin-bottom: 0.35rem; }
 .ck-back:hover { color: var(--olive); }
 
-/* compact buttons for app UI */
 .ck .btn { min-height: 2.6rem; padding: 0.55rem 1.1rem; font-size: 0.88rem; }
 .ck .btn .i { width: 1rem; height: 1rem; }
 .btn--danger { --bg: var(--danger); --fg: #fff; }
@@ -70,7 +66,6 @@ body.ck { background: var(--sand); min-height: 100vh; }
 .icon-btn { display: inline-grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 0.5rem; color: var(--muted); }
 .icon-btn:hover { background: var(--sand); color: var(--olive); }
 
-/* --- Panels -------------------------------------------------------------- */
 .panel { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: clamp(1.1rem, 2vw, 1.6rem); min-width: 0; }
 .panel--flush { padding: 0; overflow: hidden; }
 .panel__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
@@ -98,7 +93,6 @@ body.ck { background: var(--sand); min-height: 100vh; }
 .delta--down { color: var(--danger); }
 .delta--flat { color: var(--muted); }
 
-/* --- Charts -------------------------------------------------------------- */
 .chart { position: relative; margin: 0; padding: 1.25rem 0 1.6rem; }
 .chart__svg { width: 100%; height: var(--h); overflow: visible; display: block; }
 .chart__svg rect { transition: opacity 0.15s; }
@@ -128,7 +122,6 @@ body.ck { background: var(--sand); min-height: 100vh; }
 .legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
 .legend li::before { content: ''; width: 0.65rem; height: 0.65rem; border-radius: 3px; background: var(--c); }
 
-/* --- Tables & lists ------------------------------------------------------ */
 .ck-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
 .ck-search { position: relative; flex: 1 1 16rem; max-width: 24rem; }
 .ck-search .i { position: absolute; left: 0.85rem; top: 50%; translate: 0 -50%; color: var(--muted); }
@@ -169,7 +162,6 @@ tr.is-new .row-link { font-weight: 800; }
 .pager { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.4rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
 .pager div { display: flex; gap: 0.5rem; }
 
-/* --- Detail -------------------------------------------------------------- */
 .dl { display: grid; gap: 0.9rem 1.5rem; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
 .dl div { display: grid; gap: 0.1rem; }
 .dl dt { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
@@ -180,7 +172,6 @@ tr.is-new .row-link { font-weight: 800; }
 .timeline-mini li { display: flex; justify-content: space-between; gap: 1rem; }
 .timeline-mini span { color: var(--muted); }
 
-/* --- Forms --------------------------------------------------------------- */
 .ck-form { display: grid; gap: 1.25rem; }
 .ck-form__grid { display: grid; gap: 1.1rem; }
 @media (min-width: 900px) { .ck-form__grid { grid-template-columns: 1fr 1fr; } }
@@ -229,13 +220,11 @@ tr.is-new .row-link { font-weight: 800; }
 .dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .dropzone__files { font-weight: 600; color: var(--olive); }
 
-/* --- Flash messages ------------------------------------------------------ */
 .flash { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
 .flash li { display: flex; align-items: center; gap: 0.6rem; padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 600; background: #e1eed9; color: #2f6323; animation: flash-in 0.35s var(--ease); }
 .flash li.error { background: rgb(163 52 31 / 0.1); color: var(--danger); }
 @keyframes flash-in { from { opacity: 0; transform: translateY(-6px); } }
 
-/* --- Login --------------------------------------------------------------- */
 .login { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; background:
   radial-gradient(ellipse at 20% 0%, rgb(202 168 103 / 0.35), transparent 55%),
   radial-gradient(ellipse at 100% 100%, rgb(94 88 13 / 0.25), transparent 50%), var(--cream); }
@@ -244,7 +233,6 @@ tr.is-new .row-link { font-weight: 800; }
 .login__card h1 { font-size: 1.6rem; text-align: center; }
 .login__card p { text-align: center; color: var(--muted); font-size: 0.9rem; margin-top: -0.6rem; }
 
-/* page swap transition (instant navigation) */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(ck-content) { animation: 0.12s ease-out both vt-fade-out; }
   ::view-transition-new(ck-content) { animation: 0.25s var(--ease) both vt-fade-in; }

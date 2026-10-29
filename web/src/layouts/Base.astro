@@ -32,17 +32,14 @@ const { overlayHeader = false, preloadImages = [], ...seo } = Astro.props;
     <SEO {...seo} />
     <script is:inline>
       document.documentElement.classList.add('js');
-      // ClientRouter replaces <html> attributes on navigation; keep the flag.
       document.addEventListener('astro:after-swap', () => document.documentElement.classList.add('js'));
-    </script>
+</script>
     {import.meta.env.PROD ? (
       <ClientRouter fallback="swap" />
     ) : (
-      /* Dev: no client-side router (it keeps stale component styles while you edit),
-         so links do full reloads. Scripts listen for astro:page-load, so fire it. */
       <script is:inline>
         document.addEventListener('DOMContentLoaded', () => document.dispatchEvent(new Event('astro:page-load')));
-      </script>
+</script>
     )}
   </head>
   <body>
@@ -56,11 +53,9 @@ const { overlayHeader = false, preloadImages = [], ...seo } = Astro.props;
 
     <style is:global>
       .main--offset { padding-top: calc(var(--header-h) + var(--topbar-h)); }
-    </style>
+</style>
 
     <script>
-      // Cookie-less page-view beacon for the cockpit analytics. After a client-side
-      // navigation document.referrer is stale, so the previous URL is tracked instead.
       let previous = document.referrer;
       document.addEventListener('astro:page-load', () => {
         if (navigator.webdriver) return;
@@ -75,10 +70,9 @@ const { overlayHeader = false, preloadImages = [], ...seo } = Astro.props;
           navigator.sendBeacon('/api/hit/', new Blob([body], { type: 'text/plain' }));
         } catch {}
       });
-    </script>
+</script>
 
     <script>
-      // Reveal-on-scroll: cheap IntersectionObserver, re-armed after each client-side navigation.
       let io: IntersectionObserver | undefined;
       document.addEventListener('astro:page-load', () => {
         io?.disconnect();
@@ -92,6 +86,6 @@ const { overlayHeader = false, preloadImages = [], ...seo } = Astro.props;
         );
         items.forEach((el) => io!.observe(el));
       });
-    </script>
+</script>
   </body>
 </html>

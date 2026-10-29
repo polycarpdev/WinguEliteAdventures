@@ -1,46 +1,34 @@
-// @ts-check
 import { readFileSync } from 'node:fs';
 import { defineConfig, passthroughImageService } from 'astro/config';
 
-// Package slugs, for per-package redirects from the old /itineraries/<slug>/ URLs.
 let packageSlugs = [];
 try {
   packageSlugs = JSON.parse(readFileSync(new URL('./src/data/content.json', import.meta.url), 'utf8')).itineraries.map((i) => i.slug);
 } catch {}
 
-// Django dev server the Astro dev server proxies forms and media to.
 const API = process.env.API_ORIGIN ?? 'http://127.0.0.1:8000';
 
 export default defineConfig({
   site: 'https://wingueliteadventures.co.ke',
-  trailingSlash: 'always', // matches the old Django URLs exactly
+  trailingSlash: 'always',
   compressHTML: true,
-  // Old URLs from before regions existed. Production 301s these in .htaccess;
-  // this also covers `astro dev` and leaves a redirect page in the build.
   redirects: {
     '/destinations/kenya/': '/destinations/east-africa/kenya/',
     '/itineraries/': '/packages/',
     ...Object.fromEntries(packageSlugs.map((slug) => [`/itineraries/${slug}/`, `/packages/${slug}/`])),
   },
-  // Scope class travels with the `class` prop, so parents can style child components.
   scopedStyleStrategy: 'class',
   build: {
     format: 'directory',
-    concurrency: 1, // shared hosting: one page at a time
-    inlineStylesheets: 'always', // no render-blocking CSS request
+    concurrency: 1,
+    inlineStylesheets: 'always',
   },
-  // Pages are prefetched as links scroll into view; with <ClientRouter />
-  // navigation then swaps the DOM instantly, app-style.
   prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
-  // Images are pre-optimised by Django/Pillow (WebP + srcset); no sharp.
   image: { service: passthroughImageService() },
   devToolbar: { enabled: false },
   vite: {
     plugins: [
       {
-        // Dev only: add the trailing slash with a redirect (/cockpit -> /cockpit/,
-        // /about -> /about/), as Apache and Django do in production. Registered in a
-        // late hook so it runs before Astro's own check, which would 404 instead.
         name: 'trailing-slash-redirect',
         enforce: 'post',
         configureServer(server) {
@@ -61,7 +49,6 @@ export default defineConfig({
     ],
     server: {
       proxy: {
-        // Same paths Apache sends to Django in production.
         '/api': API,
         '/media': API,
         '/cockpit': API,

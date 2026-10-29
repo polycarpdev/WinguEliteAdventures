@@ -14,7 +14,6 @@ export function getStaticPaths() {
 }
 const { d } = Astro.props as { d: Destination };
 const trips = itinerariesFor(d.slug);
-// Same country first, then the rest of the region.
 const nearby = destinations
   .filter((x) => x.slug !== d.slug && x.region.slug === d.region.slug)
   .sort((a, b) => Number(b.country.slug === d.country.slug) - Number(a.country.slug === d.country.slug))

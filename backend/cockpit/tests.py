@@ -23,12 +23,10 @@ from .content import TYPES
 MEDIA = tempfile.mkdtemp()
 VAR = Path(tempfile.mkdtemp())
 
-
 def jpeg(name='p.jpg'):
     buf = io.BytesIO()
     Image.new('RGB', (40, 30), (120, 110, 40)).save(buf, 'JPEG')
     return SimpleUploadedFile(name, buf.getvalue(), content_type='image/jpeg')
-
 
 @override_settings(ALLOWED_HOSTS=['testserver'], MEDIA_ROOT=MEDIA,
                    PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'], VAR_DIR=VAR, REBUILD_FLAG=VAR / 'rebuild.flag',
@@ -109,7 +107,7 @@ class CockpitTests(TestCase):
         self.assertEqual(r.status_code, 302, r.content[:2000])
         self.trip.refresh_from_db()
         self.assertEqual((self.trip.price_from, self.trip.days.count()), (950, 1))
-        self.assertEqual(self.trip.duration_label, '3 days / 2 nights')  # nights default to days - 1
+        self.assertEqual(self.trip.duration_label, '3 days / 2 nights')
 
     def test_hero_slide_exported(self):
         from api.export import build_content
@@ -176,7 +174,6 @@ class CockpitTests(TestCase):
         self.assertEqual(r['Content-Type'], 'text/csv')
         self.assertIn('Jane Doe', r.content.decode())
 
-
 @override_settings(ALLOWED_HOSTS=['testserver'])
 class BeaconTests(TestCase):
     UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1'
@@ -200,7 +197,6 @@ class BeaconTests(TestCase):
         self.client.force_login(User.objects.create_user('s', is_staff=True))
         self.hit({'p': '/'})
         self.assertEqual(PageView.objects.count(), 0)
-
 
 @override_settings(ALLOWED_HOSTS=['testserver'], PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
 class SecurityTests(TestCase):

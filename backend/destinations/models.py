@@ -1,13 +1,10 @@
 from django.db import models
 from django.utils.text import slugify
-from django_ckeditor_5.fields import CKEditor5Field  # ← Correct: CKEditor 5
+from django_ckeditor_5.fields import CKEditor5Field
 
-
-RESERVED_SLUGS = {'detail'}  # /destinations/detail/<slug>/ is the destination page URL
-
+RESERVED_SLUGS = {'detail'}
 
 class Region(models.Model):
-    """Top-level grouping in the Destinations menu, e.g. East Africa, Africa, International."""
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True, blank=True)
     tagline = models.CharField(max_length=200, blank=True, help_text='One line shown in the menu and on cards.')
@@ -28,9 +25,7 @@ class Region(models.Model):
     def __str__(self):
         return self.name
 
-
 class Country(models.Model):
-    """A country or place inside a region (Kenya, Tanzania, Dubai, Bali...)."""
     region = models.ForeignKey(Region, on_delete=models.PROTECT, related_name='countries')
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True, blank=True)
@@ -50,13 +45,11 @@ class Country(models.Model):
     def __str__(self):
         return f'{self.name} ({self.region})'
 
-
 class Destination(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name='destinations')
     
-    # FIXED: Use CKEditor5Field
     description = CKEditor5Field('Description', config_name='default')
     
     short_description = models.TextField(max_length=300)
