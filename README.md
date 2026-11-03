@@ -8,6 +8,7 @@ web/       Astro: the public site, built to static HTML
 deploy/    deploy.sh, rebuild.sh (cron), Apache .htaccess template
 brand/     logo sources
 ```
+hosted on https://wingueliteadventures.co.ke/
 
 ## How it works
 
