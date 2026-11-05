@@ -45,7 +45,7 @@ export const site = {
       x: '',
       instagram: '',
     } as Record<string, string>,
-    showInFooter: true,
+    showInFooter: false,
   },
 
   verification: { google: '', bing: '' },
